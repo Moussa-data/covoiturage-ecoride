@@ -1,0 +1,212 @@
+[
+    {
+        "id": 1,
+        "conducteur": {
+            "nom": "Thomas R.",
+            "note": 4.8,
+            "avatar": "https:\/\/i.pravatar.cc\/120?img=12",
+            "trajets_effectues": 47,
+            "verifie": true
+        },
+        "depart": "Paris",
+        "depart_lieu": "Gare de Lyon",
+        "arrivee": "Lyon",
+        "arrivee_lieu": "Part-Dieu",
+        "heure_depart": "08:00",
+        "heure_arrivee": "12:15",
+        "duree": "4h15",
+        "date": "2026-05-15",
+        "prix": 12,
+        "places_dispo": 3,
+        "type_vehicule": "electrique",
+        "modele_vehicule": "Tesla Model 3",
+        "co2_economise_kg": 18.5,
+        "description": "Bonjour ! Je fais Paris-Lyon toutes les semaines pour le travail. Voiture confortable et silencieuse. Pause possible à mi-chemin si vous le souhaitez.",
+        "preferences": {
+            "fumeur": false,
+            "animaux": true,
+            "musique": true,
+            "discussion": "selon humeur"
+        }
+    },
+    {
+        "id": 2,
+        "conducteur": {
+            "nom": "Marie L.",
+            "note": 4.9,
+            "avatar": "https:\/\/i.pravatar.cc\/120?img=47",
+            "trajets_effectues": 89,
+            "verifie": true
+        },
+        "depart": "Paris",
+        "depart_lieu": "Bercy",
+        "arrivee": "Lyon",
+        "arrivee_lieu": "Perrache",
+        "heure_depart": "09:30",
+        "heure_arrivee": "13:45",
+        "duree": "4h15",
+        "date": "2026-05-15",
+        "prix": 14,
+        "places_dispo": 2,
+        "type_vehicule": "hybride",
+        "modele_vehicule": "Toyota Prius",
+        "co2_economise_kg": 14.2,
+        "description": "Conductrice expérimentée, ponctuelle et calme. Je propose un trajet direct sans détour, climatisation incluse. Je peux récupérer à Bercy ou autour.",
+        "preferences": {
+            "fumeur": false,
+            "animaux": false,
+            "musique": true,
+            "discussion": "j'aime parler"
+        }
+    },
+    {
+        "id": 3,
+        "conducteur": {
+            "nom": "Julien B.",
+            "note": 4.7,
+            "avatar": "https:\/\/i.pravatar.cc\/120?img=33",
+            "trajets_effectues": 23,
+            "verifie": true
+        },
+        "depart": "Paris",
+        "depart_lieu": "Porte d'Italie",
+        "arrivee": "Lyon",
+        "arrivee_lieu": "Gare de Lyon",
+        "heure_depart": "10:45",
+        "heure_arrivee": "15:00",
+        "duree": "4h15",
+        "date": "2026-05-15",
+        "prix": 13,
+        "places_dispo": 4,
+        "type_vehicule": "electrique",
+        "modele_vehicule": "Renault Zoé",
+        "co2_economise_kg": 18,
+        "description": "Trajet tranquille avec un arrêt recharge à mi-chemin (15 min). Bagage moyen accepté. J'aime bien rouler à allure modérée pour économiser l'énergie.",
+        "preferences": {
+            "fumeur": false,
+            "animaux": true,
+            "musique": false,
+            "discussion": "tranquille"
+        }
+    },
+    {
+        "id": 4,
+        "conducteur": {
+            "nom": "Sophie M.",
+            "note": 4.6,
+            "avatar": "https:\/\/i.pravatar.cc\/120?img=49",
+            "trajets_effectues": 12,
+            "verifie": false
+        },
+        "depart": "Paris",
+        "depart_lieu": "Austerlitz",
+        "arrivee": "Lyon",
+        "arrivee_lieu": "Part-Dieu",
+        "heure_depart": "14:00",
+        "heure_arrivee": "18:20",
+        "duree": "4h20",
+        "date": "2026-05-15",
+        "prix": 11,
+        "places_dispo": 1,
+        "type_vehicule": "essence",
+        "modele_vehicule": "Peugeot 308",
+        "co2_economise_kg": 9.8,
+        "description": "Première fois que je propose un trajet sur EcoRide. Voiture récente et propre. Je préfère partir à l'heure pour éviter le trafic.",
+        "preferences": {
+            "fumeur": false,
+            "animaux": false,
+            "musique": true,
+            "discussion": "selon humeur"
+        }
+    },
+    {
+        "id": 5,
+        "conducteur": {
+            "nom": "Karim D.",
+            "note": 4.9,
+            "avatar": "https:\/\/i.pravatar.cc\/120?img=15",
+            "trajets_effectues": 156,
+            "verifie": true
+        },
+        "depart": "Paris",
+        "depart_lieu": "Gare de Lyon",
+        "arrivee": "Lyon",
+        "arrivee_lieu": "Perrache",
+        "heure_depart": "16:30",
+        "heure_arrivee": "20:50",
+        "duree": "4h20",
+        "date": "2026-05-15",
+        "prix": 15,
+        "places_dispo": 3,
+        "type_vehicule": "hybride",
+        "modele_vehicule": "Hyundai Ioniq",
+        "co2_economise_kg": 14,
+        "description": "Plus de 150 trajets sur la plateforme ! Voiture spacieuse, climatisation, USB pour recharger les téléphones. Café offert à la pause.",
+        "preferences": {
+            "fumeur": false,
+            "animaux": true,
+            "musique": true,
+            "discussion": "j'aime parler"
+        }
+    },
+    {
+        "id": 6,
+        "conducteur": {
+            "nom": "Léa P.",
+            "note": 5,
+            "avatar": "https:\/\/i.pravatar.cc\/120?img=44",
+            "trajets_effectues": 31,
+            "verifie": true
+        },
+        "depart": "Paris",
+        "depart_lieu": "Bercy",
+        "arrivee": "Lyon",
+        "arrivee_lieu": "Part-Dieu",
+        "heure_depart": "18:15",
+        "heure_arrivee": "22:30",
+        "duree": "4h15",
+        "date": "2026-05-15",
+        "prix": 16,
+        "places_dispo": 2,
+        "type_vehicule": "electrique",
+        "modele_vehicule": "Tesla Model Y",
+        "co2_economise_kg": 18.7,
+        "description": "Trajet en soirée, ambiance chill. Tesla Model Y, super confortable. J'écoute souvent des podcasts ou de la musique douce.",
+        "preferences": {
+            "fumeur": false,
+            "animaux": false,
+            "musique": true,
+            "discussion": "tranquille"
+        }
+    },
+    {
+        "conducteur": {
+            "nom": "moussa",
+            "note": 5,
+            "avatar": "https:\/\/i.pravatar.cc\/120?img=22",
+            "trajets_effectues": 0,
+            "verifie": false
+        },
+        "depart": "Paris",
+        "depart_lieu": "Gare de Lyon",
+        "arrivee": "Lyon",
+        "arrivee_lieu": "Part-dieu",
+        "heure_depart": "12:30",
+        "heure_arrivee": "19:30",
+        "duree": "7h00",
+        "date": "2026-05-09",
+        "prix": 13,
+        "places_dispo": 2,
+        "type_vehicule": "electrique",
+        "modele_vehicule": "Tesla",
+        "description": "Voiture électrique confort et des pauses prévus schémin",
+        "preferences": {
+            "fumeur": false,
+            "animaux": false,
+            "musique": true,
+            "discussion": "selon humeur"
+        },
+        "id": 7,
+        "co2_economise_kg": 18.5
+    }
+]

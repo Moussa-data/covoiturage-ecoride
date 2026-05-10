@@ -1,0 +1,48 @@
+# ============================================================
+# .gitignore — fichiers que Git doit IGNORER
+# ============================================================
+# Quand tu fais `git add .`, Git ignore tout ce qui matche ces patterns.
+# Ne JAMAIS pousser : BDD avec données réelles, fichiers macOS, IDE, secrets.
+# ============================================================
+
+# ---- Base de données & logs ----
+data/*.sqlite
+data/*.sqlite-journal
+data/php-errors.log
+
+# ---- macOS ----
+.DS_Store
+._*
+
+# ---- IDE / éditeurs ----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cursor/
+.codex/
+
+# ---- Logs PHP ----
+*.log
+error_log
+php_errorlog
+
+# ---- Environnement / secrets (au cas où on en ajouterait plus tard) ----
+.env
+.env.local
+.env.*.local
+
+# ---- Composer (au cas où on l'utiliserait plus tard) ----
+/vendor/
+composer.lock
+
+# ---- Build / temp ----
+*.bak
+*.tmp
+
+# ---- Captures et docs locales (à part la maquette de référence) ----
+# (la maquette ChatGPT Image*.png reste tracked si tu veux la garder)
+
+# ---- Fichiers de session ----
+sess_*

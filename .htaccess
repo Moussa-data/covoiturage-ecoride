@@ -1,0 +1,49 @@
+# ============================================================
+# .htaccess — Apache config pour la production
+# ============================================================
+# Note : la redirection HTTPS doit être gérée par AlwaysData (panel admin),
+# PAS dans le .htaccess. Sinon boucle de redirection à cause du proxy.
+# ============================================================
+
+# ---- Index par défaut ----
+DirectoryIndex index.php index.html
+
+
+# ---- Page d'erreur personnalisée ----
+ErrorDocument 404 /404.php
+
+
+# ---- Sécurité : bloquer l'accès aux fichiers sensibles ----
+
+# Empêche de lister le contenu d'un dossier (genre /assets/)
+Options -Indexes
+
+# Bloque l'accès aux fichiers cachés (.env, .git, etc.)
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
+
+# Bloque l'accès direct aux fichiers JSON et SQLite
+<FilesMatch "\.(json|sqlite|sqlite3|db)$">
+  Require all denied
+</FilesMatch>
+
+# Cache les infos PHP/Apache
+ServerSignature Off
+
+
+# ---- Compression Gzip (perf) ----
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+
+# ---- Cache navigateur pour les assets statiques ----
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/svg+xml "access plus 1 month"
+</IfModule>

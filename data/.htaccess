@@ -1,0 +1,9 @@
+# ============================================================
+# data/.htaccess — bloque l'accès direct au dossier data/
+# ============================================================
+# Ces fichiers sont utilisés par PHP en interne.
+# Personne ne doit pouvoir les télécharger directement
+# (sinon : fuite de la BDD complète).
+# ============================================================
+
+Require all denied

@@ -1,0 +1,8 @@
+# ============================================================
+# lib/.htaccess — bloque l'accès direct aux fichiers .php du lib
+# ============================================================
+# Les fichiers de lib/ sont uniquement inclus par d'autres pages.
+# Personne ne doit pouvoir les charger directement.
+# ============================================================
+
+Require all denied

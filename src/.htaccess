@@ -1,0 +1,8 @@
+# ============================================================
+# src/.htaccess — bloque l'accès direct aux fichiers PHP du namespace
+# ============================================================
+# Ces classes sont uniquement chargées par l'autoloader PSR-4 dans lib/init.php.
+# Personne ne doit pouvoir les charger directement via une URL.
+# ============================================================
+
+Require all denied
