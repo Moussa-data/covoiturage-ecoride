@@ -207,7 +207,7 @@ include __DIR__ . '/partials/header.php';
                data-type="<?= htmlspecialchars($t['type_vehicule']) ?>">
 
               <div class="trip-driver">
-                <img src="<?= htmlspecialchars($t['conducteur']['avatar'] ?? '') ?>" alt="<?= htmlspecialchars($t['conducteur']['nom']) ?>" />
+                <span class="avatar-initiale" aria-hidden="true"><?= htmlspecialchars(mb_strtoupper(mb_substr($t['conducteur']['nom'], 0, 1))) ?></span>
                 <div>
                   <div class="name"><?= htmlspecialchars($t['conducteur']['nom']) ?></div>
                   <div class="rating">★ <?= number_format($t['conducteur']['note'], 1) ?></div>

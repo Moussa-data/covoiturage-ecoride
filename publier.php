@@ -163,7 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       'conducteur' => [
         'nom'                => $valeurs['nom_conducteur'],
         'note'               => 5.0,                // nouveau conducteur, pas encore de note
-        'avatar'             => 'https://i.pravatar.cc/120?img=' . rand(1, 70),
+        'avatar'             => null,               // pas de photo : on affiche l'initiale du prénom
         'trajets_effectues'  => 0,
         'verifie'            => false,
       ],
