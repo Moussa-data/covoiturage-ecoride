@@ -29,7 +29,7 @@
 ```
 EcoRide/
 ├── index.php, trajet.php, publier.php...    # Pages publiques + protégées
-├── admin.php, debug.php                     # Pages admin
+├── admin.php                                # Page admin
 ├── lib/
 │   ├── init.php          # Bootstrap (sessions, env detection)
 │   ├── db.php            # PDO + migrations idempotentes

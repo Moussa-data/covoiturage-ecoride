@@ -282,9 +282,6 @@ include __DIR__ . '/partials/header.php';
     </div>
   </section>
 
-  <p style="text-align:center; margin-top:32px;">
-    <a href="/debug.php" class="btn btn-ghost">🩺 Page de debug brute</a>
-  </p>
 </main>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

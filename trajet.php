@@ -162,7 +162,7 @@ include __DIR__ . '/partials/header.php';
         $stats = $cuid > 0 ? getNoteMoyenneConducteur($cuid) : ['moyenne' => null, 'nombre' => 0];
         ?>
         <div class="driver-row">
-          <img src="<?= htmlspecialchars($conducteur['avatar']) ?>" alt="<?= htmlspecialchars($conducteur['nom']) ?>" class="driver-avatar" />
+          <span class="avatar-initiale driver-avatar" aria-hidden="true"><?= htmlspecialchars(mb_strtoupper(mb_substr($conducteur['nom'], 0, 1))) ?></span>
           <div class="driver-info">
             <div class="driver-name">
               <?= htmlspecialchars($conducteur['nom']) ?>

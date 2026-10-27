@@ -4,7 +4,7 @@
         "conducteur": {
             "nom": "Thomas R.",
             "note": 4.8,
-            "avatar": "https:\/\/i.pravatar.cc\/120?img=12",
+            "avatar": null,
             "trajets_effectues": 47,
             "verifie": true
         },
@@ -34,7 +34,7 @@
         "conducteur": {
             "nom": "Marie L.",
             "note": 4.9,
-            "avatar": "https:\/\/i.pravatar.cc\/120?img=47",
+            "avatar": null,
             "trajets_effectues": 89,
             "verifie": true
         },
@@ -64,7 +64,7 @@
         "conducteur": {
             "nom": "Julien B.",
             "note": 4.7,
-            "avatar": "https:\/\/i.pravatar.cc\/120?img=33",
+            "avatar": null,
             "trajets_effectues": 23,
             "verifie": true
         },
@@ -94,7 +94,7 @@
         "conducteur": {
             "nom": "Sophie M.",
             "note": 4.6,
-            "avatar": "https:\/\/i.pravatar.cc\/120?img=49",
+            "avatar": null,
             "trajets_effectues": 12,
             "verifie": false
         },
@@ -124,7 +124,7 @@
         "conducteur": {
             "nom": "Karim D.",
             "note": 4.9,
-            "avatar": "https:\/\/i.pravatar.cc\/120?img=15",
+            "avatar": null,
             "trajets_effectues": 156,
             "verifie": true
         },
@@ -154,7 +154,7 @@
         "conducteur": {
             "nom": "Léa P.",
             "note": 5,
-            "avatar": "https:\/\/i.pravatar.cc\/120?img=44",
+            "avatar": null,
             "trajets_effectues": 31,
             "verifie": true
         },
@@ -183,7 +183,7 @@
         "conducteur": {
             "nom": "moussa",
             "note": 5,
-            "avatar": "https:\/\/i.pravatar.cc\/120?img=22",
+            "avatar": null,
             "trajets_effectues": 0,
             "verifie": false
         },

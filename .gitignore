@@ -46,3 +46,6 @@ composer.lock
 
 # ---- Fichiers de session ----
 sess_*
+
+# ---- Données de comptes : ne JAMAIS les pousser sur GitHub ----
+data/users.json

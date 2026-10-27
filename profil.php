@@ -74,7 +74,7 @@ include __DIR__ . '/partials/header.php';
         <span class="role-icon">👑</span>
         <div>
           <strong>Administrateur</strong>
-          <span class="role-desc">Tu as accès à tout, dont la <a href="/debug.php">page de debug</a>.</span>
+          <span class="role-desc">Tu as accès à tout, dont la <a href="/admin.php">page d'administration</a>.</span>
         </div>
       </div>
     <?php endif; ?>

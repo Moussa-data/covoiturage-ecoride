@@ -2344,3 +2344,24 @@ img, svg { display: block; max-width: 100%; }
   .chat-msg { max-width: 85%; }
   .chat-window { height: 400px; }
 }
+
+/* Avatar sans photo : l'initiale du prénom dans une pastille.
+   On n'affiche plus de photos de personnes réelles (pravatar) :
+   droit à l'image + aucune requête vers un site tiers. */
+.avatar-initiale {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--green-600);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+.avatar-initiale.driver-avatar {
+  width: 64px;
+  height: 64px;
+  font-size: 1.5rem;
+}
