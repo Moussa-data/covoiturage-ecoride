@@ -152,26 +152,8 @@ function demanderReinitialisation(string $email): ?string
          . "votre mot de passe actuel reste valable.\n\n"
          . "L'équipe EcoRide";
 
-  $entetes = [
-    'From'         => 'EcoRide <' . MAIL_EXPEDITEUR . '>',
-    'Reply-To'     => 'm.wanecamara@gmail.com',
-    'MIME-Version' => '1.0',
-    'Content-Type' => 'text/plain; charset=UTF-8',
-  ];
-
   if (IS_PROD) {
-    // "-f" : adresse d'expéditeur technique (enveloppe), la même que From.
-    // Sans elle, beaucoup de messageries (Gmail…) rejettent l'e-mail.
-    $envoye = mail(
-      $user['email'],
-      '=?UTF-8?B?' . base64_encode($sujet) . '?=',
-      $corps,
-      $entetes,
-      '-f' . MAIL_EXPEDITEUR
-    );
-    if (!$envoye) {
-      error_log('[EcoRide] Échec envoi e-mail de réinitialisation (user ' . $user['id'] . ')');
-    }
+    envoyerEmail($user['email'], $sujet, $corps);
   }
 
   return $lien;

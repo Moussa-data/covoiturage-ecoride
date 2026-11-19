@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /admin.php
 Disallow: /debug.php
+Disallow: /diagnostic-email.php
 Disallow: /profil.php
 Disallow: /messagerie.php
 Disallow: /conversation.php

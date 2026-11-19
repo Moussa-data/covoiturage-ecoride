@@ -89,6 +89,7 @@ include __DIR__ . '/partials/header.php';
 
   <h1>👑 Tableau de bord</h1>
   <p class="page-subtitle">Vue globale de la plateforme. Manipule avec attention 🤓.</p>
+  <p><a href="/diagnostic-email.php" class="btn btn-ghost">✉️ Tester l'envoi d'e-mails</a></p>
 
   <?php if ($message !== null): ?>
     <div class="form-banner form-banner-<?= $messageType ?>">

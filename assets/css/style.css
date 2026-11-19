@@ -3008,3 +3008,15 @@ a { text-underline-offset: 3px; }
 @media (max-width: 700px) {
   .etapes-grid { grid-template-columns: 1fr; }
 }
+
+.journal-smtp {
+  margin-top: 12px;
+  padding: 14px;
+  background: var(--nuit);
+  color: #CFE9DF;
+  border-radius: var(--radius-md);
+  font-size: 0.78rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
