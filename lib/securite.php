@@ -17,6 +17,10 @@
  *    → Le jeton expire après 1 heure et ne sert qu'une fois.
  */
 
+// Adresse d'envoi des e-mails du site. Elle DOIT exister : à créer dans
+// l'admin AlwaysData (E-mails > Adresses), sinon les e-mails sont bloqués.
+const MAIL_EXPEDITEUR = 'ecoride@moussa.alwaysdata.net';
+
 const MAX_ECHECS_CONNEXION   = 5;
 const BLOCAGE_MINUTES        = 15;
 const RESET_VALIDITE_MINUTES = 60;
@@ -148,15 +152,26 @@ function demanderReinitialisation(string $email): ?string
          . "votre mot de passe actuel reste valable.\n\n"
          . "L'équipe EcoRide";
 
-  $domaine = preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? 'localhost');
   $entetes = [
-    'From'         => 'EcoRide <noreply@' . $domaine . '>',
+    'From'         => 'EcoRide <' . MAIL_EXPEDITEUR . '>',
     'Reply-To'     => 'm.wanecamara@gmail.com',
+    'MIME-Version' => '1.0',
     'Content-Type' => 'text/plain; charset=UTF-8',
   ];
 
   if (IS_PROD) {
-    @mail($user['email'], '=?UTF-8?B?' . base64_encode($sujet) . '?=', $corps, $entetes);
+    // "-f" : adresse d'expéditeur technique (enveloppe), la même que From.
+    // Sans elle, beaucoup de messageries (Gmail…) rejettent l'e-mail.
+    $envoye = mail(
+      $user['email'],
+      '=?UTF-8?B?' . base64_encode($sujet) . '?=',
+      $corps,
+      $entetes,
+      '-f' . MAIL_EXPEDITEUR
+    );
+    if (!$envoye) {
+      error_log('[EcoRide] Échec envoi e-mail de réinitialisation (user ' . $user['id'] . ')');
+    }
   }
 
   return $lien;
