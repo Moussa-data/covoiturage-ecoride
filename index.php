@@ -26,7 +26,15 @@ $filtres = [
 // Si l'utilisateur a soumis le formulaire au moins une fois, on filtre.
 // Sinon, on affiche tous les trajets disponibles.
 $rechercheFaite = ($filtres['depart'] !== '' || $filtres['arrivee'] !== '' || $filtres['date'] !== '');
-$trajets = $rechercheFaite ? searchTrajets($filtres) : loadTrajets();
+// Uniquement les vrais trajets à venir (les trajets de démo sont écartés).
+$trajets = searchTrajets($filtres, true);
+
+// Tant que personne n'a publié, on montre quelques exemples (non réservables).
+$modeExemples = (!$rechercheFaite && empty($trajets));
+if ($modeExemples) {
+  require_once __DIR__ . '/lib/exemples.php';
+  $trajets = trajetsExemples();
+}
 
 $pageTitle  = 'EcoRide — Covoiturage écologique';
 $activePage = 'accueil';
@@ -165,11 +173,22 @@ include __DIR__ . '/partials/header.php';
         Résultats pour
         <?php if ($filtres['depart']): ?>« <?= htmlspecialchars($filtres['depart']) ?> » → <?php endif; ?>
         <?php if ($filtres['arrivee']): ?>« <?= htmlspecialchars($filtres['arrivee']) ?> »<?php endif; ?>
+      <?php elseif ($modeExemples): ?>
+        Exemples de trajets
       <?php else: ?>
         Tous les trajets disponibles
       <?php endif; ?>
-      <small><?= count($trajets) ?> trajet<?= count($trajets) > 1 ? 's' : '' ?></small>
+      <?php if (!$modeExemples): ?>
+        <small><?= count($trajets) ?> trajet<?= count($trajets) > 1 ? 's' : '' ?></small>
+      <?php endif; ?>
     </h2>
+
+    <?php if ($modeExemples): ?>
+      <p class="exemples-info">
+        Aucun trajet n'a encore été publié. Voici à quoi ressembleront les annonces.
+        <a href="/devenir-conducteur.php">Publiez le premier trajet →</a>
+      </p>
+    <?php endif; ?>
 
     <div class="results-layout">
 
@@ -202,7 +221,12 @@ include __DIR__ . '/partials/header.php';
           </div>
         <?php else: ?>
           <?php foreach ($trajets as $t): ?>
-            <a href="trajet.php?id=<?= $t['id'] ?>" class="trip-card"
+            <?php
+              // Carte d'exemple = simple bloc (pas de lien) ; vrai trajet = lien vers le détail
+              $balise = $modeExemples ? 'div' : 'a';
+              $lien   = $modeExemples ? '' : ' href="trajet.php?id=' . (int) $t['id'] . '"';
+            ?>
+            <<?= $balise ?><?= $lien ?> class="trip-card<?= $modeExemples ? ' trip-card-exemple' : '' ?>"
                data-prix="<?= $t['prix'] ?>"
                data-type="<?= htmlspecialchars($t['type_vehicule']) ?>">
 
@@ -246,9 +270,13 @@ include __DIR__ . '/partials/header.php';
 
               <div class="trip-action">
                 <span class="price"><?= $t['prix'] ?> €</span>
-                <span class="btn btn-primary btn-card-cta">Voir le trajet</span>
+                <?php if ($modeExemples): ?>
+                  <span class="badge-exemple">Exemple</span>
+                <?php else: ?>
+                  <span class="btn btn-primary btn-card-cta">Voir le trajet</span>
+                <?php endif; ?>
               </div>
-            </a>
+            </<?= $balise ?>>
           <?php endforeach; ?>
         <?php endif; ?>
       </div>

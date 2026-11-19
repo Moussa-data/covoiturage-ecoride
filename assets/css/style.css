@@ -2376,3 +2376,33 @@ img, svg { display: block; max-width: 100%; }
   .chat-msg { max-width: 85%; }
   .chat-window { height: 400px; }
 }
+
+
+/* ========== Trajets d'exemple (quand aucun vrai trajet n'est publié) ========== */
+.exemples-info {
+  margin: -8px 0 20px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: var(--green-50);
+  color: var(--gray-700);
+  font-size: 0.9rem;
+}
+.exemples-info a {
+  color: var(--green-700);
+  font-weight: 600;
+  margin-left: 4px;
+}
+.trip-card-exemple {
+  cursor: default;
+}
+.trip-card-exemple:hover {
+  transform: none;
+}
+.badge-exemple {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px dashed var(--gray-300);
+  color: var(--gray-500);
+  font-size: 0.75rem;
+  font-weight: 600;
+}

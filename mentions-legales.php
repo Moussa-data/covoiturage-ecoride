@@ -22,13 +22,13 @@ include __DIR__ . '/partials/header.php';
   <section class="legal-section">
     <h2>Éditeur du site</h2>
     <p>
-      Ce site est édité par <strong>Moussa</strong> dans un cadre exclusivement
+      Ce site est édité par <strong>Moussa Wane Camara</strong> dans un cadre exclusivement
       personnel et pédagogique (projet d'apprentissage de développement web).
       <br />
       Aucune activité commerciale n'est exercée via ce site.
     </p>
     <p>
-      Contact : <a href="mailto:contact@ecoride.local">contact@ecoride.local</a> (adresse fictive — projet de démonstration)
+      Contact : <a href="mailto:m.wanecamara@gmail.com">m.wanecamara@gmail.com</a>
     </p>
   </section>
 

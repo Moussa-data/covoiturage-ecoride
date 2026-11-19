@@ -244,10 +244,20 @@ function getPassengersForTrajet(int $trajetId): array
  * Exemple :
  *   $trajets = searchTrajets(['depart' => 'Paris', 'arrivee' => 'Lyon']);
  */
-function searchTrajets(array $filtres = []): array
+function searchTrajets(array $filtres = [], bool $publicsSeulement = false): array
 {
   $sql = "SELECT * FROM trajets WHERE 1=1"; // 1=1 = astuce pour pouvoir ajouter des AND facilement
   $params = [];
+
+  if ($publicsSeulement) {
+    // Page d'accueil : uniquement les VRAIS trajets à venir.
+    //  - on écarte les trajets de démo importés du JSON (leurs conducteurs
+    //    fictifs ont un email en @demo.ecoride.local, cf. migrateLinkOrphanTrajets)
+    //  - on écarte les trajets dont la date est déjà passée
+    $sql .= " AND user_id IS NOT NULL
+              AND user_id NOT IN (SELECT id FROM users WHERE email LIKE '%@demo.ecoride.local')
+              AND date >= DATE('now')";
+  }
 
   if (!empty($filtres['depart'])) {
     $sql .= " AND LOWER(depart) LIKE :depart";
