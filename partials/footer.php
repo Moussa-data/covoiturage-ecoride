@@ -15,6 +15,7 @@
         <h4>Découvrir</h4>
         <ul>
           <li><a href="/">Accueil</a></li>
+          <li><a href="/comment-ca-marche.php">Comment ça marche</a></li>
           <li><a href="/a-propos.php">À propos</a></li>
           <li><a href="/inscription.php">S'inscrire</a></li>
           <li><a href="/connexion.php">Se connecter</a></li>
@@ -25,7 +26,9 @@
         <h4>Légal</h4>
         <ul>
           <li><a href="/mentions-legales.php">Mentions légales</a></li>
-          <li><a href="https://moussa-wanecamara.netlify.app/#contact" target="_blank" rel="noopener">Contact</a></li>
+          <li><a href="/cgu.php">Conditions d'utilisation</a></li>
+          <li><a href="/confidentialite.php">Confidentialité</a></li>
+          <li><a href="/contact.php">Contact</a></li>
         </ul>
       </div>
 

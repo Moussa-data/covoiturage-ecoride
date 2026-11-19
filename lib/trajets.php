@@ -448,3 +448,23 @@ function formatPrix(float $prix): string
   }
   return number_format($prix, 2, ',', ' ');
 }
+
+
+/**
+ * Date courte en français pour les cartes : "2026-11-24" → "lun. 24 nov.".
+ * Affiche "Aujourd'hui" / "Demain" quand c'est le cas.
+ */
+function dateCourte(string $date): string
+{
+  $ts = strtotime($date);
+  if ($ts === false) {
+    return $date;
+  }
+  if ($date === date('Y-m-d')) return "Aujourd'hui";
+  if ($date === date('Y-m-d', strtotime('+1 day'))) return 'Demain';
+
+  $jours = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
+  $mois  = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+
+  return $jours[(int) date('w', $ts)] . ' ' . (int) date('j', $ts) . ' ' . $mois[(int) date('n', $ts) - 1];
+}

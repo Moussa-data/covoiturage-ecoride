@@ -411,6 +411,11 @@ include __DIR__ . '/partials/header.php';
       <button type="submit" class="btn btn-primary btn-publish">Publier mon trajet</button>
     </div>
 
+    <p class="rgpd-note">
+      Votre trajet (villes, lieux, horaires, prix, véhicule) et votre nom seront visibles par tous les visiteurs.
+      Vous pouvez le modifier ou le supprimer à tout moment depuis « Mes trajets ».
+      <a href="/confidentialite.php">Politique de confidentialité</a>.
+    </p>
   </form>
 </main>
 

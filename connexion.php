@@ -18,7 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   if ($valeurs['email'] === '' || $motDePasse === '') {
     $erreurGenerale = 'Email et mot de passe requis.';
+  } elseif (connexionBloquee($valeurs['email'])) {
+    // Trop d'échecs récents : on ne vérifie même pas le mot de passe
+    $erreurGenerale = 'Trop de tentatives de connexion. Réessayez dans ' . BLOCAGE_MINUTES . ' minutes, ou réinitialisez votre mot de passe.';
   } elseif (loginUser($valeurs['email'], $motDePasse)) {
+    effacerEchecsConnexion($valeurs['email']);
     // Login réussi : on redirige vers la page initialement demandée si on en a une
     $redirect = $_SESSION['redirect_after_login'] ?? '/';
     unset($_SESSION['redirect_after_login']);
@@ -26,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
   } else {
     // Message générique pour ne pas révéler si l'email existe ou pas (sécurité)
+    enregistrerEchecConnexion($valeurs['email']);
     $erreurGenerale = 'Email ou mot de passe incorrect.';
   }
 }
@@ -56,6 +61,7 @@ include __DIR__ . '/partials/header.php';
       <div class="form-field">
         <label for="mot_de_passe">Mot de passe</label>
         <input type="password" id="mot_de_passe" name="mot_de_passe" />
+        <a href="/mot-de-passe-oublie.php" class="lien-mdp-oublie">Mot de passe oublié ?</a>
       </div>
 
       <button type="submit" class="btn btn-primary btn-auth">Se connecter</button>

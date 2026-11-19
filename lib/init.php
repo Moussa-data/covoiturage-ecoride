@@ -25,6 +25,16 @@ define('IS_PROD', $isProd);
 
 
 // =============================================================
+// Mode démonstration
+// =============================================================
+// true  → bandeau « Version de démonstration » sur toutes les pages
+//         et réservations désactivées (aucun vrai trajet organisé).
+// false → à passer UNIQUEMENT le jour du vrai lancement, quand
+//         l'entreprise, les CGU/CGV et le paiement seront en place.
+define('DEMO_MODE', true);
+
+
+// =============================================================
 // Configuration des erreurs PHP
 // =============================================================
 if (IS_PROD) {
@@ -90,3 +100,4 @@ require_once __DIR__ . '/avis.php';
 require_once __DIR__ . '/messages.php';
 require_once __DIR__ . '/admin.php';
 require_once __DIR__ . '/csrf.php';
+require_once __DIR__ . '/securite.php';

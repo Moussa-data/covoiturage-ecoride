@@ -30,6 +30,14 @@ if (!csrfVerify($_POST['csrf_token'] ?? null)) {
 $user     = currentUser();
 $trajetId = (int) ($_POST['trajet_id'] ?? 0);
 
+// Mode démonstration : on refuse côté serveur, même si quelqu'un
+// contourne le bouton désactivé (ex : formulaire envoyé à la main).
+if (DEMO_MODE) {
+  $_SESSION['flash_error'] = 'Les réservations sont désactivées pendant la démonstration.';
+  header('Location: /trajet.php?id=' . $trajetId . '&reservation=ko');
+  exit;
+}
+
 $resultat = addReservation($user['id'], $trajetId);
 
 // Redirection vers la page de détail avec un flag de statut.

@@ -320,6 +320,11 @@ include __DIR__ . '/partials/header.php';
           <button type="button" class="btn btn-reserve" disabled>
             Trajet complet
           </button>
+        <?php elseif (DEMO_MODE): ?>
+          <button type="button" class="btn btn-reserve" disabled>
+            Réservation désactivée (démo)
+          </button>
+          <p class="recap-note">Ce site est une démonstration : aucun trajet réel n'est organisé.</p>
         <?php else: ?>
           <form method="POST" action="/reserver.php" onsubmit="return confirm('Confirmer la réservation pour <?= formatPrix((float) $prixTotal) ?> € ?');">
             <?= csrfField() ?>
@@ -331,7 +336,7 @@ include __DIR__ . '/partials/header.php';
         <?php endif; ?>
 
         <p class="recap-note">
-          🛡️ Annulation gratuite jusqu'à 24h avant le départ.
+          🛡️ Annulation possible à tout moment depuis « Mes réservations ».
         </p>
       </div>
     </aside>

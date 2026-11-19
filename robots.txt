@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /admin.php
+Disallow: /debug.php
+Disallow: /profil.php
+Disallow: /messagerie.php
+Disallow: /conversation.php
+Disallow: /mes-trajets.php
+Disallow: /mes-reservations.php
+Disallow: /reinitialiser.php
+
+Sitemap: https://moussa.alwaysdata.net/sitemap.xml

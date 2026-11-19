@@ -47,3 +47,34 @@ ServerSignature Off
   ExpiresByType image/jpeg "access plus 1 month"
   ExpiresByType image/svg+xml "access plus 1 month"
 </IfModule>
+
+
+# ---- En-têtes de sécurité (envoyés avec chaque page) ----
+<IfModule mod_headers.c>
+  # Le navigateur doit toujours utiliser HTTPS pour ce site (1 an)
+  Header always set Strict-Transport-Security "max-age=31536000"
+
+  # Le navigateur ne doit pas "deviner" le type d'un fichier
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Interdit d'afficher le site dans une iframe d'un autre site (anti-clickjacking)
+  Header always set X-Frame-Options "DENY"
+
+  # Quand on clique un lien externe, on n'envoie que le nom du site, pas l'URL complète
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # Le site n'utilise ni caméra, ni micro, ni géolocalisation
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+
+  # Content Security Policy : liste des sources autorisées.
+  # Tout vient du site lui-même ('self'), sauf les photos de profil de démo (i.pravatar.cc).
+  # 'unsafe-inline' reste nécessaire tant que quelques scripts/styles sont écrits dans le HTML.
+  Header always set Content-Security-Policy "default-src 'self'; img-src 'self' data: https://i.pravatar.cc; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+</IfModule>
+
+# Polices : cache long (le fichier ne change pas)
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+AddType font/woff2 .woff2

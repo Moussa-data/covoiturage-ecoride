@@ -19,11 +19,13 @@ function trajetsExemples(): array
   ];
 
   $trajets = [];
+  $jour = 1; // chaque exemple a lieu un jour plus tard que le précédent
   foreach ($exemples as [$nom, $note, $nb, $depart, $arrivee, $hd, $ha, $prix, $places, $type, $modele]) {
     $trajets[] = [
       'conducteur'       => ['nom' => $nom, 'note' => $note, 'avatar' => '', 'trajets_effectues' => $nb, 'verifie' => true],
       'depart_lieu'      => $depart,
       'arrivee_lieu'     => $arrivee,
+      'date'             => date('Y-m-d', strtotime('+' . $jour++ . ' days')),
       'heure_depart'     => $hd,
       'heure_arrivee'    => $ha,
       'duree'            => calculerDuree($hd, $ha),

@@ -11,6 +11,16 @@
 
 /* ====== 1. Variables et reset ====== */
 
+/* Police Archivo (licence SIL Open Font License), hébergée dans /assets/fonts */
+@font-face {
+  font-family: "Archivo";
+  src: url("/assets/fonts/archivo-variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* ===== Palette EcoRide v2 — bleu nuit + vert menthe =====
    * Les anciens noms (--green-*, --gray-*) sont conservés pour que
@@ -2864,3 +2874,137 @@ a { text-underline-offset: 3px; }
   color: rgba(255, 255, 255, 0.55);
 }
 .footer-bottom a { color: var(--white); text-decoration: underline; }
+
+
+/* ----- Bandeau "Version de démonstration" ----- */
+.demo-banner {
+  background: var(--menthe);
+  color: var(--nuit);
+  font-size: 0.88rem;
+  padding: 8px 0;
+}
+.demo-banner strong { font-weight: 700; margin-right: 4px; }
+
+.btn-reserve[disabled] {
+  background: var(--gray-100);
+  color: var(--gray-500);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Date et état "Complet" sur les cartes trajets */
+.trip-date {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--menthe-fonce);
+}
+.badge-complet {
+  color: #B42318;
+  font-weight: 700;
+}
+
+/* Mentions RGPD sous les formulaires + encadré d'information */
+.rgpd-note {
+  margin-top: 14px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--gray-500);
+}
+.rgpd-note a { color: var(--menthe-fonce); text-decoration: underline; }
+.check-cgu {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.check-cgu input { margin-top: 3px; accent-color: var(--menthe-fonce); }
+.check-cgu a { color: var(--menthe-fonce); text-decoration: underline; }
+.legal-notice {
+  margin: 8px 0 24px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  font-size: 0.92rem;
+}
+
+.lien-mdp-oublie {
+  align-self: flex-end;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--menthe-fonce);
+  text-decoration: underline;
+}
+
+.methode-liste {
+  margin: 12px 0 12px 20px;
+  display: grid;
+  gap: 10px;
+  line-height: 1.6;
+}
+.about-section { scroll-margin-top: 90px; }
+
+/* ----- Comment ça marche : étapes + FAQ ----- */
+.etapes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+.etapes-col {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+.etapes-col h2 { font-size: 1.2rem; margin-bottom: 16px; }
+.etapes {
+  list-style: none;
+  counter-reset: etape;
+  display: grid;
+  gap: 14px;
+}
+.etapes li {
+  counter-increment: etape;
+  position: relative;
+  padding-left: 40px;
+  line-height: 1.5;
+}
+/* Pastille numérotée : ce sont de vraies étapes dans l'ordre */
+.etapes li::before {
+  content: counter(etape);
+  position: absolute;
+  left: 0;
+  top: -1px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--nuit);
+  color: var(--menthe);
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.faq { display: grid; gap: 8px; margin-top: 12px; }
+.faq-item {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+}
+.faq-item summary {
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: "+"; float: right; color: var(--menthe-fonce); font-weight: 700; }
+.faq-item[open] summary::after { content: "–"; }
+.faq-item p { margin-top: 10px; color: var(--gray-700); line-height: 1.6; }
+.faq-item a { color: var(--menthe-fonce); text-decoration: underline; }
+@media (max-width: 700px) {
+  .etapes-grid { grid-template-columns: 1fr; }
+}

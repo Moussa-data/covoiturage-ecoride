@@ -19,7 +19,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $motDePasse       = $_POST['mot_de_passe'] ?? '';
   $confirmation     = $_POST['confirmation'] ?? '';
 
-  $resultat = registerUser($valeurs['nom'], $valeurs['email'], $motDePasse, $confirmation);
+  $cguAcceptees     = isset($_POST['cgu']);
+
+  // Acceptation des CGU obligatoire, vérifiée côté serveur (la case
+  // "required" du formulaire peut être contournée). On vérifie AVANT
+  // registerUser(), sinon le compte serait créé quand même.
+  if (!$cguAcceptees) {
+    $resultat = ['ok' => false, 'errors' => ['cgu' => 'Vous devez accepter les conditions d\'utilisation.']];
+  } else {
+    $resultat = registerUser($valeurs['nom'], $valeurs['email'], $motDePasse, $confirmation);
+  }
 
   if ($resultat['ok']) {
     // Inscription réussie → on connecte directement
@@ -55,7 +64,7 @@ include __DIR__ . '/partials/header.php';
 
       <div class="form-field <?= isset($erreurs['nom']) ? 'has-error' : '' ?>">
         <label for="nom">Nom (ou prénom + initiale)</label>
-        <input type="text" id="nom" name="nom" value="<?= htmlspecialchars($valeurs['nom']) ?>" placeholder="Moussa W." />
+        <input type="text" id="nom" name="nom" required value="<?= htmlspecialchars($valeurs['nom']) ?>" placeholder="Moussa W." />
         <?php if (isset($erreurs['nom'])): ?>
           <span class="error-msg"><?= htmlspecialchars($erreurs['nom']) ?></span>
         <?php endif; ?>
@@ -63,7 +72,7 @@ include __DIR__ . '/partials/header.php';
 
       <div class="form-field <?= isset($erreurs['email']) ? 'has-error' : '' ?>">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" value="<?= htmlspecialchars($valeurs['email']) ?>" placeholder="vous@email.com" />
+        <input type="email" id="email" name="email" required value="<?= htmlspecialchars($valeurs['email']) ?>" placeholder="vous@email.com" />
         <?php if (isset($erreurs['email'])): ?>
           <span class="error-msg"><?= htmlspecialchars($erreurs['email']) ?></span>
         <?php endif; ?>
@@ -71,7 +80,7 @@ include __DIR__ . '/partials/header.php';
 
       <div class="form-field <?= isset($erreurs['mot_de_passe']) ? 'has-error' : '' ?>">
         <label for="mot_de_passe">Mot de passe</label>
-        <input type="password" id="mot_de_passe" name="mot_de_passe" placeholder="8 caractères minimum" />
+        <input type="password" id="mot_de_passe" name="mot_de_passe" required minlength="8" placeholder="8 caractères minimum" />
         <?php if (isset($erreurs['mot_de_passe'])): ?>
           <span class="error-msg"><?= htmlspecialchars($erreurs['mot_de_passe']) ?></span>
         <?php endif; ?>
@@ -79,13 +88,29 @@ include __DIR__ . '/partials/header.php';
 
       <div class="form-field <?= isset($erreurs['confirmation']) ? 'has-error' : '' ?>">
         <label for="confirmation">Confirmez votre mot de passe</label>
-        <input type="password" id="confirmation" name="confirmation" />
+        <input type="password" id="confirmation" name="confirmation" required />
         <?php if (isset($erreurs['confirmation'])): ?>
           <span class="error-msg"><?= htmlspecialchars($erreurs['confirmation']) ?></span>
         <?php endif; ?>
       </div>
 
+      <div class="form-field <?= isset($erreurs['cgu']) ? 'has-error' : '' ?>">
+        <label class="check check-cgu">
+          <input type="checkbox" name="cgu" value="1" required />
+          <span>J'ai lu et j'accepte les <a href="/cgu.php" target="_blank">conditions d'utilisation</a>.</span>
+        </label>
+        <?php if (isset($erreurs['cgu'])): ?>
+          <span class="error-msg"><?= htmlspecialchars($erreurs['cgu']) ?></span>
+        <?php endif; ?>
+      </div>
+
       <button type="submit" class="btn btn-primary btn-auth">Créer mon compte</button>
+
+      <p class="rgpd-note">
+        Votre nom et votre e-mail servent uniquement à gérer votre compte. Votre e-mail n'est jamais
+        affiché aux autres utilisateurs. Vous pouvez modifier ou supprimer vos données à tout moment :
+        <a href="/confidentialite.php">en savoir plus</a>.
+      </p>
     </form>
 
     <p class="auth-switch">

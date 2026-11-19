@@ -21,32 +21,74 @@ $user       = currentUser(); // null si pas connecté
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <?php
+    // Adresse "officielle" de la page (sans paramètres parasites), pour Google
+    // et pour les aperçus de partage. Seul trajet.php garde son ?id=.
+    $siteUrl   = 'https://moussa.alwaysdata.net';
+    $chemin    = strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
+    $canonical = $siteUrl . $chemin;
+    if ($chemin === '/trajet.php' && isset($_GET['id'])) {
+      $canonical .= '?id=' . (int) $_GET['id'];
+    }
+    $metaDescription = $metaDescription ?? 'EcoRide : covoiturage du quotidien en Île-de-France. Partagez les frais de vos trajets et réduisez vos émissions de CO₂.';
+  ?>
   <title><?= htmlspecialchars($pageTitle) ?></title>
-  <meta name="description" content="EcoRide : trouvez un covoiturage écologique, économisez et réduisez votre empreinte carbone." />
+  <meta name="description" content="<?= htmlspecialchars($metaDescription) ?>" />
+  <link rel="canonical" href="<?= htmlspecialchars($canonical) ?>" />
 
   <!-- Favicon SVG inline (menthe, cohérent avec le logo) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C9 5 6 8 6 12a6 6 0 0 0 12 0c0-4-3-7-6-10z' fill='%232DD4A7'/></svg>" />
 
-  <!-- Open Graph (preview lors du partage sur Facebook, Slack, etc.) -->
+  <!-- Open Graph (aperçu lors du partage sur WhatsApp, LinkedIn, Slack…) -->
+  <meta property="og:site_name" content="EcoRide" />
   <meta property="og:title" content="<?= htmlspecialchars($pageTitle) ?>" />
-  <meta property="og:description" content="Covoiturage écologique : économisez, partagez, réduisez votre empreinte carbone." />
+  <meta property="og:description" content="<?= htmlspecialchars($metaDescription) ?>" />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://moussa.alwaysdata.net<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/') ?>" />
+  <meta property="og:url" content="<?= htmlspecialchars($canonical) ?>" />
+  <meta property="og:image" content="<?= $siteUrl ?>/assets/img/og-ecoride.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:locale" content="fr_FR" />
 
-  <!-- Twitter Card (preview lors du partage sur X/Twitter) -->
-  <meta name="twitter:card" content="summary" />
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="<?= htmlspecialchars($pageTitle) ?>" />
-  <meta name="twitter:description" content="Covoiturage écologique : économisez, partagez, réduisez votre empreinte carbone." />
+  <meta name="twitter:description" content="<?= htmlspecialchars($metaDescription) ?>" />
+  <meta name="twitter:image" content="<?= $siteUrl ?>/assets/img/og-ecoride.png" />
 
-  <!-- Police Archivo : une seule famille, en version large pour les titres -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" />
+  <!-- Données structurées : aident Google à comprendre ce qu'est le site -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "EcoRide",
+    "url": "https://moussa.alwaysdata.net/",
+    "inLanguage": "fr-FR",
+    "description": "Covoiturage du quotidien en Île-de-France.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://moussa.alwaysdata.net/?arrivee={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
 
-  <link rel="stylesheet" href="/assets/css/style.css?v=2" />
+  <!-- Police Archivo hébergée sur le site (aucun appel à Google : meilleur pour le RGPD) -->
+  <link rel="preload" href="/assets/fonts/archivo-variable.woff2" as="font" type="font/woff2" crossorigin />
+
+  <link rel="stylesheet" href="/assets/css/style.css?v=3" />
 </head>
 <body>
+
+  <?php if (DEMO_MODE): ?>
+    <!-- Bandeau de démonstration : visible sur toutes les pages -->
+    <div class="demo-banner" role="note">
+      <div class="container">
+        <strong>Version de démonstration.</strong>
+        Les réservations sont désactivées et aucun trajet réel n'est organisé sur ce site.
+      </div>
+    </div>
+  <?php endif; ?>
 
   <header class="site-header">
     <div class="container header-inner">
@@ -79,6 +121,7 @@ $user       = currentUser(); // null si pas connecté
           <?php if ($estConducteur): ?>
             <li><a href="/publier.php" class="<?= $activePage === 'publier' ? 'active' : '' ?>">Publier un trajet</a></li>
           <?php endif; ?>
+          <li><a href="/comment-ca-marche.php" class="<?= $activePage === 'comment' ? 'active' : '' ?>">Comment ça marche</a></li>
           <li><a href="/a-propos.php" class="<?= $activePage === 'a-propos' ? 'active' : '' ?>">À propos</a></li>
         </ul>
       </nav>

@@ -91,7 +91,7 @@ include __DIR__ . '/partials/header.php';
     <ul class="hero-points">
       <li>Moins de CO₂ par passager</li>
       <li>Frais partagés avec le conducteur</li>
-      <li>Profils et avis vérifiés</li>
+      <li>Avis laissés après chaque trajet</li>
     </ul>
   </div>
 </section>
@@ -243,9 +243,17 @@ include __DIR__ . '/partials/header.php';
               </div>
 
               <div class="trip-route">
+                <span class="trip-date"><?= htmlspecialchars(dateCourte($t['date'])) ?></span>
                 <span class="time"><?= htmlspecialchars($t['heure_depart']) ?> → <?= htmlspecialchars($t['heure_arrivee']) ?></span>
                 <span class="place"><?= htmlspecialchars($t['depart_lieu']) ?> <span class="place-sep" aria-label="vers">→</span> <?= htmlspecialchars($t['arrivee_lieu']) ?></span>
-                <span class="duree"><?= htmlspecialchars($t['duree']) ?> · <?= $t['places_dispo'] ?> place<?= $t['places_dispo'] > 1 ? 's' : '' ?></span>
+                <span class="duree">
+                  <?= htmlspecialchars($t['duree']) ?> ·
+                  <?php if ($t['places_dispo'] <= 0): ?>
+                    <strong class="badge-complet">Complet</strong>
+                  <?php else: ?>
+                    <?= $t['places_dispo'] ?> place<?= $t['places_dispo'] > 1 ? 's' : '' ?>
+                  <?php endif; ?>
+                </span>
                 <span class="badge-vehicule badge-<?= htmlspecialchars($t['type_vehicule']) ?>">
                   <?= $labelsVehicule[$t['type_vehicule']] ?? htmlspecialchars($t['type_vehicule']) ?>
                 </span>
