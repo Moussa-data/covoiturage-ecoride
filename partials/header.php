@@ -24,8 +24,8 @@ $user       = currentUser(); // null si pas connecté
   <title><?= htmlspecialchars($pageTitle) ?></title>
   <meta name="description" content="EcoRide : trouvez un covoiturage écologique, économisez et réduisez votre empreinte carbone." />
 
-  <!-- Favicon SVG inline (vert, cohérent avec le logo) -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C9 5 6 8 6 12a6 6 0 0 0 12 0c0-4-3-7-6-10z' fill='%2316a34a'/></svg>" />
+  <!-- Favicon SVG inline (menthe, cohérent avec le logo) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C9 5 6 8 6 12a6 6 0 0 0 12 0c0-4-3-7-6-10z' fill='%232DD4A7'/></svg>" />
 
   <!-- Open Graph (preview lors du partage sur Facebook, Slack, etc.) -->
   <meta property="og:title" content="<?= htmlspecialchars($pageTitle) ?>" />
@@ -39,7 +39,12 @@ $user       = currentUser(); // null si pas connecté
   <meta name="twitter:title" content="<?= htmlspecialchars($pageTitle) ?>" />
   <meta name="twitter:description" content="Covoiturage écologique : économisez, partagez, réduisez votre empreinte carbone." />
 
-  <link rel="stylesheet" href="/assets/css/style.css" />
+  <!-- Police Archivo : une seule famille, en version large pour les titres -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" />
+
+  <link rel="stylesheet" href="/assets/css/style.css?v=2" />
 </head>
 <body>
 

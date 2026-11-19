@@ -12,32 +12,44 @@
 /* ====== 1. Variables et reset ====== */
 
 :root {
-  /* Palette EcoRide — vert nature */
-  --green-50:  #f0fdf4;
-  --green-100: #dcfce7;
-  --green-500: #22c55e;
-  --green-600: #16a34a;
-  --green-700: #15803d;
+  /* ===== Palette EcoRide v2 — bleu nuit + vert menthe =====
+   * Les anciens noms (--green-*, --gray-*) sont conservés pour que
+   * toutes les pages existantes prennent la nouvelle palette d'un coup.
+   * --green-* = la famille "menthe", --gray-* = la famille "bleu nuit / ardoise".
+   */
+  --nuit:        #0F1B3D;  /* couleur principale : header, footer, titres */
+  --nuit-2:      #1B2A54;  /* surfaces sur fond nuit */
+  --menthe:      #2DD4A7;  /* accent : boutons, points de trajet */
+  --menthe-fonce:#0B7A5E;  /* menthe lisible sur fond clair (liens, textes) */
+  --brume:       #F5F7FB;  /* fond des pages */
 
-  --gray-50:  #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-500: #6b7280;
-  --gray-700: #374151;
-  --gray-900: #111827;
+  --green-50:  #E9FBF5;
+  --green-100: #CCF5E8;
+  --green-500: #2DD4A7;
+  --green-600: #0F1B3D;
+  --green-700: #0B7A5E;
+
+  --gray-50:  #F5F7FB;
+  --gray-100: #EDF0F7;
+  --gray-200: #DDE2EE;
+  --gray-300: #C3CAD9;
+  --gray-500: #5B6785;
+  --gray-700: #33405F;
+  --gray-900: #0F1B3D;
 
   --white: #ffffff;
 
-  /* Espacements et arrondis (cohérents partout) */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  /* Arrondis : plus marqués pour les gros blocs, discrets pour les champs */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 1px 2px rgba(15, 27, 61, 0.06);
+  --shadow-md: 0 10px 30px rgba(15, 27, 61, 0.10);
 
-  --container: 1100px;
+  --font: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --container: 1120px;
 }
 
 /* Reset minimal mais essentiel : enlève les marges par défaut et standardise box-sizing */
@@ -53,7 +65,7 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font);
   color: var(--gray-900);
   background: var(--gray-50);
   line-height: 1.5;
@@ -2406,3 +2418,449 @@ img, svg { display: block; max-width: 100%; }
   font-size: 0.75rem;
   font-weight: 600;
 }
+
+
+/* =====================================================================
+   ===== EcoRide v2 — Refonte bleu nuit + vert menthe =====
+   Cette couche vient en dernier : elle redéfinit l'apparence des
+   composants partagés par toutes les pages (header, boutons, titres,
+   formulaires, cartes, footer) et le nouveau hero de l'accueil.
+   ===================================================================== */
+
+body {
+  background: var(--brume);
+  color: var(--nuit);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Titres : Archivo en version large, serrée en interlettrage */
+h1, h2, h3,
+.form-title, .page-header h1, .auth-card h1, .results-title {
+  font-family: var(--font);
+  font-stretch: 112%;
+  letter-spacing: -0.015em;
+  color: var(--nuit);
+}
+h1 { font-weight: 800; }
+h2, h3 { font-weight: 700; }
+
+a { text-underline-offset: 3px; }
+
+/* Focus clavier bien visible partout */
+:focus-visible {
+  outline: 3px solid var(--menthe);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+
+/* ----- Boutons ----- */
+.btn {
+  border-radius: 999px;
+  padding: 11px 22px;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  transition: background-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.btn-primary {
+  background: var(--menthe);
+  color: var(--nuit);
+}
+.btn-primary:hover {
+  background: #4FE0B9;
+  box-shadow: 0 0 0 4px rgba(45, 212, 167, 0.22);
+}
+.btn-ghost {
+  color: var(--nuit);
+  border: 1.5px solid var(--gray-300);
+}
+.btn-ghost:hover {
+  background: var(--white);
+  border-color: var(--nuit);
+}
+
+
+/* ----- Header bleu nuit ----- */
+.site-header {
+  background: var(--nuit);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.header-inner { height: 72px; }
+
+.logo {
+  color: var(--menthe);
+  font-stretch: 118%;
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+.logo span { color: var(--white); }
+
+.main-nav a {
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 500;
+}
+.main-nav a:hover { color: var(--white); }
+.main-nav a.active {
+  color: var(--white);
+  border-bottom-color: var(--menthe);
+}
+
+.site-header .btn-ghost {
+  color: var(--white);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.site-header .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--white);
+}
+
+.user-menu-trigger {
+  background: var(--nuit-2);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.user-menu-trigger:hover,
+.user-menu[open] .user-menu-trigger {
+  border-color: var(--menthe);
+  box-shadow: none;
+}
+.user-name { color: var(--white); }
+.user-menu-chevron { color: rgba(255, 255, 255, 0.6); }
+.user-avatar { background: var(--menthe); color: var(--nuit); }
+.user-menu-dropdown { border-radius: var(--radius-md); }
+
+.burger span { background: var(--white); }
+
+@media (max-width: 900px) {
+  .main-nav {
+    top: 72px;
+    background: var(--nuit);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .main-nav li a.active {
+    background: var(--nuit-2);
+    border-left-color: var(--menthe);
+  }
+}
+
+
+/* ----- Hero de l'accueil (prolonge le header) ----- */
+.hero {
+  background: var(--nuit);
+  color: var(--white);
+  padding: 72px 0 88px;
+  position: relative;
+  overflow: hidden;
+}
+/* Une grande ligne de route en arrière-plan, très discrète */
+.hero::after {
+  content: "";
+  position: absolute;
+  right: -120px;
+  top: 40px;
+  width: 560px;
+  height: 560px;
+  border: 2px dashed rgba(45, 212, 167, 0.18);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.hero-inner {
+  display: block;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.hero-title {
+  color: var(--white);
+  font-size: clamp(2.6rem, 6.4vw, 4.8rem);
+  font-stretch: 125%;
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  max-width: 14ch;
+  margin-bottom: 20px;
+}
+.hero-subtitle {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 1.12rem;
+  line-height: 1.6;
+  max-width: 52ch;
+  margin-bottom: 40px;
+}
+
+/* La recherche dessinée comme un trajet : ● ———— ● */
+.search-route {
+  display: grid;
+  grid-template-columns: 1fr 72px 1fr 0.8fr auto;
+  align-items: end;
+  gap: 0 16px;
+  background: var(--white);
+  color: var(--nuit);
+  border-radius: var(--radius-lg);
+  padding: 20px 20px 20px 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+.search-stop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.search-stop label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  padding-left: 22px;
+}
+.search-stop-date label { padding-left: 0; }
+.stop-dot {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 3px solid var(--nuit);
+  background: var(--white);
+}
+.search-stop-arrivee .stop-dot {
+  background: var(--menthe);
+  border-color: var(--menthe);
+}
+.search-stop input {
+  width: 100%;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: var(--brume);
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--nuit);
+}
+.search-stop input:focus {
+  outline: none;
+  border-color: var(--nuit);
+  background: var(--white);
+}
+/* La ligne entre départ et arrivée, qui se dessine une fois au chargement */
+.search-line {
+  align-self: center;
+  margin-top: 26px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--nuit), var(--menthe));
+  border-radius: 4px;
+  transform-origin: left center;
+  animation: tracerLigne 0.9s 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes tracerLigne {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+.btn-search {
+  height: 48px;
+  padding: 0 28px;
+  font-size: 1rem;
+}
+
+.hero-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 28px;
+  margin-top: 28px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.92rem;
+}
+.hero-points li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-points li::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--menthe);
+}
+
+@media (max-width: 900px) {
+  .hero { padding: 48px 0 56px; }
+  .hero .hero-inner { text-align: left; }
+  .search-route .btn-search { grid-column: auto; }
+  .hero::after { display: none; }
+  .search-route {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 18px;
+  }
+  /* Sur mobile, la ligne devient verticale entre les deux arrêts */
+  .search-line {
+    width: 4px;
+    height: 22px;
+    margin: -12px 0 -12px 4px;
+    justify-self: start;
+    background: linear-gradient(180deg, var(--nuit), var(--menthe));
+    transform-origin: top center;
+    animation-name: tracerLigneV;
+  }
+  @keyframes tracerLigneV {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
+  .btn-search { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-line { animation: none; }
+  * { transition: none !important; }
+}
+
+
+/* ----- Bandeau "communauté" sous le hero ----- */
+.public-stats {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+}
+.public-stats-title { font-stretch: 112%; }
+
+
+/* ----- Résultats et cartes trajets ----- */
+.results { padding-top: 56px; }
+.results-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+.results-title small {
+  font-stretch: 100%;
+  letter-spacing: 0;
+  color: var(--gray-500);
+}
+
+.filters {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+}
+.filters input[type="range"] { accent-color: var(--nuit); }
+.filters input[type="checkbox"] { accent-color: var(--menthe-fonce); }
+
+.trip-card {
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  box-shadow: none;
+  position: relative;
+  transition: border-color 0.15s;
+}
+.trip-card:hover {
+  border-color: var(--nuit);
+  box-shadow: none;
+  transform: none;
+}
+/* Petite barre menthe à gauche : rappelle la ligne de trajet du hero */
+.trip-card::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 18px;
+  bottom: 18px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--menthe);
+}
+.trip-card-exemple::before { background: var(--gray-300); }
+
+.trip-route .time {
+  font-stretch: 108%;
+  font-weight: 700;
+  font-size: 1.08rem;
+  font-variant-numeric: tabular-nums;
+}
+.place-sep { color: var(--menthe-fonce); }
+
+.trip-eco {
+  background: var(--green-50);
+  color: var(--menthe-fonce);
+  border-radius: var(--radius-sm);
+}
+.trip-action .price {
+  font-stretch: 112%;
+  font-weight: 800;
+  color: var(--nuit);
+  font-variant-numeric: tabular-nums;
+}
+.avatar-initiale {
+  background: var(--nuit);
+  color: var(--menthe);
+}
+
+.exemples-info {
+  background: var(--white);
+  border: 1px dashed var(--gray-300);
+}
+.exemples-info a { color: var(--menthe-fonce); text-decoration: underline; }
+
+
+/* ----- Formulaires (connexion, inscription, publier, profil…) ----- */
+.auth-card,
+.form-section {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  box-shadow: none;
+}
+.form-field input,
+.form-field select,
+.form-field textarea {
+  border-radius: var(--radius-sm);
+  border-width: 1.5px;
+  font-family: var(--font);
+}
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  border-color: var(--nuit);
+  box-shadow: 0 0 0 4px rgba(45, 212, 167, 0.25);
+}
+.field label,
+.form-field label { text-transform: none; letter-spacing: 0; }
+
+.auth-switch a,
+.breadcrumb a,
+.legal-section a,
+.about-page p a {
+  color: var(--menthe-fonce);
+  text-decoration: underline;
+}
+
+
+/* ----- Footer bleu nuit ----- */
+.site-footer {
+  background: var(--nuit);
+  color: rgba(255, 255, 255, 0.72);
+  border-top: none;
+  padding-top: 56px;
+  margin-top: 72px;
+}
+.footer-brand .footer-logo {
+  color: var(--menthe);
+  font-stretch: 118%;
+  font-weight: 800;
+}
+.footer-brand .footer-logo span { color: var(--white); }
+.footer-tagline,
+.footer-source { color: rgba(255, 255, 255, 0.6); }
+.footer-col h4 {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--white);
+}
+.footer-col ul a { color: rgba(255, 255, 255, 0.72); }
+.footer-col ul a:hover { color: var(--menthe); }
+.footer-source a { color: var(--menthe); }
+.footer-bottom {
+  border-top-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.55);
+}
+.footer-bottom a { color: var(--white); text-decoration: underline; }

@@ -42,61 +42,43 @@ $activePage = 'accueil';
 include __DIR__ . '/partials/header.php';
 ?>
 
-<!-- ========== HERO ========== -->
+<!-- ========== HERO ==========
+  Le hero est la continuité du header bleu nuit.
+  La recherche est dessinée comme une ligne de trajet : un point de départ,
+  une ligne, un point d'arrivée (comme sur un plan de métro).
+-->
 <section class="hero">
   <div class="container hero-inner">
 
-    <div class="hero-text">
-      <h1>
-        Covoiturez. Économisez.<br />
-        Agissez pour la planète.
-      </h1>
-      <p class="hero-subtitle">
-        EcoRide vous met en relation avec des conducteurs et passagers
-        pour des trajets plus économiques et écologiques.
-      </p>
-    </div>
+    <h1 class="hero-title">Le même trajet,<br />à plusieurs.</h1>
+    <p class="hero-subtitle">
+      Trouvez une place dans une voiture qui fait déjà votre route.
+      Vous partagez les frais, et les émissions de CO₂ baissent pour tout le monde.
+    </p>
 
-    <div class="hero-illustration" aria-hidden="true">
-      <svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
-        <ellipse cx="100" cy="125" rx="90" ry="8" fill="#dcfce7"/>
-        <path d="M0 110 Q 50 80 100 110 T 200 110 L 200 140 L 0 140 Z" fill="#bbf7d0"/>
-        <circle cx="30" cy="95" r="14" fill="#16a34a"/>
-        <rect x="28" y="100" width="4" height="14" fill="#166534"/>
-        <circle cx="170" cy="92" r="16" fill="#16a34a"/>
-        <rect x="168" y="98" width="4" height="16" fill="#166534"/>
-        <rect x="65" y="85" width="70" height="22" rx="6" fill="#22c55e"/>
-        <rect x="80" y="72" width="40" height="18" rx="6" fill="#16a34a"/>
-        <circle cx="80" cy="110" r="7" fill="#1f2937"/>
-        <circle cx="120" cy="110" r="7" fill="#1f2937"/>
-        <rect x="83" y="76" width="14" height="11" rx="2" fill="#dcfce7"/>
-        <rect x="103" y="76" width="14" height="11" rx="2" fill="#dcfce7"/>
-      </svg>
-    </div>
-  </div>
+    <!-- ========== RECHERCHE (méthode GET) ==========
+      method="GET" : les valeurs partent dans l'URL (?depart=...&arrivee=...).
+      Avantage : on peut garder ou partager le lien d'une recherche.
+    -->
+    <form class="search-route" method="GET" action="" autocomplete="off">
 
-  <!-- ========== BARRE DE RECHERCHE (méthode GET) ========== -->
-  <!--
-    method="GET" : les valeurs partent dans l'URL (?depart=...&arrivee=...).
-    action=""    : envoie sur la même page.
-    Avantage GET : on peut bookmarker / partager l'URL.
-  -->
-  <div class="container">
-    <form class="search-bar" method="GET" action="" autocomplete="off">
-
-      <div class="field">
+      <div class="search-stop search-stop-depart">
+        <span class="stop-dot" aria-hidden="true"></span>
         <label for="depart">Départ</label>
-        <input type="text" id="depart" name="depart" placeholder="Ville de départ"
+        <input type="text" id="depart" name="depart" placeholder="Paris, Lyon, Nantes…"
                value="<?= htmlspecialchars($filtres['depart']) ?>" />
       </div>
 
-      <div class="field">
+      <span class="search-line" aria-hidden="true"></span>
+
+      <div class="search-stop search-stop-arrivee">
+        <span class="stop-dot" aria-hidden="true"></span>
         <label for="arrivee">Arrivée</label>
-        <input type="text" id="arrivee" name="arrivee" placeholder="Ville d'arrivée"
+        <input type="text" id="arrivee" name="arrivee" placeholder="Où allez-vous ?"
                value="<?= htmlspecialchars($filtres['arrivee']) ?>" />
       </div>
 
-      <div class="field">
+      <div class="search-stop search-stop-date">
         <label for="date">Date</label>
         <input type="date" id="date" name="date" value="<?= htmlspecialchars($filtres['date']) ?>" />
       </div>
@@ -104,10 +86,10 @@ include __DIR__ . '/partials/header.php';
       <button type="submit" class="btn btn-primary btn-search">Rechercher</button>
     </form>
 
-    <ul class="badges">
-      <li><span class="dot"></span> Moins d'émissions de CO₂</li>
-      <li><span class="dot"></span> Économique</li>
-      <li><span class="dot"></span> Convivial et sécurisé</li>
+    <ul class="hero-points">
+      <li>Moins de CO₂ par passager</li>
+      <li>Frais partagés avec le conducteur</li>
+      <li>Profils et avis vérifiés</li>
     </ul>
   </div>
 </section>
@@ -186,7 +168,7 @@ include __DIR__ . '/partials/header.php';
     <?php if ($modeExemples): ?>
       <p class="exemples-info">
         Aucun trajet n'a encore été publié. Voici à quoi ressembleront les annonces.
-        <a href="/devenir-conducteur.php">Publiez le premier trajet →</a>
+        <a href="/devenir-conducteur.php">Publier le premier trajet</a>
       </p>
     <?php endif; ?>
 
@@ -256,7 +238,7 @@ include __DIR__ . '/partials/header.php';
 
               <div class="trip-route">
                 <span class="time"><?= htmlspecialchars($t['heure_depart']) ?> → <?= htmlspecialchars($t['heure_arrivee']) ?></span>
-                <span class="place"><?= htmlspecialchars($t['depart_lieu']) ?> · <?= htmlspecialchars($t['arrivee_lieu']) ?></span>
+                <span class="place"><?= htmlspecialchars($t['depart_lieu']) ?> <span class="place-sep" aria-label="vers">→</span> <?= htmlspecialchars($t['arrivee_lieu']) ?></span>
                 <span class="duree"><?= htmlspecialchars($t['duree']) ?> · <?= $t['places_dispo'] ?> place<?= $t['places_dispo'] > 1 ? 's' : '' ?></span>
                 <span class="badge-vehicule badge-<?= htmlspecialchars($t['type_vehicule']) ?>">
                   <?= $labelsVehicule[$t['type_vehicule']] ?? htmlspecialchars($t['type_vehicule']) ?>

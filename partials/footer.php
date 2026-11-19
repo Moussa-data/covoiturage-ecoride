@@ -8,7 +8,7 @@
           </svg>
           <span>EcoRide</span>
         </a>
-        <p class="footer-tagline">Le covoiturage écologique 🌱</p>
+        <p class="footer-tagline">Covoiturage entre particuliers, pensé pour réduire les émissions de CO₂.</p>
       </div>
 
       <div class="footer-col">
