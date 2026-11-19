@@ -468,3 +468,18 @@ function dateCourte(string $date): string
 
   return $jours[(int) date('w', $ts)] . ' ' . (int) date('j', $ts) . ' ' . $mois[(int) date('n', $ts) - 1];
 }
+
+
+/**
+ * Frais de service EcoRide payés par le passager : 15 % du prix du trajet,
+ * avec un minimum de 0,30 €, arrondis au centime.
+ * Exemple : trajet à 2,50 € → 0,38 € ; trajet à 1 € → 0,30 € (minimum).
+ * (Pour comparer : BlaBlaCar prend environ 16 à 20 %.)
+ */
+const COMMISSION_TAUX    = 0.15;
+const COMMISSION_MINIMUM = 0.30;
+
+function calculerCommission(float $prix): float
+{
+  return round(max($prix * COMMISSION_TAUX, COMMISSION_MINIMUM), 2);
+}

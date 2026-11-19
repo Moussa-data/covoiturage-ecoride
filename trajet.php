@@ -69,8 +69,8 @@ if ($trajet === null) {
 $conducteur = $trajet['conducteur'];
 $prefs      = $trajet['preferences'];
 
-// Calcul du prix total (prix + petite commission EcoRide pour donner un exemple)
-$commission = 1; // 1 € de commission EcoRide
+// Prix total payé par le passager = prix du conducteur + frais de service (15 %, min 0,30 €)
+$commission = calculerCommission((float) $trajet['prix']);
 $prixTotal  = $trajet['prix'] + $commission;
 
 // Le titre de la page (vu dans l'onglet du navigateur)
@@ -270,7 +270,7 @@ include __DIR__ . '/partials/header.php';
         </div>
 
         <div class="recap-row">
-          <span>Commission EcoRide</span>
+          <span>Frais de service (<?= (int) (COMMISSION_TAUX * 100) ?> %)</span>
           <span><?= formatPrix((float) $commission) ?> €</span>
         </div>
 
