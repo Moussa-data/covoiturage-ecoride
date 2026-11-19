@@ -46,14 +46,14 @@ class Reservation
       return ['ok' => false, 'error' => 'Désolé, ce trajet est complet.', 'reservation_id' => null];
     }
     if ($trajet->userId === $userId) {
-      return ['ok' => false, 'error' => 'Tu ne peux pas réserver ton propre trajet.', 'reservation_id' => null];
+      return ['ok' => false, 'error' => 'Vous ne pouvez pas réserver votre propre trajet.', 'reservation_id' => null];
     }
     $deja = Database::value(
       "SELECT 1 FROM reservations WHERE user_id = :u AND trajet_id = :t LIMIT 1",
       ['u' => $userId, 't' => $trajetId]
     );
     if ($deja) {
-      return ['ok' => false, 'error' => 'Tu as déjà réservé ce trajet.', 'reservation_id' => null];
+      return ['ok' => false, 'error' => 'Vous avez déjà réservé ce trajet.', 'reservation_id' => null];
     }
 
     // Transaction

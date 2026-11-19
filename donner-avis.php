@@ -82,10 +82,10 @@ include __DIR__ . '/partials/header.php';
       <?= csrfField() ?>
 
       <fieldset class="form-section">
-        <legend>Ton expérience</legend>
+        <legend>Votre expérience</legend>
 
         <div class="form-field">
-          <label>Ta note</label>
+          <label>Votre note</label>
           <!--
             Système d'étoiles avec radio buttons inversés en CSS.
             Les étoiles sont rendues à l'envers (5 → 1) pour qu'on
@@ -101,8 +101,8 @@ include __DIR__ . '/partials/header.php';
         </div>
 
         <div class="form-field">
-          <label for="commentaire">Ton commentaire (optionnel)</label>
-          <textarea id="commentaire" name="commentaire" rows="5" placeholder="Décris brièvement ton expérience pour aider les futurs passagers..."><?= htmlspecialchars($valeurs['commentaire']) ?></textarea>
+          <label for="commentaire">Votre commentaire (optionnel)</label>
+          <textarea id="commentaire" name="commentaire" rows="5" placeholder="Décrivez brièvement votre expérience pour aider les futurs passagers..."><?= htmlspecialchars($valeurs['commentaire']) ?></textarea>
         </div>
       </fieldset>
 

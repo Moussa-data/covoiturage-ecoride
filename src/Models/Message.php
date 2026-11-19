@@ -51,7 +51,7 @@ class Message
       return ['ok' => false, 'error' => 'Message trop long (2000 caractères max).'];
     }
     if (!self::canMessage($expediteurId, $trajetId, $destinataireId)) {
-      return ['ok' => false, 'error' => 'Tu n\'as pas le droit d\'écrire à cette personne pour ce trajet.'];
+      return ['ok' => false, 'error' => 'Vous n\'avez pas le droit d\'écrire à cette personne pour ce trajet.'];
     }
 
     Database::query(

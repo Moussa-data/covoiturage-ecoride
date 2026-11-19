@@ -25,7 +25,7 @@
         <h4>Légal</h4>
         <ul>
           <li><a href="/mentions-legales.php">Mentions légales</a></li>
-          <li><a href="/a-propos.php">À propos</a></li>
+          <li><a href="https://moussa-wanecamara.netlify.app/#contact" target="_blank" rel="noopener">Contact</a></li>
         </ul>
       </div>
 
@@ -33,14 +33,14 @@
         <h4>Code source</h4>
         <p class="footer-source">
           Projet open-source, codé en PHP / SQLite vanilla.
-          <a href="https://github.com" target="_blank" rel="noopener">Voir sur GitHub</a>
+          <a href="https://github.com/Moussa-data/covoiturage-ecoride" target="_blank" rel="noopener">Voir sur GitHub</a>
         </p>
       </div>
 
     </div>
 
     <div class="container footer-bottom">
-      <p>© <?= date('Y') ?> EcoRide — Projet d'apprentissage de Moussa.</p>
+      <p>© <?= date('Y') ?> EcoRide — Conçu et développé par <a href="https://moussa-wanecamara.netlify.app" target="_blank" rel="noopener">Moussa Wane Camara</a>, développeur web freelance.</p>
     </div>
   </footer>
 

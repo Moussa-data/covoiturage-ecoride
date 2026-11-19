@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $erreur = 'Token CSRF invalide.';
   } elseif (empty($_POST['engagement'])) {
     // L'utilisateur doit cocher la case d'engagement
-    $erreur = 'Tu dois confirmer remplir les conditions pour devenir conducteur.';
+    $erreur = 'Vous devez confirmer remplir les conditions pour devenir conducteur.';
   } else {
     if (becomeConducteur($user['id'])) {
       header('Location: /publier.php?promu=1');
@@ -47,20 +47,20 @@ include __DIR__ . '/partials/header.php';
 <main class="container form-page">
 
   <h1 class="form-title">Devenir conducteur 🚗</h1>
-  <p class="form-subtitle">Active ton rôle conducteur pour publier des trajets et accueillir des passagers.</p>
+  <p class="form-subtitle">Activez votre rôle conducteur pour publier des trajets et accueillir des passagers.</p>
 
   <?php if ($erreur !== null): ?>
     <div class="form-banner form-banner-error">⚠️ <?= htmlspecialchars($erreur) ?></div>
   <?php endif; ?>
 
   <section class="form-section conducteur-explainer">
-    <h2>Ce que ça change pour toi</h2>
+    <h2>Ce que ça change pour vous</h2>
     <ul class="explainer-list">
-      <li>✅ Tu pourras <strong>publier des trajets</strong> et fixer le prix</li>
-      <li>✅ Tu auras accès à la page <strong>Mes trajets</strong> et la liste des passagers</li>
-      <li>✅ Tu pourras <strong>recevoir des avis</strong> de tes passagers</li>
-      <li>📌 Tu peux toujours <strong>réserver</strong> des trajets en tant que passager</li>
-      <li>🌱 Tu rejoins la communauté des conducteurs écologiques</li>
+      <li>✅ Vous pourrez <strong>publier des trajets</strong> et fixer le prix</li>
+      <li>✅ Vous aurez accès à la page <strong>Mes trajets</strong> et la liste des passagers</li>
+      <li>✅ Vous pourrez <strong>recevoir des avis</strong> de vos passagers</li>
+      <li>📌 Vous pouvez toujours <strong>réserver</strong> des trajets en tant que passager</li>
+      <li>🌱 Vous rejoignez la communauté des conducteurs écologiques</li>
     </ul>
   </section>
 
@@ -71,14 +71,14 @@ include __DIR__ . '/partials/header.php';
       <legend>Engagement du conducteur</legend>
 
       <p class="form-label">
-        En activant ton rôle conducteur, tu confirmes :
+        En activant votre rôle conducteur, vous confirmez :
       </p>
 
       <ul class="conducteur-conditions">
         <li>Posséder un permis de conduire valide</li>
         <li>Disposer d'une voiture en règle (assurance, contrôle technique)</li>
-        <li>Respecter le code de la route et la sécurité de tes passagers</li>
-        <li>Être ponctuel et fournir des informations exactes sur tes trajets</li>
+        <li>Respecter le code de la route et la sécurité de vos passagers</li>
+        <li>Être ponctuel et fournir des informations exactes sur vos trajets</li>
       </ul>
 
       <label class="check check-large">

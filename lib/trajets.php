@@ -52,14 +52,13 @@ function findTrajetById(int $id): ?array
  */
 function addTrajet(array $trajet): int
 {
-  // Calcul du CO2 si absent
-  $co2ParType = [
-    'electrique' => 18.5,
-    'hybride'    => 14.0,
-    'essence'    => 9.5,
-  ];
+  // Calcul du CO2 si absent (selon le véhicule ET la durée du trajet)
   if (!isset($trajet['co2_economise_kg'])) {
-    $trajet['co2_economise_kg'] = $co2ParType[$trajet['type_vehicule']] ?? 10.0;
+    $trajet['co2_economise_kg'] = estimerCo2(
+      $trajet['type_vehicule'],
+      $trajet['heure_depart'],
+      $trajet['heure_arrivee']
+    );
   }
 
   $cond  = $trajet['conducteur']  ?? [];
@@ -354,4 +353,58 @@ function calculerDuree(string $depart, string $arrivee): string
   $minutes = $diff % 60;
 
   return $heures . 'h' . str_pad((string) $minutes, 2, '0', STR_PAD_LEFT);
+}
+
+
+/**
+ * Estime le CO2 économisé (en kg) à partir du type de véhicule et des horaires.
+ *
+ * Avant, la valeur était fixe par type (18,5 kg pour tout trajet électrique),
+ * ce qui donnait le même chiffre pour 30 min ou 5 h de route.
+ * Ici on estime la distance à partir de la durée (≈ 80 km/h de moyenne),
+ * puis on multiplie par un facteur d'économie par km selon le véhicule.
+ */
+function estimerCo2(string $typeVehicule, string $heureDepart, string $heureArrivee): float
+{
+  $facteurParKm = [
+    'electrique' => 0.10,
+    'hybride'    => 0.07,
+    'essence'    => 0.05,
+  ];
+
+  [$hd, $md] = array_map('intval', explode(':', $heureDepart . ':0'));
+  [$ha, $ma] = array_map('intval', explode(':', $heureArrivee . ':0'));
+  $minutes = ($ha * 60 + $ma) - ($hd * 60 + $md);
+  if ($minutes < 0) {
+    $minutes += 24 * 60;
+  }
+
+  $distanceKm = $minutes / 60 * 80;
+  $facteur    = $facteurParKm[$typeVehicule] ?? 0.05;
+
+  return round($distanceKm * $facteur, 1);
+}
+
+
+/**
+ * Met une majuscule au début de chaque mot d'un nom de lieu, sans toucher
+ * aux petits mots (de, du, la...). Exemples :
+ *   "part-dieu"     → "Part-Dieu"
+ *   "gare de lyon"  → "Gare de Lyon"
+ *   "porte d'italie" → "Porte d'Italie"
+ */
+function normaliserLieu(string $lieu): string
+{
+  $lieu = trim(preg_replace('/\s+/u', ' ', $lieu));
+  $petitsMots = ['de', 'du', 'des', 'la', 'le', 'les', 'sur', 'sous', 'en', 'et', 'aux', 'au', 'à', 'd', 'l'];
+
+  $index = 0;
+  return preg_replace_callback('/\p{L}+/u', function ($m) use ($petitsMots, &$index) {
+    $mot = $m[0];
+    $estPremier = ($index++ === 0);
+    if (!$estPremier && in_array(mb_strtolower($mot), $petitsMots, true)) {
+      return mb_strtolower($mot);
+    }
+    return mb_strtoupper(mb_substr($mot, 0, 1)) . mb_substr($mot, 1);
+  }, $lieu);
 }

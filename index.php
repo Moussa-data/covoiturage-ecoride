@@ -146,7 +146,7 @@ include __DIR__ . '/partials/header.php';
     <div class="container public-stats-launch">
       <h2 class="public-stats-title">Une communauté qui grandit chaque jour 🌱</h2>
       <p class="public-stats-tagline">
-        Sois parmi les premiers à covoiturer écolo. Les pionniers font la communauté.
+        Soyez parmi les premiers à covoiturer écolo. Les pionniers font la communauté.
       </p>
       <div class="public-stats-cta">
         <a href="/inscription.php" class="btn btn-primary">Créer mon compte</a>
@@ -197,7 +197,7 @@ include __DIR__ . '/partials/header.php';
         <?php if (empty($trajets)): ?>
           <div class="empty">
             <?= $rechercheFaite
-              ? 'Aucun trajet ne correspond à ta recherche. Essaie d\'élargir les critères.'
+              ? 'Aucun trajet ne correspond à votre recherche. Essayez d\'élargir les critères.'
               : 'Aucun trajet disponible pour l\'instant.' ?>
           </div>
         <?php else: ?>
@@ -206,11 +206,27 @@ include __DIR__ . '/partials/header.php';
                data-prix="<?= $t['prix'] ?>"
                data-type="<?= htmlspecialchars($t['type_vehicule']) ?>">
 
+              <?php
+                // Nom affiché avec une majuscule ("moussa" → "Moussa")
+                $nomConducteur = mb_strtoupper(mb_substr($t['conducteur']['nom'], 0, 1)) . mb_substr($t['conducteur']['nom'], 1);
+                $avatar = $t['conducteur']['avatar'] ?? '';
+                $nouveau = ($t['conducteur']['trajets_effectues'] ?? 0) === 0;
+                $labelsVehicule = ['electrique' => '⚡ Électrique', 'hybride' => '🔋 Hybride', 'essence' => '⛽ Essence'];
+              ?>
               <div class="trip-driver">
-                <img src="<?= htmlspecialchars($t['conducteur']['avatar'] ?? '') ?>" alt="<?= htmlspecialchars($t['conducteur']['nom']) ?>" />
+                <?php if ($avatar): ?>
+                  <!-- alt vide : le nom est déjà écrit juste à côté (évite qu'il soit lu deux fois) -->
+                  <img src="<?= htmlspecialchars($avatar) ?>" alt="" />
+                <?php else: ?>
+                  <span class="avatar-initiale" aria-hidden="true"><?= htmlspecialchars(mb_substr($nomConducteur, 0, 1)) ?></span>
+                <?php endif; ?>
                 <div>
-                  <div class="name"><?= htmlspecialchars($t['conducteur']['nom']) ?></div>
-                  <div class="rating">★ <?= number_format($t['conducteur']['note'], 1) ?></div>
+                  <div class="name"><?= htmlspecialchars($nomConducteur) ?></div>
+                  <?php if ($nouveau): ?>
+                    <div class="rating rating-nouveau">Nouveau conducteur</div>
+                  <?php else: ?>
+                    <div class="rating">★ <?= number_format($t['conducteur']['note'], 1) ?></div>
+                  <?php endif; ?>
                 </div>
               </div>
 
@@ -218,6 +234,9 @@ include __DIR__ . '/partials/header.php';
                 <span class="time"><?= htmlspecialchars($t['heure_depart']) ?> → <?= htmlspecialchars($t['heure_arrivee']) ?></span>
                 <span class="place"><?= htmlspecialchars($t['depart_lieu']) ?> · <?= htmlspecialchars($t['arrivee_lieu']) ?></span>
                 <span class="duree"><?= htmlspecialchars($t['duree']) ?> · <?= $t['places_dispo'] ?> place<?= $t['places_dispo'] > 1 ? 's' : '' ?></span>
+                <span class="badge-vehicule badge-<?= htmlspecialchars($t['type_vehicule']) ?>">
+                  <?= $labelsVehicule[$t['type_vehicule']] ?? htmlspecialchars($t['type_vehicule']) ?>
+                </span>
               </div>
 
               <div class="trip-eco" title="CO₂ économisé">

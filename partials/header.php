@@ -22,14 +22,14 @@ $user       = currentUser(); // null si pas connecté
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><?= htmlspecialchars($pageTitle) ?></title>
-  <meta name="description" content="EcoRide : trouve un covoiturage écologique, économise et réduis ton empreinte carbone." />
+  <meta name="description" content="EcoRide : trouvez un covoiturage écologique, économisez et réduisez votre empreinte carbone." />
 
   <!-- Favicon SVG inline (vert, cohérent avec le logo) -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C9 5 6 8 6 12a6 6 0 0 0 12 0c0-4-3-7-6-10z' fill='%2316a34a'/></svg>" />
 
   <!-- Open Graph (preview lors du partage sur Facebook, Slack, etc.) -->
   <meta property="og:title" content="<?= htmlspecialchars($pageTitle) ?>" />
-  <meta property="og:description" content="Covoiturage écologique : économise, partage, réduis ton empreinte carbone." />
+  <meta property="og:description" content="Covoiturage écologique : économisez, partagez, réduisez votre empreinte carbone." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://moussa.alwaysdata.net<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/') ?>" />
   <meta property="og:locale" content="fr_FR" />
@@ -37,7 +37,7 @@ $user       = currentUser(); // null si pas connecté
   <!-- Twitter Card (preview lors du partage sur X/Twitter) -->
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="<?= htmlspecialchars($pageTitle) ?>" />
-  <meta name="twitter:description" content="Covoiturage écologique : économise, partage, réduis ton empreinte carbone." />
+  <meta name="twitter:description" content="Covoiturage écologique : économisez, partagez, réduisez votre empreinte carbone." />
 
   <link rel="stylesheet" href="/assets/css/style.css" />
 </head>

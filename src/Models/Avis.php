@@ -19,7 +19,7 @@ class Avis
       "SELECT 1 FROM reservations WHERE user_id = :u AND trajet_id = :t AND statut = 'confirmee' LIMIT 1",
       ['u' => $userId, 't' => $trajetId]
     )) {
-      return ['ok' => false, 'reason' => 'Tu n\'as pas réservé ce trajet.'];
+      return ['ok' => false, 'reason' => 'Vous n\'avez pas réservé ce trajet.'];
     }
 
     $date = Database::value("SELECT date FROM trajets WHERE id = :id", ['id' => $trajetId]);
@@ -27,11 +27,11 @@ class Avis
       return ['ok' => false, 'reason' => 'Trajet introuvable.'];
     }
     if ($date >= date('Y-m-d')) {
-      return ['ok' => false, 'reason' => 'Tu pourras laisser un avis après la date du trajet.'];
+      return ['ok' => false, 'reason' => 'Vous pourrez laisser un avis après la date du trajet.'];
     }
 
     if (self::hasReviewed($userId, $trajetId)) {
-      return ['ok' => false, 'reason' => 'Tu as déjà laissé un avis sur ce trajet.'];
+      return ['ok' => false, 'reason' => 'Vous avez déjà laissé un avis sur ce trajet.'];
     }
 
     return ['ok' => true, 'reason' => null];

@@ -19,7 +19,7 @@ include __DIR__ . '/partials/header.php';
     <span class="error-code">404</span>
     <h1 class="error-title">Cette page a pris la mauvaise route 🚗💨</h1>
     <p class="error-message">
-      L'URL que tu cherches n'existe pas (ou plus). Pas de panique, on peut te ramener à bon port.
+      L'URL que vous cherchez n'existe pas (ou plus). Pas de panique, on peut vous ramener à bon port.
     </p>
 
     <div class="error-actions">

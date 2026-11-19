@@ -51,7 +51,7 @@ include __DIR__ . '/partials/header.php';
     <div class="about-card">
       <span class="about-icon">🛡️</span>
       <h3>Sécurisé</h3>
-      <p>Authentification chiffrée, mots de passe hashés, comptes vérifiés. Tes données sont protégées.</p>
+      <p>Authentification chiffrée, mots de passe hashés, comptes vérifiés. Vos données sont protégées.</p>
     </div>
   </section>
 
@@ -69,7 +69,7 @@ include __DIR__ . '/partials/header.php';
   </section>
 
   <section class="about-cta">
-    <h2>Rejoins la communauté</h2>
+    <h2>Rejoignez la communauté</h2>
     <p>Pionniers, passagers, conducteurs : ensemble on roule plus écolo.</p>
     <div class="about-cta-buttons">
       <a href="/inscription.php" class="btn btn-primary">Créer mon compte</a>

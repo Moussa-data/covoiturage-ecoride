@@ -50,7 +50,7 @@ include __DIR__ . '/partials/header.php';
   <?php if (empty($reservations)): ?>
     <div class="empty empty-large">
       <h2>Aucune réservation pour l'instant</h2>
-      <p>Cherche un trajet et réserve ta place 🌱</p>
+      <p>Cherchez un trajet et réservez votre place 🌱</p>
       <a href="/" class="btn btn-primary">Voir les trajets</a>
     </div>
   <?php else: ?>

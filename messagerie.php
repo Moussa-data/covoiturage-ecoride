@@ -22,7 +22,7 @@ include __DIR__ . '/partials/header.php';
   <?php if (empty($conversations)): ?>
     <div class="empty empty-large">
       <h2>Aucune conversation pour l'instant</h2>
-      <p>Réserve un trajet ou laisse un passager te contacter pour démarrer une discussion 💬</p>
+      <p>Réservez un trajet ou laissez un passager vous contacter pour démarrer une discussion 💬</p>
       <a href="/" class="btn btn-primary">Voir les trajets</a>
     </div>
   <?php else: ?>

@@ -46,18 +46,18 @@ include __DIR__ . '/partials/header.php';
   <section class="legal-section">
     <h2>Données personnelles</h2>
     <p>
-      Les seules données collectées sont celles que tu fournis volontairement à
+      Les seules données collectées sont celles que vous fournissez volontairement à
       l'inscription (nom, email) et lors de la publication d'un trajet.
       Elles sont stockées dans une base de données SQLite hébergée chez AlwaysData
       et ne sont <strong>partagées avec aucun tiers</strong>.
     </p>
     <p>
-      Conformément au RGPD, tu peux à tout moment :
+      Conformément au RGPD, vous pouvez à tout moment :
     </p>
     <ul>
-      <li>Modifier tes informations dans la section <a href="/profil.php">Mon profil</a></li>
-      <li>Demander la suppression de ton compte par email</li>
-      <li>Demander une copie de tes données par email</li>
+      <li>Modifier vos informations dans la section <a href="/profil.php">Mon profil</a></li>
+      <li>Demander la suppression de votre compte par email</li>
+      <li>Demander une copie de vos données par email</li>
     </ul>
   </section>
 

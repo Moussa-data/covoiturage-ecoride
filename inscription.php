@@ -42,8 +42,8 @@ include __DIR__ . '/partials/header.php';
 
 <main class="container auth-page">
   <div class="auth-card">
-    <h1>Créer ton compte EcoRide</h1>
-    <p class="auth-subtitle">Rejoins la communauté du covoiturage écologique 🌱</p>
+    <h1>Créer votre compte EcoRide</h1>
+    <p class="auth-subtitle">Rejoignez la communauté du covoiturage écologique 🌱</p>
 
     <?php if (!empty($erreurs)): ?>
       <div class="form-banner form-banner-error">
@@ -63,7 +63,7 @@ include __DIR__ . '/partials/header.php';
 
       <div class="form-field <?= isset($erreurs['email']) ? 'has-error' : '' ?>">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" value="<?= htmlspecialchars($valeurs['email']) ?>" placeholder="ton@email.com" />
+        <input type="email" id="email" name="email" value="<?= htmlspecialchars($valeurs['email']) ?>" placeholder="vous@email.com" />
         <?php if (isset($erreurs['email'])): ?>
           <span class="error-msg"><?= htmlspecialchars($erreurs['email']) ?></span>
         <?php endif; ?>
@@ -78,7 +78,7 @@ include __DIR__ . '/partials/header.php';
       </div>
 
       <div class="form-field <?= isset($erreurs['confirmation']) ? 'has-error' : '' ?>">
-        <label for="confirmation">Confirme ton mot de passe</label>
+        <label for="confirmation">Confirmez votre mot de passe</label>
         <input type="password" id="confirmation" name="confirmation" />
         <?php if (isset($erreurs['confirmation'])): ?>
           <span class="error-msg"><?= htmlspecialchars($erreurs['confirmation']) ?></span>
@@ -89,7 +89,7 @@ include __DIR__ . '/partials/header.php';
     </form>
 
     <p class="auth-switch">
-      Déjà un compte ? <a href="/connexion.php">Connecte-toi</a>
+      Déjà un compte ? <a href="/connexion.php">Connectez-vous</a>
     </p>
   </div>
 </main>

@@ -78,8 +78,55 @@ function db(): PDO
   migrateCleanSelfMessages($pdo);
   migrateAddAdminColumn($pdo);
   migrateLinkOrphanTrajets($pdo);
+  migrateNettoyageTrajets($pdo);
 
   return $pdo;
+}
+
+
+/**
+ * MIGRATION (une seule fois) : nettoie les trajets déjà en base.
+ *  - recalcule le CO2 économisé selon la durée réelle du trajet
+ *    (avant : valeur fixe par type de véhicule, ex. 18,5 kg partout) ;
+ *  - harmonise les majuscules des villes et lieux ("part-dieu" → "Part-Dieu").
+ *
+ * PRAGMA user_version = petit compteur intégré à SQLite. On le passe à 1
+ * une fois la migration faite, pour qu'elle ne tourne plus jamais ensuite.
+ */
+function migrateNettoyageTrajets(PDO $pdo): void
+{
+  $version = (int) $pdo->query("PRAGMA user_version")->fetchColumn();
+  if ($version >= 1) {
+    return; // déjà fait
+  }
+
+  require_once __DIR__ . '/trajets.php';
+
+  $rows = $pdo->query("
+    SELECT id, type_vehicule, heure_depart, heure_arrivee,
+           depart, depart_lieu, arrivee, arrivee_lieu
+    FROM trajets
+  ")->fetchAll();
+
+  $stmt = $pdo->prepare("
+    UPDATE trajets
+    SET co2_economise_kg = :co2,
+        depart = :d, depart_lieu = :dl, arrivee = :a, arrivee_lieu = :al
+    WHERE id = :id
+  ");
+
+  foreach ($rows as $r) {
+    $stmt->execute([
+      'co2' => estimerCo2($r['type_vehicule'], $r['heure_depart'], $r['heure_arrivee']),
+      'd'   => normaliserLieu((string) $r['depart']),
+      'dl'  => normaliserLieu((string) $r['depart_lieu']),
+      'a'   => normaliserLieu((string) $r['arrivee']),
+      'al'  => normaliserLieu((string) $r['arrivee_lieu']),
+      'id'  => $r['id'],
+    ]);
+  }
+
+  $pdo->exec("PRAGMA user_version = 1");
 }
 
 

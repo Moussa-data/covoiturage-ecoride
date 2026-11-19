@@ -568,6 +568,38 @@ img, svg { display: block; max-width: 100%; }
   font-size: 0.8rem;
   color: var(--gray-500);
 }
+.trip-driver .rating-nouveau {
+  color: var(--green-700);
+  font-weight: 500;
+}
+/* Pastille avec l'initiale quand le conducteur n'a pas de photo */
+.avatar-initiale {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--green-100);
+  color: var(--green-700);
+  font-weight: 700;
+}
+
+/* Badge du type de véhicule sur les cartes trajets */
+.badge-vehicule {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+.badge-electrique { background: var(--green-100); color: var(--green-700); }
+.badge-hybride    { background: #e0f2fe; color: #0369a1; }
+.badge-essence    { background: #fef3c7; color: #92400e; }
 
 .trip-route {
   display: flex;

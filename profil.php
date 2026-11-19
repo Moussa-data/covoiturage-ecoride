@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form'] ?? '') === 'profil'
       $user = currentUser(); // recharge les infos à jour
     } else {
       $erreursProfil = $r['errors'];
-      $messageProfil = ['type' => 'error', 'text' => 'Corrige les erreurs ci-dessous.'];
+      $messageProfil = ['type' => 'error', 'text' => 'Corrigez les erreurs ci-dessous.'];
     }
   }
 }
@@ -48,10 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form'] ?? '') === 'mdp') {
       $_POST['confirmation'] ?? ''
     );
     if ($r['ok']) {
-      $messageMdp = ['type' => 'success', 'text' => 'Mot de passe changé. Garde-le en lieu sûr 🔐'];
+      $messageMdp = ['type' => 'success', 'text' => 'Mot de passe changé. Gardez-le en lieu sûr 🔐'];
     } else {
       $erreursMdp = $r['errors'];
-      $messageMdp = ['type' => 'error', 'text' => 'Corrige les erreurs ci-dessous.'];
+      $messageMdp = ['type' => 'error', 'text' => 'Corrigez les erreurs ci-dessous.'];
     }
   }
 }
@@ -64,7 +64,7 @@ include __DIR__ . '/partials/header.php';
 <main class="container form-page">
 
   <h1 class="form-title">Mon profil</h1>
-  <p class="form-subtitle">Modifie tes infos ou ton mot de passe.</p>
+  <p class="form-subtitle">Modifiez vos infos ou votre mot de passe.</p>
 
   <!-- ============== Carte rôle ============== -->
   <section class="form-section role-card">
@@ -74,7 +74,7 @@ include __DIR__ . '/partials/header.php';
         <span class="role-icon">👑</span>
         <div>
           <strong>Administrateur</strong>
-          <span class="role-desc">Tu as accès à tout, dont la <a href="/debug.php">page de debug</a>.</span>
+          <span class="role-desc">Vous avez accès à tout, dont la <a href="/debug.php">page de debug</a>.</span>
         </div>
       </div>
     <?php endif; ?>
@@ -83,7 +83,7 @@ include __DIR__ . '/partials/header.php';
         <span class="role-icon">🚗</span>
         <div>
           <strong>Conducteur</strong>
-          <span class="role-desc">Tu peux publier et réserver des trajets.</span>
+          <span class="role-desc">Vous pouvez publier et réserver des trajets.</span>
         </div>
       </div>
     <?php else: ?>
@@ -91,7 +91,7 @@ include __DIR__ . '/partials/header.php';
         <span class="role-icon">🎒</span>
         <div>
           <strong>Passager</strong>
-          <span class="role-desc">Tu peux réserver des trajets. Active le rôle conducteur pour aussi en publier.</span>
+          <span class="role-desc">Vous pouvez réserver des trajets. Activez le rôle conducteur pour aussi en publier.</span>
         </div>
       </div>
       <a href="/devenir-conducteur.php" class="btn btn-primary" style="margin-top:12px;">Devenir conducteur</a>
@@ -166,7 +166,7 @@ include __DIR__ . '/partials/header.php';
       </div>
 
       <div class="form-field <?= isset($erreursMdp['confirmation']) ? 'has-error' : '' ?>">
-        <label for="confirmation">Confirme le nouveau mot de passe</label>
+        <label for="confirmation">Confirmez le nouveau mot de passe</label>
         <input type="password" id="confirmation" name="confirmation" autocomplete="new-password" />
         <?php if (isset($erreursMdp['confirmation'])): ?>
           <span class="error-msg"><?= htmlspecialchars($erreursMdp['confirmation']) ?></span>

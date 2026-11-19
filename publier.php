@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // On remplit $erreurs avec les problèmes trouvés.
 
   if ($valeurs['nom_conducteur'] === '') {
-    $erreurs['nom_conducteur'] = 'Ton nom est requis.';
+    $erreurs['nom_conducteur'] = 'Votre nom est requis.';
   } elseif (mb_strlen($valeurs['nom_conducteur']) > 50) {
     $erreurs['nom_conducteur'] = 'Le nom est trop long (50 caractères max).';
   }
@@ -167,10 +167,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'trajets_effectues'  => 0,
         'verifie'            => false,
       ],
-      'depart'         => $valeurs['depart'],
-      'depart_lieu'    => $valeurs['depart_lieu'],
-      'arrivee'        => $valeurs['arrivee'],
-      'arrivee_lieu'   => $valeurs['arrivee_lieu'],
+      'depart'         => normaliserLieu($valeurs['depart']),
+      'depart_lieu'    => normaliserLieu($valeurs['depart_lieu']),
+      'arrivee'        => normaliserLieu($valeurs['arrivee']),
+      'arrivee_lieu'   => normaliserLieu($valeurs['arrivee_lieu']),
       'heure_depart'   => $valeurs['heure_depart'],
       'heure_arrivee'  => $valeurs['heure_arrivee'],
       'duree'          => calculerDuree($valeurs['heure_depart'], $valeurs['heure_arrivee']),
@@ -179,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       'places_dispo'   => $places,
       'type_vehicule'  => $valeurs['type_vehicule'],
       'modele_vehicule'=> $valeurs['modele_vehicule'],
-      // co2_economise_kg : addTrajet() le calcule selon le type de véhicule
+      // co2_economise_kg : addTrajet() le calcule selon le véhicule et la durée
       'description'    => $valeurs['description'] ?: 'Pas de description fournie.',
       'preferences'    => [
         'fumeur'     => $valeurs['fumeur'],
@@ -215,17 +215,17 @@ include __DIR__ . '/partials/header.php';
 <main class="container form-page">
 
   <h1 class="form-title">Publier un trajet</h1>
-  <p class="form-subtitle">Partage ton trajet, économise et aide la planète. Remplis les infos ci-dessous.</p>
+  <p class="form-subtitle">Partagez votre trajet, économisez et aidez la planète. Remplissez les infos ci-dessous.</p>
 
   <?php if ($promu): ?>
     <div class="form-banner form-banner-success">
-      🎉 Bienvenue parmi les conducteurs ! Tu peux maintenant publier ton premier trajet.
+      🎉 Bienvenue parmi les conducteurs ! Vous pouvez maintenant publier votre premier trajet.
     </div>
   <?php endif; ?>
 
   <?php if (!empty($erreurs)): ?>
     <div class="form-banner form-banner-error">
-      ⚠️ Le formulaire contient des erreurs. Corrige-les avant de soumettre.
+      ⚠️ Le formulaire contient des erreurs. Corrigez-les avant de soumettre.
     </div>
   <?php endif; ?>
 
@@ -337,11 +337,11 @@ include __DIR__ . '/partials/header.php';
 
     <!-- =========== Section 4 : conducteur et véhicule =========== -->
     <fieldset class="form-section">
-      <legend>Toi et ta voiture</legend>
+      <legend>Vous et votre voiture</legend>
 
       <div class="form-row">
         <div class="form-field <?= isset($erreurs['nom_conducteur']) ? 'has-error' : '' ?>">
-          <label for="nom_conducteur">Ton nom (ou prénom + initiale) *</label>
+          <label for="nom_conducteur">Votre nom (ou prénom + initiale) *</label>
           <input type="text" id="nom_conducteur" name="nom_conducteur" value="<?= htmlspecialchars($valeurs['nom_conducteur']) ?>" placeholder="Moussa W." />
           <?php if (isset($erreurs['nom_conducteur'])): ?>
             <span class="error-msg"><?= htmlspecialchars($erreurs['nom_conducteur']) ?></span>
@@ -377,7 +377,7 @@ include __DIR__ . '/partials/header.php';
 
       <div class="form-field <?= isset($erreurs['description']) ? 'has-error' : '' ?>">
         <label for="description">Description du trajet (optionnel)</label>
-        <textarea id="description" name="description" rows="4" placeholder="Quelques mots sur ton trajet, le confort, les pauses prévues..."><?= htmlspecialchars($valeurs['description']) ?></textarea>
+        <textarea id="description" name="description" rows="4" placeholder="Quelques mots sur votre trajet, le confort, les pauses prévues..."><?= htmlspecialchars($valeurs['description']) ?></textarea>
         <?php if (isset($erreurs['description'])): ?>
           <span class="error-msg"><?= htmlspecialchars($erreurs['description']) ?></span>
         <?php endif; ?>

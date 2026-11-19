@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'suppr
     if (deleteTrajet($idASupprimer, $user['id'])) {
       $message = 'Trajet supprimé.';
     } else {
-      $message = 'Trajet introuvable ou tu n\'es pas le propriétaire.';
+      $message = 'Trajet introuvable ou vous n\'en êtes pas le propriétaire.';
       $messageType = 'error';
     }
   }
@@ -60,8 +60,8 @@ include __DIR__ . '/partials/header.php';
 
   <?php if (empty($trajets)): ?>
     <div class="empty empty-large">
-      <h2>Tu n'as pas encore publié de trajet</h2>
-      <p>Partage ton prochain déplacement pour économiser et aider la planète 🌱</p>
+      <h2>Vous n'avez pas encore publié de trajet</h2>
+      <p>Partagez votre prochain déplacement pour économiser et aider la planète 🌱</p>
       <a href="/publier.php" class="btn btn-primary">Publier mon premier trajet</a>
     </div>
   <?php else: ?>

@@ -39,7 +39,7 @@ if ($trajetUserId !== $user['id']) {
   http_response_code(403);
   $pageTitle = 'Accès refusé — EcoRide';
   include __DIR__ . '/partials/header.php';
-  echo '<main class="container detail-page"><div class="empty empty-large"><h1>Accès refusé</h1><p>Tu ne peux modifier que tes propres trajets.</p><a href="/mes-trajets.php" class="btn btn-primary">Retour</a></div></main>';
+  echo '<main class="container detail-page"><div class="empty empty-large"><h1>Accès refusé</h1><p>Vous ne pouvez modifier que vos propres trajets.</p><a href="/mes-trajets.php" class="btn btn-primary">Retour</a></div></main>';
   include __DIR__ . '/partials/footer.php';
   exit;
 }
@@ -112,16 +112,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($erreurs)) {
       // Recalcul auto de la durée et du CO2
-      $co2ParType = ['electrique' => 18.5, 'hybride' => 14.0, 'essence' => 9.5];
 
       $trajetMaj = [
         'conducteur' => [
           'nom' => $trajet['conducteur']['nom'], // on garde le nom d'origine
         ],
-        'depart'         => $valeurs['depart'],
-        'depart_lieu'    => $valeurs['depart_lieu'],
-        'arrivee'        => $valeurs['arrivee'],
-        'arrivee_lieu'   => $valeurs['arrivee_lieu'],
+        'depart'         => normaliserLieu($valeurs['depart']),
+        'depart_lieu'    => normaliserLieu($valeurs['depart_lieu']),
+        'arrivee'        => normaliserLieu($valeurs['arrivee']),
+        'arrivee_lieu'   => normaliserLieu($valeurs['arrivee_lieu']),
         'heure_depart'   => $valeurs['heure_depart'],
         'heure_arrivee'  => $valeurs['heure_arrivee'],
         'duree'          => calculerDuree($valeurs['heure_depart'], $valeurs['heure_arrivee']),
@@ -130,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'places_dispo'   => $places,
         'type_vehicule'  => $valeurs['type_vehicule'],
         'modele_vehicule'=> $valeurs['modele_vehicule'],
-        'co2_economise_kg' => $co2ParType[$valeurs['type_vehicule']] ?? 10,
+        'co2_economise_kg' => estimerCo2($valeurs['type_vehicule'], $valeurs['heure_depart'], $valeurs['heure_arrivee']),
         'description'    => $valeurs['description'] ?: 'Pas de description fournie.',
         'preferences'    => [
           'fumeur'     => $valeurs['fumeur'],

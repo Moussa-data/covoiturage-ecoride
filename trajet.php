@@ -84,19 +84,19 @@ include __DIR__ . '/partials/header.php';
 
   <?php if (isset($_GET['publie']) && $_GET['publie'] === '1'): ?>
     <div class="form-banner form-banner-success">
-      ✅ Bravo ! Ton trajet est publié et visible par les passagers.
+      ✅ Bravo ! Votre trajet est publié et visible par les passagers.
     </div>
   <?php endif; ?>
 
   <?php if (($_GET['avis'] ?? '') === 'ok'): ?>
     <div class="form-banner form-banner-success">
-      ⭐ Merci ! Ton avis a bien été publié.
+      ⭐ Merci ! Votre avis a bien été publié.
     </div>
   <?php endif; ?>
 
   <?php if (($_GET['reservation'] ?? '') === 'ok'): ?>
     <div class="form-banner form-banner-success">
-      🎉 Réservation confirmée ! Retrouve-la dans <a href="/mes-reservations.php">Mes réservations</a>.
+      🎉 Réservation confirmée ! Retrouvez-la dans <a href="/mes-reservations.php">Mes réservations</a>.
     </div>
   <?php elseif (($_GET['reservation'] ?? '') === 'ko'): ?>
     <?php
@@ -282,7 +282,7 @@ include __DIR__ . '/partials/header.php';
         <?php
         // ====== Logique du bouton de réservation ======
         // On affiche un état différent selon la situation :
-        //  1. pas connecté    → bouton "Connecte-toi pour réserver"
+        //  1. pas connecté    → bouton "Connectez-vous pour réserver"
         //  2. propre trajet   → message "Tu es le conducteur"
         //  3. déjà réservé    → message "Tu as réservé"
         //  4. plus de places  → bouton "Complet" désactivé
@@ -300,15 +300,15 @@ include __DIR__ . '/partials/header.php';
 
         <?php if (!$user): ?>
           <a href="/connexion.php" class="btn btn-primary btn-reserve">
-            Connecte-toi pour réserver
+            Connectez-vous pour réserver
           </a>
         <?php elseif ($estLeConducteur): ?>
           <div class="reserve-info">
-            🚗 Tu es le conducteur de ce trajet.
+            🚗 Vous êtes le conducteur de ce trajet.
           </div>
         <?php elseif ($aDejaReserve): ?>
           <div class="reserve-info reserve-info-success">
-            ✅ Tu as déjà réservé ce trajet.
+            ✅ Vous avez déjà réservé ce trajet.
           </div>
           <?php if ($trajetUserId > 0): ?>
             <a href="/conversation.php?trajet=<?= $trajet['id'] ?>&avec=<?= $trajetUserId ?>"

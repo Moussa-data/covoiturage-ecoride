@@ -72,7 +72,7 @@ function canUserReview(int $userId, int $trajetId): array
   ");
   $stmt->execute(['uid' => $userId, 'tid' => $trajetId]);
   if (!$stmt->fetch()) {
-    return ['ok' => false, 'reason' => 'Tu n\'as pas réservé ce trajet.'];
+    return ['ok' => false, 'reason' => 'Vous n\'avez pas réservé ce trajet.'];
   }
 
   // Le trajet est-il passé ?
@@ -83,12 +83,12 @@ function canUserReview(int $userId, int $trajetId): array
     return ['ok' => false, 'reason' => 'Trajet introuvable.'];
   }
   if ($date >= date('Y-m-d')) {
-    return ['ok' => false, 'reason' => 'Tu pourras laisser un avis après la date du trajet.'];
+    return ['ok' => false, 'reason' => 'Vous pourrez laisser un avis après la date du trajet.'];
   }
 
   // A-t-il déjà donné un avis ?
   if (hasUserReviewed($userId, $trajetId)) {
-    return ['ok' => false, 'reason' => 'Tu as déjà laissé un avis sur ce trajet.'];
+    return ['ok' => false, 'reason' => 'Vous avez déjà laissé un avis sur ce trajet.'];
   }
 
   return ['ok' => true, 'reason' => null];

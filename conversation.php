@@ -42,7 +42,7 @@ if (!canMessage($user['id'], $trajetId, $autreId)) {
   <main class="container detail-page">
     <div class="empty empty-large">
       <h1>Conversation indisponible</h1>
-      <p>Tu n'as pas accès à cette conversation. Tu peux discuter uniquement avec les conducteurs des trajets que tu as réservés (ou tes passagers si tu es conducteur).</p>
+      <p>Vous n'avez pas accès à cette conversation. Vous pouvez discuter uniquement avec les conducteurs des trajets que vous avez réservés (ou vos passagers si vous êtes conducteur).</p>
 
       <details style="margin:24px auto; max-width:560px; text-align:left; background:#fef2f2; padding:16px; border-radius:8px; border:1px solid #fecaca;">
         <summary style="cursor:pointer; font-weight:600; color:#b91c1c;">🔍 Détails techniques (debug)</summary>
@@ -139,7 +139,7 @@ include __DIR__ . '/partials/header.php';
 
   <form method="POST" action="" class="chat-form">
     <?= csrfField() ?>
-    <textarea name="contenu" placeholder="Écris ton message..." rows="2" required maxlength="2000"></textarea>
+    <textarea name="contenu" placeholder="Écrivez votre message..." rows="2" required maxlength="2000"></textarea>
     <button type="submit" class="btn btn-primary">Envoyer</button>
   </form>
 </main>

@@ -50,7 +50,7 @@ include __DIR__ . '/partials/header.php';
 
       <div class="form-field">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" value="<?= htmlspecialchars($valeurs['email']) ?>" placeholder="ton@email.com" autofocus />
+        <input type="email" id="email" name="email" value="<?= htmlspecialchars($valeurs['email']) ?>" placeholder="vous@email.com" autofocus />
       </div>
 
       <div class="form-field">
@@ -62,7 +62,7 @@ include __DIR__ . '/partials/header.php';
     </form>
 
     <p class="auth-switch">
-      Pas encore de compte ? <a href="/inscription.php">Inscris-toi</a>
+      Pas encore de compte ? <a href="/inscription.php">Inscrivez-vous</a>
     </p>
   </div>
 </main>

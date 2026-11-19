@@ -106,7 +106,7 @@ function sendMessage(int $expediteurId, int $destinataireId, int $trajetId, stri
     return ['ok' => false, 'error' => 'Message trop long (2000 caractères max).'];
   }
   if (!canMessage($expediteurId, $trajetId, $destinataireId)) {
-    return ['ok' => false, 'error' => 'Tu n\'as pas le droit d\'écrire à cette personne pour ce trajet.'];
+    return ['ok' => false, 'error' => 'Vous n\'avez pas le droit d\'écrire à cette personne pour ce trajet.'];
   }
 
   $stmt = db()->prepare("
