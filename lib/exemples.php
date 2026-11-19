@@ -9,12 +9,13 @@
 
 function trajetsExemples(): array
 {
+  // Trajets courts du quotidien en Île-de-France (domicile → travail, gare, aéroport)
   $exemples = [
-    ['Camille D.', 4.9, 31, 'Paris Gare du Nord', 'Lille Flandres', '07:30', '10:20', 15, 3, 'electrique', 'Renault Mégane E-Tech'],
-    ['Yanis B.',   4.7, 12, 'Lyon Part-Dieu',     'Grenoble Gare',  '08:15', '09:35',  8, 2, 'hybride',    'Toyota Corolla'],
-    ['Inès M.',    4.8, 24, 'Bordeaux Saint-Jean','Toulouse Matabiau','09:00','11:30', 13, 3, 'essence',    'Peugeot 308'],
-    ['Lucas F.',   5.0,  8, 'Nantes Gare',        'Rennes Gare',    '17:45', '19:10',  7, 4, 'electrique', 'Tesla Model Y'],
-    ['Aminata S.', 4.6, 19, 'Marseille Saint-Charles', 'Montpellier Centre', '18:30', '20:30', 11, 2, 'hybride', 'Kia Niro'],
+    ['Camille D.', 4.9, 31, 'Vaucresson Gare',          'La Défense Esplanade',   '07:45', '08:10', 2.5, 3, 'electrique', 'Renault Mégane E-Tech'],
+    ['Yanis B.',   4.7, 12, 'Versailles Château',       'Paris Montparnasse',     '08:00', '08:40', 3.5, 2, 'hybride',    'Toyota Corolla'],
+    ['Inès M.',    4.8, 24, 'Saint-Denis Pleyel',       'Massy TGV',              '07:15', '08:05', 4,   3, 'essence',    'Peugeot 308'],
+    ['Lucas F.',   5.0,  8, 'Boulogne Marcel Sembat',   'Roissy CDG Terminal 2',  '06:30', '07:30', 6,   4, 'electrique', 'Tesla Model Y'],
+    ['Aminata S.', 4.6, 19, 'Créteil Préfecture',       'Nanterre Université',    '17:30', '18:35', 4.5, 2, 'hybride',    'Kia Niro'],
   ];
 
   $trajets = [];

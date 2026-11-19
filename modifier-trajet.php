@@ -104,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $places = (int) $valeurs['places_dispo'];
     if ($places < 1 || $places > 7) $erreurs['places_dispo'] = 'Entre 1 et 7.';
-    $prix = (int) $valeurs['prix'];
-    if ($prix <= 0 || $prix > 100) $erreurs['prix'] = 'Entre 1 et 100 €.';
+    $prix = lirePrix((string) $valeurs['prix']);
+    if ($prix === null || $prix < 0.5 || $prix > 100) $erreurs['prix'] = 'Entre 0,50 et 100 €.';
     if (!in_array($valeurs['type_vehicule'], ['electrique','hybride','essence'], true))
       $erreurs['type_vehicule'] = 'Invalide.';
     if ($valeurs['modele_vehicule'] === '') $erreurs['modele_vehicule'] = 'Requis.';
@@ -169,12 +169,14 @@ include __DIR__ . '/partials/header.php';
   <form method="POST" action="" class="form-trajet" novalidate>
     <?= csrfField() ?>
 
+    <?php include __DIR__ . '/partials/villes-idf.php'; ?>
+
     <fieldset class="form-section">
       <legend>Itinéraire</legend>
       <div class="form-row">
         <div class="form-field <?= isset($erreurs['depart']) ? 'has-error' : '' ?>">
           <label for="depart">Ville de départ *</label>
-          <input type="text" id="depart" name="depart" value="<?= htmlspecialchars($valeurs['depart']) ?>" />
+          <input type="text" id="depart" name="depart" list="villes-idf" value="<?= htmlspecialchars($valeurs['depart']) ?>" />
           <?php if (isset($erreurs['depart'])): ?><span class="error-msg"><?= $erreurs['depart'] ?></span><?php endif; ?>
         </div>
         <div class="form-field <?= isset($erreurs['depart_lieu']) ? 'has-error' : '' ?>">
@@ -186,7 +188,7 @@ include __DIR__ . '/partials/header.php';
       <div class="form-row">
         <div class="form-field <?= isset($erreurs['arrivee']) ? 'has-error' : '' ?>">
           <label for="arrivee">Ville d'arrivée *</label>
-          <input type="text" id="arrivee" name="arrivee" value="<?= htmlspecialchars($valeurs['arrivee']) ?>" />
+          <input type="text" id="arrivee" name="arrivee" list="villes-idf" value="<?= htmlspecialchars($valeurs['arrivee']) ?>" />
           <?php if (isset($erreurs['arrivee'])): ?><span class="error-msg"><?= $erreurs['arrivee'] ?></span><?php endif; ?>
         </div>
         <div class="form-field <?= isset($erreurs['arrivee_lieu']) ? 'has-error' : '' ?>">
@@ -228,7 +230,7 @@ include __DIR__ . '/partials/header.php';
         </div>
         <div class="form-field <?= isset($erreurs['prix']) ? 'has-error' : '' ?>">
           <label for="prix">Prix par personne (€) *</label>
-          <input type="number" id="prix" name="prix" value="<?= htmlspecialchars($valeurs['prix']) ?>" min="1" max="100" />
+          <input type="number" id="prix" name="prix" value="<?= htmlspecialchars($valeurs['prix']) ?>" min="0.5" max="100" step="0.5" />
           <?php if (isset($erreurs['prix'])): ?><span class="error-msg"><?= $erreurs['prix'] ?></span><?php endif; ?>
         </div>
       </div>

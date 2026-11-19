@@ -65,7 +65,7 @@ include __DIR__ . '/partials/header.php';
       <div class="search-stop search-stop-depart">
         <span class="stop-dot" aria-hidden="true"></span>
         <label for="depart">Départ</label>
-        <input type="text" id="depart" name="depart" placeholder="Paris, Lyon, Nantes…"
+        <input type="text" id="depart" name="depart" list="villes-idf" placeholder="Vaucresson, Versailles…"
                value="<?= htmlspecialchars($filtres['depart']) ?>" />
       </div>
 
@@ -74,7 +74,7 @@ include __DIR__ . '/partials/header.php';
       <div class="search-stop search-stop-arrivee">
         <span class="stop-dot" aria-hidden="true"></span>
         <label for="arrivee">Arrivée</label>
-        <input type="text" id="arrivee" name="arrivee" placeholder="Où allez-vous ?"
+        <input type="text" id="arrivee" name="arrivee" list="villes-idf" placeholder="La Défense, Paris…"
                value="<?= htmlspecialchars($filtres['arrivee']) ?>" />
       </div>
 
@@ -85,6 +85,8 @@ include __DIR__ . '/partials/header.php';
 
       <button type="submit" class="btn btn-primary btn-search">Rechercher</button>
     </form>
+
+    <?php include __DIR__ . '/partials/villes-idf.php'; ?>
 
     <ul class="hero-points">
       <li>Moins de CO₂ par passager</li>
@@ -179,8 +181,12 @@ include __DIR__ . '/partials/header.php';
         <h3>Filtres</h3>
 
         <div class="filter-group">
-          <label for="prixMax">Prix maximum : <span id="prixMaxValue">20</span> €</label>
-          <input type="range" id="prixMax" min="5" max="20" value="20" />
+          <?php
+            // Le curseur va jusqu'au prix le plus élevé affiché (au moins 20 €)
+            $prixPlafond = max(20, (int) ceil(max(array_map(fn($t) => (float) $t['prix'], $trajets ?: [['prix' => 0]]))));
+          ?>
+          <label for="prixMax">Prix maximum : <span id="prixMaxValue"><?= $prixPlafond ?></span> €</label>
+          <input type="range" id="prixMax" min="1" max="<?= $prixPlafond ?>" step="0.5" value="<?= $prixPlafond ?>" />
         </div>
 
         <div class="filter-group">
@@ -246,12 +252,12 @@ include __DIR__ . '/partials/header.php';
               </div>
 
               <div class="trip-eco" title="CO₂ économisé">
-                <strong>−<?= htmlspecialchars((string) $t['co2_economise_kg']) ?> kg</strong>
+                <strong>−<?= str_replace('.', ',', (string) round((float) $t['co2_economise_kg'], 1)) ?> kg</strong>
                 de CO₂
               </div>
 
               <div class="trip-action">
-                <span class="price"><?= $t['prix'] ?> €</span>
+                <span class="price"><?= formatPrix((float) $t['prix']) ?> €</span>
                 <?php if ($modeExemples): ?>
                   <span class="badge-exemple">Exemple</span>
                 <?php else: ?>

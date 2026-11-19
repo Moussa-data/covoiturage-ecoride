@@ -132,10 +132,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $erreurs['places_dispo'] = 'Le nombre de places doit être entre 1 et 7.';
   }
 
-  // Prix : entier > 0 et raisonnable
-  $prix = (int) $valeurs['prix'];
-  if ($prix <= 0) {
-    $erreurs['prix'] = 'Le prix doit être supérieur à 0.';
+  // Prix : accepte les centimes (2,50 €) pour les petits trajets en Île-de-France
+  $prix = lirePrix((string) $valeurs['prix']);
+  if ($prix === null || $prix < 0.5) {
+    $erreurs['prix'] = 'Le prix doit être d\'au moins 0,50 €.';
   } elseif ($prix > 100) {
     $erreurs['prix'] = 'Le prix semble trop élevé pour un covoiturage (max 100 €).';
   }
@@ -237,6 +237,8 @@ include __DIR__ . '/partials/header.php';
   -->
   <form method="POST" action="" class="form-trajet" novalidate>
 
+    <?php include __DIR__ . '/partials/villes-idf.php'; ?>
+
     <!-- =========== Section 1 : itinéraire =========== -->
     <fieldset class="form-section">
       <legend>Itinéraire</legend>
@@ -244,7 +246,7 @@ include __DIR__ . '/partials/header.php';
       <div class="form-row">
         <div class="form-field <?= isset($erreurs['depart']) ? 'has-error' : '' ?>">
           <label for="depart">Ville de départ *</label>
-          <input type="text" id="depart" name="depart" value="<?= htmlspecialchars($valeurs['depart']) ?>" placeholder="Paris" />
+          <input type="text" id="depart" name="depart" list="villes-idf" value="<?= htmlspecialchars($valeurs['depart']) ?>" placeholder="Vaucresson" />
           <?php if (isset($erreurs['depart'])): ?>
             <span class="error-msg"><?= htmlspecialchars($erreurs['depart']) ?></span>
           <?php endif; ?>
@@ -252,7 +254,7 @@ include __DIR__ . '/partials/header.php';
 
         <div class="form-field <?= isset($erreurs['depart_lieu']) ? 'has-error' : '' ?>">
           <label for="depart_lieu">Lieu précis de départ *</label>
-          <input type="text" id="depart_lieu" name="depart_lieu" value="<?= htmlspecialchars($valeurs['depart_lieu']) ?>" placeholder="Gare de Lyon" />
+          <input type="text" id="depart_lieu" name="depart_lieu" value="<?= htmlspecialchars($valeurs['depart_lieu']) ?>" placeholder="Gare de Vaucresson" />
           <?php if (isset($erreurs['depart_lieu'])): ?>
             <span class="error-msg"><?= htmlspecialchars($erreurs['depart_lieu']) ?></span>
           <?php endif; ?>
@@ -262,7 +264,7 @@ include __DIR__ . '/partials/header.php';
       <div class="form-row">
         <div class="form-field <?= isset($erreurs['arrivee']) ? 'has-error' : '' ?>">
           <label for="arrivee">Ville d'arrivée *</label>
-          <input type="text" id="arrivee" name="arrivee" value="<?= htmlspecialchars($valeurs['arrivee']) ?>" placeholder="Lyon" />
+          <input type="text" id="arrivee" name="arrivee" list="villes-idf" value="<?= htmlspecialchars($valeurs['arrivee']) ?>" placeholder="La Défense" />
           <?php if (isset($erreurs['arrivee'])): ?>
             <span class="error-msg"><?= htmlspecialchars($erreurs['arrivee']) ?></span>
           <?php endif; ?>
@@ -270,7 +272,7 @@ include __DIR__ . '/partials/header.php';
 
         <div class="form-field <?= isset($erreurs['arrivee_lieu']) ? 'has-error' : '' ?>">
           <label for="arrivee_lieu">Lieu précis d'arrivée *</label>
-          <input type="text" id="arrivee_lieu" name="arrivee_lieu" value="<?= htmlspecialchars($valeurs['arrivee_lieu']) ?>" placeholder="Part-Dieu" />
+          <input type="text" id="arrivee_lieu" name="arrivee_lieu" value="<?= htmlspecialchars($valeurs['arrivee_lieu']) ?>" placeholder="Esplanade de La Défense" />
           <?php if (isset($erreurs['arrivee_lieu'])): ?>
             <span class="error-msg"><?= htmlspecialchars($erreurs['arrivee_lieu']) ?></span>
           <?php endif; ?>
@@ -326,7 +328,7 @@ include __DIR__ . '/partials/header.php';
 
         <div class="form-field <?= isset($erreurs['prix']) ? 'has-error' : '' ?>">
           <label for="prix">Prix par personne (€) *</label>
-          <input type="number" id="prix" name="prix" value="<?= htmlspecialchars((string) $valeurs['prix']) ?>" min="1" max="100" />
+          <input type="number" id="prix" name="prix" value="<?= htmlspecialchars((string) $valeurs['prix']) ?>" min="0.5" max="100" step="0.5" placeholder="3,50" />
           <?php if (isset($erreurs['prix'])): ?>
             <span class="error-msg"><?= htmlspecialchars($erreurs['prix']) ?></span>
           <?php endif; ?>

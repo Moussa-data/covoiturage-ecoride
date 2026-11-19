@@ -90,13 +90,15 @@ function db(): PDO
  *    (avant : valeur fixe par type de véhicule, ex. 18,5 kg partout) ;
  *  - harmonise les majuscules des villes et lieux ("part-dieu" → "Part-Dieu").
  *
- * PRAGMA user_version = petit compteur intégré à SQLite. On le passe à 1
+ * PRAGMA user_version = petit compteur intégré à SQLite. On le passe à 2
  * une fois la migration faite, pour qu'elle ne tourne plus jamais ensuite.
  */
 function migrateNettoyageTrajets(PDO $pdo): void
 {
+  // Version 2 : nouveau calcul du CO2 (vitesse réaliste en Île-de-France).
+  // Si la base est en version 0 ou 1, on (re)calcule tout une fois.
   $version = (int) $pdo->query("PRAGMA user_version")->fetchColumn();
-  if ($version >= 1) {
+  if ($version >= 2) {
     return; // déjà fait
   }
 
@@ -126,7 +128,7 @@ function migrateNettoyageTrajets(PDO $pdo): void
     ]);
   }
 
-  $pdo->exec("PRAGMA user_version = 1");
+  $pdo->exec("PRAGMA user_version = 2");
 }
 
 
@@ -442,7 +444,7 @@ function shapeTrajetRow(array $row): array
     'heure_arrivee'  => $row['heure_arrivee'],
     'duree'          => $row['duree'],
     'date'           => $row['date'],
-    'prix'           => (int) $row['prix'],
+    'prix'           => (float) $row['prix'],
     'places_dispo'   => (int) $row['places_dispo'],
     'type_vehicule'  => $row['type_vehicule'],
     'modele_vehicule'=> $row['modele_vehicule'],

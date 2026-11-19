@@ -40,7 +40,7 @@ function appliquerFiltres() {
   if (visibles === 0 && $cards().length > 0 && !ancienVide) {
     const div = document.createElement('div');
     div.className = 'empty empty-filters';
-    div.textContent = 'Aucun trajet ne correspond à tes filtres.';
+    div.textContent = 'Aucun trajet ne correspond à vos filtres.';
     $trips.appendChild(div);
   } else if (visibles > 0 && ancienVide) {
     ancienVide.remove();
@@ -51,7 +51,7 @@ function appliquerFiltres() {
 // Slider du prix
 if ($prixMax) {
   $prixMax.addEventListener('input', () => {
-    $prixMaxValue.textContent = $prixMax.value;
+    $prixMaxValue.textContent = String($prixMax.value).replace('.', ',');
     appliquerFiltres();
   });
 }
@@ -64,8 +64,8 @@ $vehicules.forEach(input => {
 // Bouton Réinitialiser
 if ($resetBtn) {
   $resetBtn.addEventListener('click', () => {
-    $prixMax.value = 20;
-    $prixMaxValue.textContent = '20';
+    $prixMax.value = $prixMax.max;
+    $prixMaxValue.textContent = $prixMax.max;
     $vehicules.forEach(input => input.checked = true);
     appliquerFiltres();
   });

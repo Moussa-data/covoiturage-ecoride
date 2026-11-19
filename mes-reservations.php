@@ -74,8 +74,8 @@ include __DIR__ . '/partials/header.php';
             </div>
             <div class="my-trip-meta">
               <span class="my-trip-tag my-trip-tag-status">✓ <?= htmlspecialchars(ucfirst($r['statut'])) ?></span>
-              <span class="my-trip-tag"><?= $r['prix'] ?> €</span>
-              <span class="my-trip-tag my-trip-tag-eco">−<?= htmlspecialchars((string) $r['co2_economise_kg']) ?> kg CO₂</span>
+              <span class="my-trip-tag"><?= formatPrix((float) $r['prix']) ?> €</span>
+              <span class="my-trip-tag my-trip-tag-eco">−<?= str_replace('.', ',', (string) round((float) $r['co2_economise_kg'], 1)) ?> kg CO₂</span>
             </div>
           </div>
 

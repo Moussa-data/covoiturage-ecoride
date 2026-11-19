@@ -86,8 +86,8 @@ include __DIR__ . '/partials/header.php';
             </div>
             <div class="my-trip-meta">
               <span class="my-trip-tag"><?= $t['places_dispo'] ?> place<?= $t['places_dispo'] > 1 ? 's' : '' ?> restante<?= $t['places_dispo'] > 1 ? 's' : '' ?></span>
-              <span class="my-trip-tag"><?= $t['prix'] ?> €</span>
-              <span class="my-trip-tag my-trip-tag-eco">−<?= htmlspecialchars((string) $t['co2_economise_kg']) ?> kg CO₂</span>
+              <span class="my-trip-tag"><?= formatPrix((float) $t['prix']) ?> €</span>
+              <span class="my-trip-tag my-trip-tag-eco">−<?= str_replace('.', ',', (string) round((float) $t['co2_economise_kg'], 1)) ?> kg CO₂</span>
               <span class="my-trip-tag my-trip-tag-passengers">
                 👥 <?= count($passagers) ?> passager<?= count($passagers) > 1 ? 's' : '' ?>
               </span>

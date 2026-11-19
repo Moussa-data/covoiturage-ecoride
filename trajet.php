@@ -225,7 +225,7 @@ include __DIR__ . '/partials/header.php';
         <h2>Impact écologique</h2>
         <p>
           En covoiturant ce trajet, vous économisez
-          <strong><?= htmlspecialchars((string) $trajet['co2_economise_kg']) ?> kg de CO₂</strong>
+          <strong><?= str_replace('.', ',', (string) round((float) $trajet['co2_economise_kg'], 1)) ?> kg de CO₂</strong>
           par rapport à un trajet en voiture individuelle 🌱
         </p>
       </section>
@@ -266,17 +266,17 @@ include __DIR__ . '/partials/header.php';
 
         <div class="recap-row">
           <span>Prix du trajet</span>
-          <span><?= htmlspecialchars((string) $trajet['prix']) ?> €</span>
+          <span><?= formatPrix((float) $trajet['prix']) ?> €</span>
         </div>
 
         <div class="recap-row">
           <span>Commission EcoRide</span>
-          <span><?= htmlspecialchars((string) $commission) ?> €</span>
+          <span><?= formatPrix((float) $commission) ?> €</span>
         </div>
 
         <div class="recap-row recap-total">
           <span>Total</span>
-          <span><?= htmlspecialchars((string) $prixTotal) ?> €</span>
+          <span><?= formatPrix((float) $prixTotal) ?> €</span>
         </div>
 
         <?php
@@ -321,7 +321,7 @@ include __DIR__ . '/partials/header.php';
             Trajet complet
           </button>
         <?php else: ?>
-          <form method="POST" action="/reserver.php" onsubmit="return confirm('Confirmer la réservation pour <?= $prixTotal ?> € ?');">
+          <form method="POST" action="/reserver.php" onsubmit="return confirm('Confirmer la réservation pour <?= formatPrix((float) $prixTotal) ?> € ?');">
             <?= csrfField() ?>
             <input type="hidden" name="trajet_id" value="<?= $trajet['id'] ?>">
             <button type="submit" class="btn btn-primary btn-reserve">

@@ -230,7 +230,7 @@ include __DIR__ . '/partials/header.php';
                 <?php endif; ?>
               </td>
               <td><?= $t['places_dispo'] ?></td>
-              <td><?= $t['prix'] ?> €</td>
+              <td><?= formatPrix((float) $t['prix']) ?> €</td>
               <td><?= $t['nb_reservations'] ?></td>
               <td>
                 <form method="POST" action="" class="inline-form" onsubmit="return confirm('Supprimer ce trajet et toutes ses réservations ?');">

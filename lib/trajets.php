@@ -371,7 +371,7 @@ function calculerDuree(string $depart, string $arrivee): string
  *
  * Avant, la valeur était fixe par type (18,5 kg pour tout trajet électrique),
  * ce qui donnait le même chiffre pour 30 min ou 5 h de route.
- * Ici on estime la distance à partir de la durée (≈ 80 km/h de moyenne),
+ * Ici on estime la distance à partir de la durée (vitesse moyenne réaliste),
  * puis on multiplie par un facteur d'économie par km selon le véhicule.
  */
 function estimerCo2(string $typeVehicule, string $heureDepart, string $heureArrivee): float
@@ -389,7 +389,10 @@ function estimerCo2(string $typeVehicule, string $heureDepart, string $heureArri
     $minutes += 24 * 60;
   }
 
-  $distanceKm = $minutes / 60 * 80;
+  // Vitesse moyenne réaliste : environ 35 km/h la première heure
+  // (ville, périphérique, trajets en Île-de-France), puis environ 85 km/h
+  // (autoroute) pour le reste d'un long trajet.
+  $distanceKm = min($minutes, 60) / 60 * 35 + max($minutes - 60, 0) / 60 * 85;
   $facteur    = $facteurParKm[$typeVehicule] ?? 0.05;
 
   return round($distanceKm * $facteur, 1);
@@ -417,4 +420,31 @@ function normaliserLieu(string $lieu): string
     }
     return mb_strtoupper(mb_substr($mot, 0, 1)) . mb_substr($mot, 1);
   }, $lieu);
+}
+
+
+/**
+ * Lit un prix saisi dans un formulaire ("2,50", "2.5", "12") → float.
+ * Renvoie null si ce n'est pas un nombre. Arrondi au centime.
+ */
+function lirePrix(string $saisie): ?float
+{
+  $saisie = str_replace([',', ' ', '€'], ['.', '', ''], trim($saisie));
+  if ($saisie === '' || !is_numeric($saisie)) {
+    return null;
+  }
+  return round((float) $saisie, 2);
+}
+
+
+/**
+ * Affiche un prix à la française : 12 → "12", 2.5 → "2,50".
+ * (Le symbole € est ajouté dans le HTML.)
+ */
+function formatPrix(float $prix): string
+{
+  if (abs($prix - round($prix)) < 0.001) {
+    return (string) (int) round($prix);
+  }
+  return number_format($prix, 2, ',', ' ');
 }

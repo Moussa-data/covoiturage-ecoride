@@ -31,7 +31,7 @@ class Trajet
   public string $date;
 
   // Détails
-  public int $prix;
+  public float $prix;
   public int $placesDispo;
   public string $typeVehicule;
   public ?string $modeleVehicule;
@@ -63,7 +63,7 @@ class Trajet
     $this->heureArrivee  = $row['heure_arrivee'] ?? '';
     $this->duree         = $row['duree'] ?? null;
     $this->date          = $row['date'] ?? '';
-    $this->prix          = (int) ($row['prix'] ?? 0);
+    $this->prix          = (float) ($row['prix'] ?? 0);
     $this->placesDispo   = (int) ($row['places_dispo'] ?? 0);
     $this->typeVehicule  = $row['type_vehicule'] ?? 'essence';
     $this->modeleVehicule= $row['modele_vehicule'] ?? null;
