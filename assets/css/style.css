@@ -3020,3 +3020,562 @@ a { text-underline-offset: 3px; }
   white-space: pre-wrap;
   word-break: break-all;
 }
+
+
+/* =====================================================================
+   ===== Fonctionnalités v3 : recherche complète, accueil vivant,
+         profils publics, réservation sur demande =====
+   ===================================================================== */
+
+/* ----- Recherche sur deux lignes : le trajet, puis quand / combien ----- */
+.search-route {
+  grid-template-columns: 1fr 72px 1fr;
+  row-gap: 16px;
+}
+.search-ligne2 {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--gray-200);
+}
+.search-ligne2 .search-stop-date,
+.search-ligne2 .search-stop-retour { flex: 1 1 0; }
+.search-ligne2 .search-stop-passagers { flex: 0 0 auto; }
+.search-ligne2 .btn-search { flex: 0 0 auto; }
+
+.label-option { font-weight: 400; color: var(--gray-500); }
+.label-faux {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+/* Ligne de trajet + bouton pour inverser départ et arrivée */
+.search-line-wrap {
+  position: relative;
+  align-self: center;
+  margin-top: 26px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+}
+.search-line-wrap .search-line { width: 100%; margin-top: 0; }
+.btn-inverser {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--gray-200);
+  background: var(--white);
+  color: var(--nuit);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: rotate 0.35s cubic-bezier(0.3, 1.4, 0.5, 1), border-color 0.15s;
+}
+.btn-inverser:hover { border-color: var(--nuit); }
+.btn-inverser.tourne { rotate: 180deg; }
+
+/* Sélecteur du nombre de passagers : − 2 + */
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: var(--brume);
+  padding: 4px;
+  height: 48px;
+}
+.stepper-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  background: var(--white);
+  color: var(--nuit);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+.stepper-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.stepper-valeur {
+  min-width: 28px;
+  text-align: center;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.stepper-valeur.bump { animation: bump 0.25s ease-out; }
+@keyframes bump {
+  40% { transform: scale(1.35); color: var(--menthe-fonce); }
+}
+
+@media (max-width: 900px) {
+  .search-route { grid-template-columns: 1fr; }
+  .search-ligne2 { flex-wrap: wrap; }
+  .search-ligne2 .search-stop-date,
+  .search-ligne2 .search-stop-retour { flex: 1 1 140px; }
+  .search-ligne2 .btn-search { flex: 1 1 100%; }
+  .search-line-wrap { margin: -6px 0; height: 30px; }
+  .search-line-wrap .search-line { display: none; }
+  .btn-inverser { left: auto; right: 0; translate: 0 -50%; rotate: 90deg; }
+  .btn-inverser.tourne { rotate: 270deg; }
+}
+
+/* Badges de la carte trajet sur une ligne */
+.trip-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.trip-badges .badge-vehicule { margin-top: 0; }
+.badge-mini {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+.badge-regulier { background: #EEF2FF; color: #3730A3; }
+.badge-demande  { background: #FFF7ED; color: #9A3412; }
+
+.results-title-retour { margin-top: 48px; }
+.trips-retour { max-width: none; }
+
+/* ----- Page trajet : choix des places et états de réservation ----- */
+.recap-places {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.recap-places .stepper { height: 42px; }
+.recap-places .stepper-btn { width: 32px; height: 32px; }
+.recap-detail { color: var(--gray-500); font-size: 0.85em; }
+.recap-total span:last-child.bump,
+#recapTotal.bump { animation: bump 0.25s ease-out; display: inline-block; }
+.btn-reserve-total { font-weight: 600; opacity: 0.85; margin-left: 4px; }
+.recap-note-demande {
+  background: #FFF7ED;
+  color: #9A3412;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+.reserve-info-attente {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #FFF7ED;
+  color: #7C2D12;
+}
+.reserve-info-refus { background: #FEF2F2; color: #991B1B; }
+/* Pastille qui "respire" : la demande est en cours */
+.pastille-attente {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: #F97316;
+  animation: respirer 1.6s ease-in-out infinite;
+}
+@keyframes respirer {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.45); }
+  50%      { box-shadow: 0 0 0 6px rgba(249, 115, 22, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pastille-attente, .stepper-valeur.bump, #recapTotal.bump { animation: none; }
+}
+
+/* ----- Mes trajets : demandes à traiter ----- */
+.demandes {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+}
+.demandes-titre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #7C2D12;
+  margin-bottom: 8px;
+}
+.demande {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px dashed #FED7AA;
+}
+.demande:first-of-type { border-top: none; }
+.demande-nom { font-weight: 600; color: var(--nuit); text-decoration: underline; }
+.demande-places { color: var(--gray-500); font-size: 0.88rem; }
+.demande .inline-form { margin-left: auto; display: flex; gap: 6px; }
+.btn-petit { padding: 6px 14px; font-size: 0.85rem; }
+.tag-attente { display: inline-flex; align-items: center; gap: 6px; background: #FFF7ED; color: #7C2D12; }
+.tag-refus { background: #FEF2F2; color: #991B1B; }
+.passenger-message { margin-left: 8px; color: var(--menthe-fonce); font-size: 0.88rem; }
+
+/* ----- Publier : interrupteur, jours, cartes de choix ----- */
+.interrupteur {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.interrupteur input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.interrupteur-piste {
+  flex-shrink: 0;
+  position: relative;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--gray-300);
+  transition: background-color 0.2s;
+}
+.interrupteur-piste::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.interrupteur input:checked + .interrupteur-piste { background: var(--menthe); }
+.interrupteur input:checked + .interrupteur-piste::after { transform: translateX(18px); }
+.interrupteur input:focus-visible + .interrupteur-piste { outline: 3px solid var(--menthe); outline-offset: 2px; }
+
+.regulier-options { margin-top: 16px; }
+.champ-aide { font-size: 0.88rem; color: var(--gray-500); margin-bottom: 8px; }
+.jours { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.jour input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.jour span {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--gray-200);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.jour input:checked + span { background: var(--nuit); border-color: var(--nuit); color: var(--menthe); }
+.jour input:focus-visible + span { outline: 3px solid var(--menthe); outline-offset: 2px; }
+.form-field-semaines { max-width: 200px; }
+.regulier-resume { margin-top: 10px; font-weight: 600; color: var(--menthe-fonce); }
+
+.champ-titre { margin: 18px 0 10px; font-weight: 600; }
+.choix-cartes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.choix-carte input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.choix-carte-contenu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--gray-200);
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--gray-700);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.choix-carte-contenu strong { color: var(--nuit); font-size: 0.98rem; }
+.choix-carte input:checked + .choix-carte-contenu {
+  border-color: var(--nuit);
+  box-shadow: inset 0 0 0 1px var(--nuit);
+  background: var(--brume);
+}
+.choix-carte input:focus-visible + .choix-carte-contenu { outline: 3px solid var(--menthe); outline-offset: 2px; }
+@media (max-width: 700px) { .choix-cartes { grid-template-columns: 1fr; } }
+
+/* ----- Accueil : trajets populaires (mini-trajets) ----- */
+.populaires { padding: 56px 0 8px; }
+.populaires-entete h2 { font-size: 1.6rem; font-weight: 800; }
+.populaires-entete p { color: var(--gray-500); margin: 6px 0 22px; }
+.populaires-grille {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.populaire {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  align-items: stretch;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--radius-md);
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  color: var(--nuit);
+  text-decoration: none;
+  transition: border-color 0.15s;
+}
+.populaire:hover { border-color: var(--nuit); }
+.populaire-trace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px 0;
+}
+.populaire-point {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 3px solid var(--nuit);
+  background: var(--white);
+}
+.populaire-point-arrivee { background: var(--menthe); border-color: var(--menthe); }
+.populaire-ligne {
+  flex: 1;
+  width: 3px;
+  min-height: 18px;
+  margin: 3px 0;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--nuit) 50%, var(--gray-200) 50%);
+  background-size: 100% 200%;
+  background-position: 0 100%;
+  transition: background-position 0.4s ease-out;
+}
+/* Au survol, la ligne se "remplit" du départ vers l'arrivée */
+.populaire:hover .populaire-ligne,
+.populaire:focus-visible .populaire-ligne { background-position: 0 0; }
+.populaire-villes {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+.populaire-ville {
+  font-weight: 700;
+  font-stretch: 105%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.populaire-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  text-align: right;
+}
+.populaire-prix { font-weight: 800; font-stretch: 110%; }
+.populaire-nb { font-size: 0.82rem; color: var(--menthe-fonce); font-weight: 600; }
+@media (max-width: 900px) { .populaires-grille { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .populaires-grille { grid-template-columns: 1fr; } }
+
+/* ----- Accueil : calculateur conducteur ----- */
+.calculateur { padding: 24px 0 8px; }
+.calculateur-inner {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+}
+.calculateur-texte { padding: 32px; }
+.calculateur-texte h2 { font-size: 1.5rem; font-weight: 800; }
+.calculateur-texte > p { color: var(--gray-500); margin: 8px 0 22px; max-width: 46ch; }
+.calc-champ { margin-bottom: 18px; display: flex; flex-direction: column; gap: 8px; }
+.calc-champ label, .calc-champ .label-faux { font-weight: 600; font-size: 0.9rem; color: var(--gray-700); }
+.calc-champ output { font-weight: 800; color: var(--nuit); }
+.calc-champ input[type="range"] { accent-color: var(--nuit); width: 100%; }
+.calc-segments { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.calc-segments input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.calc-segments span {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--gray-200);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.calc-segments input:checked + span { background: var(--nuit); color: var(--menthe); border-color: var(--nuit); }
+.calc-segments input:focus-visible + span { outline: 3px solid var(--menthe); outline-offset: 2px; }
+
+.calculateur-resultat {
+  background: var(--nuit);
+  color: var(--white);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+.calc-resultat-label { color: rgba(255, 255, 255, 0.7); }
+.calc-montant {
+  font-size: clamp(3rem, 6vw, 4.4rem);
+  font-weight: 800;
+  font-stretch: 125%;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--menthe);
+  font-variant-numeric: tabular-nums;
+}
+.calc-periode { color: rgba(255, 255, 255, 0.7); margin-bottom: 14px; }
+.calc-detail { margin: 0 0 20px; display: grid; gap: 6px; font-size: 0.9rem; }
+.calc-detail div { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 6px; }
+.calc-detail dt { color: rgba(255, 255, 255, 0.7); }
+.calc-detail dd { margin: 0; font-weight: 700; }
+.calculateur-resultat .btn { align-self: flex-start; }
+.calc-note { margin-top: 14px; font-size: 0.78rem; color: rgba(255, 255, 255, 0.55); line-height: 1.5; }
+@media (max-width: 900px) {
+  .calculateur-inner { grid-template-columns: 1fr; }
+}
+
+/* =============================================================
+   V5 — Confiance : profil public, badges, vérification e-mail
+   ============================================================= */
+.form-banner-info {
+  background: var(--white);
+  color: var(--gray-700);
+  border: 1px solid var(--gray-200);
+}
+.form-banner-info a { color: var(--menthe-fonce); font-weight: 600; }
+.field-hint { display: block; margin-top: 6px; font-size: .82rem; color: var(--gray-500); }
+
+.driver-avatar-initiale {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  background: var(--nuit); color: var(--menthe); font-weight: 700; font-size: 1.5rem;
+}
+.driver-lien { color: inherit; text-decoration: none; border-bottom: 2px solid var(--menthe); }
+.driver-lien:hover { color: var(--menthe-fonce); }
+.driver-voir-profil {
+  display: inline-block; margin-top: 12px; font-weight: 600; font-size: .92rem;
+  color: var(--menthe-fonce); text-decoration: none;
+}
+.driver-voir-profil:hover { text-decoration: underline; }
+
+/* Carte « Confiance » de profil.php */
+.confiance-ligne { display: flex; gap: 10px; align-items: flex-start; margin: 0; color: var(--gray-700); }
+.confiance-ok { color: var(--menthe-fonce); font-weight: 600; align-items: center; }
+.confiance-pastille {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--menthe); color: var(--nuit); font-weight: 800; font-size: .85rem;
+}
+.confiance-pastille-vide { background: var(--gray-100); color: var(--gray-500); border: 2px dashed var(--gray-300); }
+.confiance-lien { margin: 14px 0 0; font-size: .9rem; color: var(--gray-500); }
+.confiance-lien a { color: var(--menthe-fonce); font-weight: 600; }
+
+/* ---------- Profil public ---------- */
+.profil-public { max-width: 760px; padding-top: 32px; padding-bottom: 64px; }
+
+.pp-entete {
+  display: flex; gap: 22px; align-items: center;
+  background: var(--nuit); color: var(--white);
+  border-radius: var(--radius-lg); padding: 28px;
+  position: relative; overflow: hidden;
+}
+/* Le motif maison : une ligne de trajet qui traverse le bandeau */
+.pp-entete::after {
+  content: ""; position: absolute; right: -40px; bottom: 26px; width: 55%; height: 0;
+  border-top: 3px dashed rgba(45, 212, 167, .35);
+}
+.pp-entete::before {
+  content: ""; position: absolute; right: 24px; bottom: 20px; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--menthe); box-shadow: 0 0 0 5px rgba(45, 212, 167, .2);
+}
+.pp-avatar {
+  width: 84px; height: 84px; border-radius: 50%; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--menthe); color: var(--nuit); font-size: 2.2rem; font-weight: 800;
+  box-shadow: 0 0 0 4px var(--nuit-2), 0 0 0 6px var(--menthe);
+}
+.pp-identite h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2rem); line-height: 1.15; color: var(--white); }
+.pp-depuis { margin: 4px 0 12px; color: rgba(255, 255, 255, .7); font-size: .92rem; }
+.pp-badges { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.pp-badge {
+  padding: 5px 12px; border-radius: 999px; font-size: .82rem; font-weight: 600;
+  background: var(--nuit-2); color: var(--white); border: 1px solid rgba(255, 255, 255, .15);
+}
+.pp-badge-ok { background: var(--menthe); color: var(--nuit); border-color: var(--menthe); }
+.pp-badge-vide { color: rgba(255, 255, 255, .6); border-style: dashed; }
+
+/* Trois arrêts reliés par la ligne de trajet */
+.pp-chiffres {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  margin: 22px 0 8px; position: relative;
+}
+.pp-chiffres::before {
+  content: ""; position: absolute; left: 16%; right: 16%; top: 9px;
+  border-top: 3px solid var(--gray-200);
+}
+.pp-chiffre { text-align: center; position: relative; padding-top: 26px; }
+.pp-chiffre::before {
+  content: ""; position: absolute; top: 2px; left: 50%; transform: translateX(-50%);
+  width: 14px; height: 14px; border-radius: 50%; background: var(--white);
+  border: 3px solid var(--menthe-fonce);
+}
+.pp-chiffre strong { display: block; font-size: 1.7rem; color: var(--nuit); font-variant-numeric: tabular-nums; }
+.pp-chiffre span { font-size: .85rem; color: var(--gray-500); }
+
+.pp-bloc { margin-top: 32px; }
+.pp-bloc h2 { font-size: 1.15rem; color: var(--nuit); margin: 0 0 12px; }
+.pp-bio { margin: 0; line-height: 1.65; color: var(--gray-700); max-width: 62ch; }
+.pp-vide { margin: 0; color: var(--gray-500); }
+
+.pp-trajets { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.pp-trajet {
+  display: grid; grid-template-columns: 90px 1fr auto; gap: 14px; align-items: center;
+  padding: 14px 16px; background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md); text-decoration: none; color: var(--nuit);
+  transition: border-color .15s;
+}
+.pp-trajet:hover { border-color: var(--menthe-fonce); }
+.pp-trajet:focus-visible { outline: 3px solid var(--menthe); outline-offset: 2px; }
+.pp-trajet-date { font-size: .85rem; color: var(--gray-500); font-variant-numeric: tabular-nums; }
+.pp-trajet-route { display: flex; align-items: center; gap: 10px; font-weight: 600; min-width: 0; }
+.pp-trajet-route > span:not(.pp-trajet-ligne) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pp-trajet-ligne { flex: 1; min-width: 24px; height: 3px; background: var(--gray-200); position: relative; border-radius: 2px; }
+.pp-trajet-ligne::after {
+  content: ""; position: absolute; inset: 0; width: 0; background: var(--menthe); border-radius: 2px;
+  transition: width .35s ease;
+}
+.pp-trajet:hover .pp-trajet-ligne::after { width: 100%; }
+.pp-trajet-prix { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.pp-avis { list-style: none; margin: 0; padding: 0; }
+.pp-avis-item { padding: 16px 0; border-bottom: 1px solid var(--gray-200); }
+.pp-avis-item:last-child { border-bottom: 0; }
+.pp-avis-tete { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; }
+.pp-avis-note { color: #E8A317; letter-spacing: 1px; }
+.pp-avis-note-vide { color: var(--gray-200); }
+.pp-avis-trajet { font-size: .85rem; color: var(--gray-500); }
+.pp-avis-item p { margin: 8px 0 0; color: var(--gray-700); line-height: 1.55; }
+
+@media (max-width: 560px) {
+  .pp-entete { flex-direction: column; text-align: center; }
+  .pp-entete::before, .pp-entete::after { display: none; }
+  .pp-badges { justify-content: center; }
+  .pp-trajet { grid-template-columns: 1fr auto; }
+  .pp-trajet-date { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pp-trajet-ligne::after { transition: none; }
+}

@@ -79,6 +79,7 @@ function db(): PDO
   migrateAddAdminColumn($pdo);
   migrateLinkOrphanTrajets($pdo);
   migrateNettoyageTrajets($pdo);
+  migrateFonctionnalitesV3($pdo);
 
   return $pdo;
 }
@@ -129,6 +130,48 @@ function migrateNettoyageTrajets(PDO $pdo): void
   }
 
   $pdo->exec("PRAGMA user_version = 2");
+}
+
+
+/** Ajoute une colonne si elle n'existe pas encore (migration idempotente). */
+function ajouterColonneSiAbsente(PDO $pdo, string $table, string $colonne, string $definition): void
+{
+  foreach ($pdo->query("PRAGMA table_info($table)")->fetchAll() as $col) {
+    if ($col['name'] === $colonne) {
+      return;
+    }
+  }
+  $pdo->exec("ALTER TABLE $table ADD COLUMN $colonne $definition");
+}
+
+
+/**
+ * MIGRATION : colonnes des fonctionnalités "comme BlaBlaCar"
+ *  - trajets.reservation_auto : 1 = réservation immédiate, 0 = le conducteur accepte/refuse
+ *  - trajets.serie_id        : identifiant commun aux trajets réguliers (ex : lun-ven)
+ *  - reservations.places     : nombre de places réservées en une fois
+ *  - users.bio               : présentation affichée sur le profil public
+ *  - users.email_verifie     : 1 quand l'utilisateur a cliqué le lien reçu par e-mail
+ *  - table email_verifications : jetons de vérification (hachés, comme pour le mot de passe)
+ */
+function migrateFonctionnalitesV3(PDO $pdo): void
+{
+  ajouterColonneSiAbsente($pdo, 'trajets', 'reservation_auto', 'INTEGER NOT NULL DEFAULT 1');
+  ajouterColonneSiAbsente($pdo, 'trajets', 'serie_id', 'TEXT');
+  ajouterColonneSiAbsente($pdo, 'reservations', 'places', 'INTEGER NOT NULL DEFAULT 1');
+  ajouterColonneSiAbsente($pdo, 'users', 'bio', 'TEXT');
+  ajouterColonneSiAbsente($pdo, 'users', 'email_verifie', 'INTEGER NOT NULL DEFAULT 0');
+
+  $pdo->exec("
+    CREATE TABLE IF NOT EXISTS email_verifications (
+      id          INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id     INTEGER NOT NULL,
+      token_hash  TEXT NOT NULL,
+      expire_le   INTEGER NOT NULL,
+      cree_le     INTEGER NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  ");
 }
 
 
@@ -429,6 +472,9 @@ function shapeTrajetRow(array $row): array
 {
   return [
     'id'           => (int) $row['id'],
+    'user_id'      => isset($row['user_id']) ? (int) $row['user_id'] : null,
+    'reservation_auto' => (bool) ($row['reservation_auto'] ?? 1),
+    'serie_id'     => $row['serie_id'] ?? null,
     'conducteur'   => [
       'nom'                => $row['conducteur_nom'],
       'note'               => (float) $row['conducteur_note'],

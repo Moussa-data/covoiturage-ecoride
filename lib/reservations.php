@@ -66,9 +66,178 @@ function initReservationsSchema(PDO $pdo): void
  * @return array ['ok' => bool, 'error' => string|null, 'reservation_id' => int|null]
  */
 // 🆕 Façade vers \EcoRide\Models\Reservation::create
-function addReservation(int $userId, int $trajetId): array
+function addReservation(int $userId, int $trajetId, int $places = 1): array
 {
-  return \EcoRide\Models\Reservation::create($userId, $trajetId);
+  $resultat = \EcoRide\Models\Reservation::create($userId, $trajetId, $places);
+  if ($resultat['ok']) {
+    notifierConducteurReservation((int) $resultat['reservation_id']);
+  }
+  return $resultat;
+}
+
+
+/** La réservation d'un utilisateur sur un trajet (ou null). */
+function getReservationUtilisateur(int $userId, int $trajetId): ?array
+{
+  $stmt = db()->prepare("SELECT id, statut, places FROM reservations WHERE user_id = :u AND trajet_id = :t LIMIT 1");
+  $stmt->execute(['u' => $userId, 't' => $trajetId]);
+  $r = $stmt->fetch();
+  return $r ?: null;
+}
+
+
+/** Le conducteur accepte une demande, puis le passager est prévenu par e-mail. */
+function accepterReservation(int $reservationId, int $conducteurId): array
+{
+  $resultat = \EcoRide\Models\Reservation::accepter($reservationId, $conducteurId);
+  if ($resultat['ok']) {
+    notifierPassagerReponse($reservationId, true);
+  }
+  return $resultat;
+}
+
+
+/** Le conducteur refuse une demande, puis le passager est prévenu par e-mail. */
+function refuserReservation(int $reservationId, int $conducteurId): bool
+{
+  $ok = \EcoRide\Models\Reservation::refuser($reservationId, $conducteurId);
+  if ($ok) {
+    notifierPassagerReponse($reservationId, false);
+  }
+  return $ok;
+}
+
+
+/**
+ * Toutes les réservations (demandes comprises) sur les trajets d'un conducteur,
+ * pour la page "Mes trajets".
+ */
+function getReservationsPourConducteur(int $conducteurId): array
+{
+  $stmt = db()->prepare("
+    SELECT r.id, r.trajet_id, r.statut, r.places, r.cree_le,
+           u.id AS passager_id, u.nom AS passager_nom
+    FROM reservations r
+    INNER JOIN trajets t ON t.id = r.trajet_id
+    INNER JOIN users u   ON u.id = r.user_id
+    WHERE t.user_id = :c
+    ORDER BY r.cree_le ASC
+  ");
+  $stmt->execute(['c' => $conducteurId]);
+  $parTrajet = [];
+  foreach ($stmt->fetchAll() as $r) {
+    $parTrajet[(int) $r['trajet_id']][] = $r;
+  }
+  return $parTrajet;
+}
+
+
+// =============================================================
+// Notifications par e-mail
+// =============================================================
+
+/** Infos utiles pour écrire un e-mail sur une réservation. */
+function infosReservation(int $reservationId): ?array
+{
+  $stmt = db()->prepare("
+    SELECT r.statut, r.places, t.id AS trajet_id, t.depart, t.arrivee, t.date, t.heure_depart,
+           p.nom AS passager_nom, p.email AS passager_email,
+           c.nom AS conducteur_nom, c.email AS conducteur_email
+    FROM reservations r
+    INNER JOIN trajets t ON t.id = r.trajet_id
+    INNER JOIN users p   ON p.id = r.user_id
+    LEFT JOIN users c    ON c.id = t.user_id
+    WHERE r.id = :id
+  ");
+  $stmt->execute(['id' => $reservationId]);
+  $r = $stmt->fetch();
+  return $r ?: null;
+}
+
+function lienSite(string $chemin): string
+{
+  $schema = IS_PROD ? 'https' : 'http';
+  return $schema . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $chemin;
+}
+
+/** Prévient le conducteur : nouvelle réservation, ou nouvelle demande à traiter. */
+function notifierConducteurReservation(int $reservationId): void
+{
+  $r = infosReservation($reservationId);
+  if (!$r || empty($r['conducteur_email']) || str_ends_with($r['conducteur_email'], '@demo.ecoride.local')) {
+    return;
+  }
+  $trajet = $r['depart'] . ' → ' . $r['arrivee'] . ', ' . dateCourte($r['date']) . ' à ' . $r['heure_depart'];
+  $places = (int) $r['places'] . ' place' . ($r['places'] > 1 ? 's' : '');
+
+  if ($r['statut'] === 'en_attente') {
+    $sujet = 'Nouvelle demande de réservation';
+    $corps = "Bonjour " . $r['conducteur_nom'] . ",
+
+"
+           . $r['passager_nom'] . " demande " . $places . " sur votre trajet " . $trajet . ".
+
+"
+           . "Acceptez ou refusez la demande depuis « Mes trajets » :
+" . lienSite('/mes-trajets.php') . "
+
+"
+           . "L'équipe EcoRide";
+  } else {
+    $sujet = 'Nouvelle réservation sur votre trajet';
+    $corps = "Bonjour " . $r['conducteur_nom'] . ",
+
+"
+           . $r['passager_nom'] . " a réservé " . $places . " sur votre trajet " . $trajet . ".
+
+"
+           . "Retrouvez vos passagers dans « Mes trajets » :
+" . lienSite('/mes-trajets.php') . "
+
+"
+           . "L'équipe EcoRide";
+  }
+  if (IS_PROD) {
+    envoyerEmail($r['conducteur_email'], $sujet, $corps);
+  }
+}
+
+/** Prévient le passager de la réponse du conducteur. */
+function notifierPassagerReponse(int $reservationId, bool $acceptee): void
+{
+  $r = infosReservation($reservationId);
+  if (!$r) {
+    return;
+  }
+  $trajet = $r['depart'] . ' → ' . $r['arrivee'] . ', ' . dateCourte($r['date']) . ' à ' . $r['heure_depart'];
+  if ($acceptee) {
+    $sujet = 'Votre réservation est confirmée';
+    $corps = "Bonjour " . $r['passager_nom'] . ",
+
+"
+           . "Bonne nouvelle : " . ($r['conducteur_nom'] ?? 'le conducteur') . " a accepté votre demande pour le trajet " . $trajet . ".
+
+"
+           . "Détails et messagerie : " . lienSite('/trajet.php?id=' . $r['trajet_id']) . "
+
+"
+           . "Bon trajet !
+L'équipe EcoRide";
+  } else {
+    $sujet = 'Votre demande de réservation';
+    $corps = "Bonjour " . $r['passager_nom'] . ",
+
+"
+           . "Le conducteur n'a pas pu accepter votre demande pour le trajet " . $trajet . ".
+"
+           . "D'autres trajets vous attendent peut-être : " . lienSite('/') . "
+
+"
+           . "L'équipe EcoRide";
+  }
+  if (IS_PROD) {
+    envoyerEmail($r['passager_email'], $sujet, $corps);
+  }
 }
 
 
@@ -95,6 +264,7 @@ function getReservationsByUser(int $userId): array
     SELECT
       r.id            AS reservation_id,
       r.statut,
+      r.places        AS places_reservees,
       r.cree_le       AS reserve_le,
       t.*
     FROM reservations r
@@ -110,6 +280,7 @@ function getReservationsByUser(int $userId): array
     $trajet = shapeTrajetRow($row);
     $trajet['reservation_id'] = (int) $row['reservation_id'];
     $trajet['statut']         = $row['statut'];
+    $trajet['places_reservees'] = (int) ($row['places_reservees'] ?? 1);
     $trajet['reserve_le']     = $row['reserve_le'];
     $resultats[] = $trajet;
   }
@@ -133,7 +304,7 @@ function userHasReserved(int $userId, int $trajetId): bool
 function countReservationsForTrajet(int $trajetId): int
 {
   $stmt = db()->prepare("
-    SELECT COUNT(*) FROM reservations WHERE trajet_id = :tid
+    SELECT COALESCE(SUM(places), 0) FROM reservations WHERE trajet_id = :tid AND statut = 'confirmee'
   ");
   $stmt->execute(['tid' => $trajetId]);
   return (int) $stmt->fetchColumn();

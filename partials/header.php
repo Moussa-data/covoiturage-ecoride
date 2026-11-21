@@ -30,7 +30,7 @@ $user       = currentUser(); // null si pas connecté
     if ($chemin === '/trajet.php' && isset($_GET['id'])) {
       $canonical .= '?id=' . (int) $_GET['id'];
     }
-    $metaDescription = $metaDescription ?? 'EcoRide : covoiturage du quotidien en Île-de-France. Partagez les frais de vos trajets et réduisez vos émissions de CO₂.';
+    $metaDescription = $metaDescription ?? 'EcoRide : covoiturage au quotidien en Île-de-France et pour vos longs trajets. Partagez les frais et réduisez vos émissions de CO₂.';
   ?>
   <title><?= htmlspecialchars($pageTitle) ?></title>
   <meta name="description" content="<?= htmlspecialchars($metaDescription) ?>" />
@@ -64,7 +64,7 @@ $user       = currentUser(); // null si pas connecté
     "name": "EcoRide",
     "url": "https://moussa.alwaysdata.net/",
     "inLanguage": "fr-FR",
-    "description": "Covoiturage du quotidien en Île-de-France.",
+    "description": "Covoiturage au quotidien en Île-de-France et pour les longs trajets.",
     "potentialAction": {
       "@type": "SearchAction",
       "target": "https://moussa.alwaysdata.net/?arrivee={search_term_string}",

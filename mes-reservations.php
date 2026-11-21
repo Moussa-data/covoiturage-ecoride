@@ -73,8 +73,15 @@ include __DIR__ . '/partials/header.php';
               </span>
             </div>
             <div class="my-trip-meta">
-              <span class="my-trip-tag my-trip-tag-status">✓ <?= htmlspecialchars(ucfirst($r['statut'])) ?></span>
-              <span class="my-trip-tag"><?= formatPrix((float) $r['prix']) ?> €</span>
+              <?php if ($r['statut'] === 'en_attente'): ?>
+                <span class="my-trip-tag tag-attente"><span class="pastille-attente" aria-hidden="true"></span> En attente du conducteur</span>
+              <?php elseif ($r['statut'] === 'refusee'): ?>
+                <span class="my-trip-tag tag-refus">Demande refusée</span>
+              <?php else: ?>
+                <span class="my-trip-tag my-trip-tag-status">✓ Confirmée</span>
+              <?php endif; ?>
+              <span class="my-trip-tag"><?= (int) $r['places_reservees'] ?> place<?= $r['places_reservees'] > 1 ? 's' : '' ?></span>
+              <span class="my-trip-tag"><?= formatPrix((float) $r['prix'] * $r['places_reservees']) ?> €</span>
               <span class="my-trip-tag my-trip-tag-eco">−<?= str_replace('.', ',', (string) round((float) $r['co2_economise_kg'], 1)) ?> kg CO₂</span>
             </div>
           </div>
@@ -88,10 +95,14 @@ include __DIR__ . '/partials/header.php';
             $trajetPasse = $r['date'] < date('Y-m-d');
             $dejaNote    = hasUserReviewed($user['id'], $r['id']);
             ?>
-            <?php if ($trajetPasse && !$dejaNote): ?>
+            <?php if ($r['statut'] === 'refusee'): ?>
+              <a href="/?depart=<?= urlencode($r['depart']) ?>&arrivee=<?= urlencode($r['arrivee']) ?>" class="btn btn-primary">Autre trajet</a>
+            <?php elseif ($trajetPasse && !$dejaNote && $r['statut'] === 'confirmee'): ?>
               <a href="/donner-avis.php?id=<?= $r['id'] ?>" class="btn btn-primary">⭐ Noter</a>
             <?php elseif ($trajetPasse && $dejaNote): ?>
               <span class="my-trip-tag my-trip-tag-status">✓ Avis donné</span>
+            <?php elseif ($trajetPasse): ?>
+              <span class="my-trip-tag">Trajet passé</span>
             <?php else: ?>
               <form method="POST" action="" class="inline-form" onsubmit="return confirm('Annuler cette réservation ?');">
                 <?= csrfField() ?>

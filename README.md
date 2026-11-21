@@ -1,8 +1,8 @@
-# EcoRide — Covoiturage du quotidien
+# EcoRide — Covoiturage
 
-> Plateforme fullstack de covoiturage pour les trajets courts en Île-de-France
-> (domicile-travail, gare, aéroport). Entièrement codée à la main en PHP / SQLite,
-> sans framework.
+> Plateforme fullstack de covoiturage : trajets du quotidien en Île-de-France
+> (domicile-travail, gare, aéroport) et longs trajets entre villes.
+> Entièrement codée à la main en PHP / SQLite, sans framework.
 
 🔗 **Démo en ligne** : [https://moussa.alwaysdata.net](https://moussa.alwaysdata.net) — version de démonstration (réservations désactivées)
 
@@ -26,7 +26,12 @@
 - 👑 **Dashboard admin** avec stats agrégées (`COUNT`, `SUM`, `AVG`) et modération
 - 📊 **Stats publiques** sur l'accueil avec **seuil intelligent** (preuve sociale chiffrée si plateforme mature, message qualitatif sinon)
 - 📱 **Responsive complet** avec menu burger mobile
-- 🗺️ **Trajets courts en Île-de-France** : prix au centime, suggestions de 67 villes, CO₂ estimé selon la durée et le véhicule
+- 🗺️ **Trajets courts et longs** : prix au centime, suggestions de villes d'Île-de-France et des grandes villes, CO₂ estimé selon la durée et le véhicule
+- 🔍 **Recherche complète** : nombre de passagers, aller-retour, inversion départ/arrivée
+- ↻ **Trajets réguliers** : publier en une fois un trajet répété (jours choisis, jusqu'à 8 semaines)
+- ✋ **Réservation sur demande** : le conducteur accepte ou refuse chaque passager, prévenu par e-mail ; réservation de plusieurs places
+- 🪪 **Profils publics** : présentation, badge « E-mail vérifié », avis, trajets à venir (sans jamais afficher l'e-mail)
+- 🧮 **Calculateur d'économies** sur l'accueil et **trajets populaires**
 - 🔑 **Mot de passe oublié** par e-mail (jeton aléatoire haché, valable 1 h, usage unique) et **limite de 5 tentatives** de connexion
 - ✉️ **Envoi d'e-mails par SMTP** avec page admin de diagnostic
 - 💶 **Frais de service** de 15 % (minimum 0,30 €) affichés avant la réservation

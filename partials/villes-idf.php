@@ -30,6 +30,9 @@ $villesIdf = [
   'Argenteuil', 'Cergy', 'Pontoise', 'Roissy-en-France', 'Sarcelles',
   // Seine-et-Marne (77)
   'Chessy', 'Fontainebleau', 'Marne-la-Vallée', 'Meaux', 'Melun', 'Torcy',
+  // Grandes villes, pour les trajets plus longs (week-end, vacances)
+  'Lyon', 'Lille', 'Rouen', 'Orléans', 'Reims', 'Tours', 'Le Mans', 'Amiens', 'Caen',
+  'Nantes', 'Rennes', 'Bordeaux', 'Strasbourg', 'Dijon', 'Marseille', 'Toulouse',
 ];
 ?>
 <datalist id="villes-idf">

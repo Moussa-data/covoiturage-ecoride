@@ -28,6 +28,8 @@ class User
   public string $creeLe;
   public bool $estConducteur;
   public bool $estAdmin;
+  public ?string $bio = null;
+  public bool $emailVerifie = false;
 
   /**
    * Constructeur — prend un tableau associatif (issu de la BDD).
@@ -42,6 +44,8 @@ class User
     $this->creeLe          = $data['cree_le'] ?? '';
     $this->estConducteur   = (bool) ($data['est_conducteur'] ?? false);
     $this->estAdmin        = (bool) ($data['est_admin'] ?? false);
+    $this->bio             = $data['bio'] ?? null;
+    $this->emailVerifie    = (bool) ($data['email_verifie'] ?? false);
   }
 
   // =============================================================
@@ -109,6 +113,8 @@ class User
       'cree_le'         => $this->creeLe,
       'est_conducteur'  => $this->estConducteur ? 1 : 0,
       'est_admin'       => $this->estAdmin ? 1 : 0,
+      'bio'             => $this->bio,
+      'email_verifie'   => $this->emailVerifie ? 1 : 0,
     ];
     if ($includePassword) {
       $arr['mot_de_passe'] = $this->motDePasseHash;

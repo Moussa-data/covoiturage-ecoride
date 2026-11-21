@@ -33,6 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if ($resultat['ok']) {
     // Inscription réussie → on connecte directement
     loginUser($valeurs['email'], $motDePasse);
+    // E-mail de bienvenue avec le lien de vérification (badge « E-mail vérifié »)
+    if (!empty($resultat['user']['id'])) {
+      envoyerVerificationEmail((int) $resultat['user']['id']);
+    }
 
     // Redirection : page demandée si on a sauvegardé une URL, sinon accueil
     $redirect = $_SESSION['redirect_after_login'] ?? '/';

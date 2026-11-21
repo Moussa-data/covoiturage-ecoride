@@ -12,7 +12,7 @@ include __DIR__ . '/partials/header.php';
 <main class="container about-page">
 
   <section class="about-hero">
-    <h1>EcoRide, le covoiturage du quotidien</h1>
+    <h1>EcoRide, le covoiturage du quotidien et des week-ends</h1>
     <p class="about-tagline">
       Partager la voiture qui fait déjà votre trajet : moins de voitures sur la route,
       des frais partagés et moins de CO₂.
@@ -22,9 +22,10 @@ include __DIR__ . '/partials/header.php';
   <section class="about-section">
     <h2>Notre mission</h2>
     <p>
-      Beaucoup de trajets du quotidien, comme aller au travail, à la gare ou à l'aéroport,
-      se font seul en voiture. EcoRide met en relation les conducteurs qui font déjà ce
-      trajet et les passagers qui vont au même endroit.
+      Beaucoup de trajets se font seul en voiture : aller au travail, rejoindre une gare
+      ou un aéroport, rentrer voir sa famille le week-end. EcoRide met en relation les
+      conducteurs qui font déjà ce trajet et les passagers qui vont au même endroit,
+      qu'il s'agisse de 15 km en Île-de-France ou de 400 km jusqu'à Lyon.
     </p>
     <p>
       Chaque trajet affiche une estimation du CO₂ économisé, pour que chacun voie
@@ -95,7 +96,7 @@ include __DIR__ . '/partials/header.php';
 
   <section class="about-cta">
     <h2>Rejoignez la communauté</h2>
-    <p>Conducteurs et passagers : partagez vos trajets du quotidien.</p>
+    <p>Conducteurs et passagers : partagez vos trajets, courts ou longs.</p>
     <div class="about-cta-buttons">
       <a href="/inscription.php" class="btn btn-primary">Créer mon compte</a>
       <a href="/" class="btn btn-ghost">Voir les trajets</a>

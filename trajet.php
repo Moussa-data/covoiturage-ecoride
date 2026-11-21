@@ -70,8 +70,13 @@ $conducteur = $trajet['conducteur'];
 $prefs      = $trajet['preferences'];
 
 // Prix total payé par le passager = prix du conducteur + frais de service (15 %, min 0,30 €)
-$commission = calculerCommission((float) $trajet['prix']);
-$prixTotal  = $trajet['prix'] + $commission;
+// Nombre de places demandé (depuis la recherche ?places=2), limité aux places dispo
+$placesMax       = max(1, min(4, (int) $trajet['places_dispo']));
+$placesDemandees = max(1, min($placesMax, (int) ($_GET['places'] ?? 1)));
+
+$sousTotal  = $trajet['prix'] * $placesDemandees;
+$commission = calculerCommission((float) $sousTotal);
+$prixTotal  = $sousTotal + $commission;
 
 // Le titre de la page (vu dans l'onglet du navigateur)
 $pageTitle  = $trajet['depart'] . ' → ' . $trajet['arrivee'] . ' — EcoRide';
@@ -97,6 +102,10 @@ include __DIR__ . '/partials/header.php';
   <?php if (($_GET['reservation'] ?? '') === 'ok'): ?>
     <div class="form-banner form-banner-success">
       🎉 Réservation confirmée ! Retrouvez-la dans <a href="/mes-reservations.php">Mes réservations</a>.
+    </div>
+  <?php elseif (($_GET['reservation'] ?? '') === 'demande'): ?>
+    <div class="form-banner form-banner-success">
+      📨 Demande envoyée au conducteur. Vous recevrez un e-mail dès qu'il aura répondu.
     </div>
   <?php elseif (($_GET['reservation'] ?? '') === 'ko'): ?>
     <?php
@@ -162,10 +171,18 @@ include __DIR__ . '/partials/header.php';
         $stats = $cuid > 0 ? getNoteMoyenneConducteur($cuid) : ['moyenne' => null, 'nombre' => 0];
         ?>
         <div class="driver-row">
-          <img src="<?= htmlspecialchars($conducteur['avatar']) ?>" alt="<?= htmlspecialchars($conducteur['nom']) ?>" class="driver-avatar" />
+          <?php if (!empty($conducteur['avatar'])): ?>
+            <img src="<?= htmlspecialchars($conducteur['avatar']) ?>" alt="<?= htmlspecialchars($conducteur['nom']) ?>" class="driver-avatar" />
+          <?php else: ?>
+            <span class="driver-avatar driver-avatar-initiale" aria-hidden="true"><?= htmlspecialchars(mb_strtoupper(mb_substr($conducteur['nom'], 0, 1))) ?></span>
+          <?php endif; ?>
           <div class="driver-info">
             <div class="driver-name">
-              <?= htmlspecialchars($conducteur['nom']) ?>
+              <?php if ($cuid > 0): ?>
+                <a href="/profil-public.php?id=<?= $cuid ?>" class="driver-lien"><?= htmlspecialchars($conducteur['nom']) ?></a>
+              <?php else: ?>
+                <?= htmlspecialchars($conducteur['nom']) ?>
+              <?php endif; ?>
               <?php if ($conducteur['verifie']): ?>
                 <span class="verified-badge" title="Profil vérifié">✓ Vérifié</span>
               <?php endif; ?>
@@ -183,6 +200,9 @@ include __DIR__ . '/partials/header.php';
           </div>
         </div>
         <p class="driver-description"><?= nl2br(htmlspecialchars($trajet['description'])) ?></p>
+        <?php if ($cuid > 0): ?>
+          <a href="/profil-public.php?id=<?= $cuid ?>" class="driver-voir-profil">Voir le profil et les avis</a>
+        <?php endif; ?>
       </section>
 
       <!-- Véhicule + préférences -->
@@ -264,39 +284,50 @@ include __DIR__ . '/partials/header.php';
       <div class="recap">
         <h2>Récapitulatif</h2>
 
+        <?php if ($trajet['places_dispo'] > 0): ?>
+          <!-- Nombre de places : les montants se recalculent en direct (assets/js/trajet.js) -->
+          <div class="recap-places" data-prix="<?= (float) $trajet['prix'] ?>"
+               data-taux="<?= COMMISSION_TAUX ?>" data-minimum="<?= COMMISSION_MINIMUM ?>">
+            <span class="label-faux" id="labelPlaces">Places</span>
+            <div class="stepper" role="group" aria-labelledby="labelPlaces">
+              <button type="button" class="stepper-btn" data-delta="-1" aria-label="Une place de moins">−</button>
+              <output class="stepper-valeur" id="placesAffiche" aria-live="polite"><?= $placesDemandees ?></output>
+              <button type="button" class="stepper-btn" data-delta="1" aria-label="Une place de plus" data-max="<?= $placesMax ?>">+</button>
+            </div>
+          </div>
+        <?php endif; ?>
+
         <div class="recap-row">
-          <span>Prix du trajet</span>
-          <span><?= formatPrix((float) $trajet['prix']) ?> €</span>
+          <span>Prix du trajet <span class="recap-detail" id="recapDetail"><?= $placesDemandees > 1 ? '(' . $placesDemandees . ' × ' . formatPrix((float) $trajet['prix']) . ' €)' : '' ?></span></span>
+          <span id="recapSousTotal"><?= formatPrix((float) $sousTotal) ?> €</span>
         </div>
 
         <div class="recap-row">
           <span>Frais de service (<?= (int) (COMMISSION_TAUX * 100) ?> %)</span>
-          <span><?= formatPrix((float) $commission) ?> €</span>
+          <span id="recapFrais"><?= formatPrix((float) $commission) ?> €</span>
         </div>
 
         <div class="recap-row recap-total">
           <span>Total</span>
-          <span><?= formatPrix((float) $prixTotal) ?> €</span>
+          <span id="recapTotal"><?= formatPrix((float) $prixTotal) ?> €</span>
         </div>
 
         <?php
         // ====== Logique du bouton de réservation ======
-        // On affiche un état différent selon la situation :
         //  1. pas connecté    → bouton "Connectez-vous pour réserver"
-        //  2. propre trajet   → message "Tu es le conducteur"
-        //  3. déjà réservé    → message "Tu as réservé"
+        //  2. propre trajet   → message "Vous êtes le conducteur"
+        //  3. déjà réservé    → état de la réservation (en attente / confirmée / refusée)
         //  4. plus de places  → bouton "Complet" désactivé
         //  5. tout va bien    → vrai formulaire POST de réservation
-
-        // On va chercher le user_id du conducteur depuis la BDD
-        $stmt = db()->prepare("SELECT user_id FROM trajets WHERE id = :id");
-        $stmt->execute(['id' => $trajet['id']]);
-        $trajetUserId = (int) ($stmt->fetchColumn() ?: 0);
-
+        $trajetUserId    = (int) ($trajet['user_id'] ?? 0);
         $estLeConducteur = $user && $user['id'] === $trajetUserId;
-        $aDejaReserve    = $user && userHasReserved($user['id'], $trajet['id']);
+        $maReservation   = $user ? getReservationUtilisateur($user['id'], $trajet['id']) : null;
         $estComplet      = $trajet['places_dispo'] <= 0;
         ?>
+
+        <?php if (!$trajet['reservation_auto']): ?>
+          <p class="recap-note recap-note-demande">✋ Réservation sur demande : le conducteur accepte chaque passager. Vous êtes prévenu par e-mail.</p>
+        <?php endif; ?>
 
         <?php if (!$user): ?>
           <a href="/connexion.php" class="btn btn-primary btn-reserve">
@@ -306,11 +337,22 @@ include __DIR__ . '/partials/header.php';
           <div class="reserve-info">
             🚗 Vous êtes le conducteur de ce trajet.
           </div>
-        <?php elseif ($aDejaReserve): ?>
-          <div class="reserve-info reserve-info-success">
-            ✅ Vous avez déjà réservé ce trajet.
-          </div>
-          <?php if ($trajetUserId > 0): ?>
+        <?php elseif ($maReservation): ?>
+          <?php if ($maReservation['statut'] === 'en_attente'): ?>
+            <div class="reserve-info reserve-info-attente">
+              <span class="pastille-attente" aria-hidden="true"></span>
+              Demande envoyée (<?= (int) $maReservation['places'] ?> place<?= $maReservation['places'] > 1 ? 's' : '' ?>). En attente de la réponse du conducteur.
+            </div>
+          <?php elseif ($maReservation['statut'] === 'refusee'): ?>
+            <div class="reserve-info reserve-info-refus">
+              Le conducteur n'a pas pu accepter votre demande. Cherchez un autre trajet.
+            </div>
+          <?php else: ?>
+            <div class="reserve-info reserve-info-success">
+              ✅ Réservation confirmée (<?= (int) $maReservation['places'] ?> place<?= $maReservation['places'] > 1 ? 's' : '' ?>).
+            </div>
+          <?php endif; ?>
+          <?php if ($trajetUserId > 0 && $maReservation['statut'] !== 'refusee'): ?>
             <a href="/conversation.php?trajet=<?= $trajet['id'] ?>&avec=<?= $trajetUserId ?>"
                class="btn btn-ghost" style="width:100%;margin-top:8px;">
               💬 Contacter le conducteur
@@ -326,11 +368,13 @@ include __DIR__ . '/partials/header.php';
           </button>
           <p class="recap-note">Ce site est une démonstration : aucun trajet réel n'est organisé.</p>
         <?php else: ?>
-          <form method="POST" action="/reserver.php" onsubmit="return confirm('Confirmer la réservation pour <?= formatPrix((float) $prixTotal) ?> € ?');">
+          <form method="POST" action="/reserver.php" id="formReservation">
             <?= csrfField() ?>
             <input type="hidden" name="trajet_id" value="<?= $trajet['id'] ?>">
+            <input type="hidden" name="places" id="placesChamp" value="<?= $placesDemandees ?>">
             <button type="submit" class="btn btn-primary btn-reserve">
-              Réserver ce trajet
+              <?= $trajet['reservation_auto'] ? 'Réserver' : 'Demander à réserver' ?>
+              <span class="btn-reserve-total" id="btnTotal">· <?= formatPrix((float) $prixTotal) ?> €</span>
             </button>
           </form>
         <?php endif; ?>
@@ -342,5 +386,7 @@ include __DIR__ . '/partials/header.php';
     </aside>
   </div>
 </main>
+
+<script src="/assets/js/trajet.js"></script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

@@ -49,6 +49,10 @@ $valeurs = [
   'animaux'          => false,
   'musique'          => true,
   'discussion'       => 'selon humeur',
+  'reservation_auto' => true,
+  'regulier'         => false,
+  'jours'            => [1, 2, 3, 4, 5],
+  'semaines'         => 4,
 ];
 $erreurs = [];
 $succes  = false;
@@ -80,6 +84,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $valeurs['animaux']         = isset($_POST['animaux']);
   $valeurs['musique']         = isset($_POST['musique']);
   $valeurs['discussion']      = $_POST['discussion'] ?? 'selon humeur';
+  // Mode de réservation : immédiate (auto) ou sur demande
+  $valeurs['reservation_auto'] = ($_POST['reservation_mode'] ?? 'auto') !== 'demande';
+  // Trajet régulier : jours cochés (1 = lundi … 7 = dimanche) et nombre de semaines
+  $valeurs['regulier']         = isset($_POST['regulier']);
+  $valeurs['jours']            = array_values(array_unique(array_filter(
+    array_map('intval', (array) ($_POST['jours'] ?? [])),
+    fn($j) => $j >= 1 && $j <= 7
+  )));
+  $valeurs['semaines']         = (int) ($_POST['semaines'] ?? 4);
 
 
   // -------- 2. Validation --------
@@ -132,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $erreurs['places_dispo'] = 'Le nombre de places doit être entre 1 et 7.';
   }
 
-  // Prix : accepte les centimes (2,50 €) pour les petits trajets en Île-de-France
+  // Prix : accepte les centimes (2,50 €), utile pour les petits trajets
   $prix = lirePrix((string) $valeurs['prix']);
   if ($prix === null || $prix < 0.5) {
     $erreurs['prix'] = 'Le prix doit être d\'au moins 0,50 €.';
@@ -154,6 +167,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $erreurs['description'] = 'La description est trop longue (500 caractères max).';
   }
 
+  // Trajet régulier : au moins un jour, entre 1 et 8 semaines
+  $datesAPublier = [$valeurs['date']];
+  if ($valeurs['regulier']) {
+    if (empty($valeurs['jours'])) {
+      $erreurs['jours'] = 'Cochez au moins un jour de la semaine.';
+    } elseif ($valeurs['semaines'] < 1 || $valeurs['semaines'] > 8) {
+      $erreurs['jours'] = 'Choisissez entre 1 et 8 semaines.';
+    } elseif (empty($erreurs['date'])) {
+      $datesAPublier = datesTrajetRegulier($valeurs['date'], $valeurs['jours'], $valeurs['semaines']);
+      if (empty($datesAPublier)) {
+        $erreurs['jours'] = 'Aucune date ne correspond à ces jours sur la période choisie.';
+      }
+    }
+  }
+
 
   // -------- 3. Si tout est bon, on enregistre --------
   if (empty($erreurs)) {
@@ -163,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       'conducteur' => [
         'nom'                => $valeurs['nom_conducteur'],
         'note'               => 5.0,                // nouveau conducteur, pas encore de note
-        'avatar'             => 'https://i.pravatar.cc/120?img=' . rand(1, 70),
+        'avatar'             => '', // pas de photo inventée : l'initiale du nom s'affiche
         'trajets_effectues'  => 0,
         'verifie'            => false,
       ],
@@ -190,9 +218,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       // On lie le trajet à l'utilisateur connecté.
       // Plus tard, "Mes trajets" filtrera là-dessus.
       'user_id'        => $user['id'],
+      'reservation_auto' => $valeurs['reservation_auto'],
+      'serie_id'       => null,
     ];
 
-    $nouveauId = addTrajet($nouveauTrajet);
+    // Trajet régulier : un trajet par date, tous reliés par le même serie_id
+    if (count($datesAPublier) > 1) {
+      $nouveauTrajet['serie_id'] = bin2hex(random_bytes(8));
+    }
+    $nouveauId = null;
+    foreach ($datesAPublier as $datePub) {
+      $nouveauTrajet['date'] = $datePub;
+      $id = addTrajet($nouveauTrajet);
+      $nouveauId = $nouveauId ?? $id; // on affichera le premier
+    }
+    if (count($datesAPublier) > 1) {
+      header('Location: /mes-trajets.php?regulier=' . count($datesAPublier));
+      exit;
+    }
 
     // Redirection vers la page de détail du nouveau trajet.
     // header('Location: ...') doit être appelée AVANT toute sortie HTML.
@@ -313,6 +356,41 @@ include __DIR__ . '/partials/header.php';
     </fieldset>
 
 
+    <!-- Trajet régulier : publie le même trajet sur plusieurs jours d'un coup -->
+    <fieldset class="form-section form-section-regulier">
+      <legend>Trajet régulier</legend>
+      <label class="interrupteur">
+        <input type="checkbox" name="regulier" id="regulier" value="1" <?= $valeurs['regulier'] ? 'checked' : '' ?> />
+        <span class="interrupteur-piste" aria-hidden="true"></span>
+        Je fais ce trajet plusieurs fois par semaine (domicile-travail…)
+      </label>
+
+      <div class="regulier-options" id="regulierOptions" <?= $valeurs['regulier'] ? '' : 'hidden' ?>>
+        <p class="champ-aide">Les jours cochés, à partir de la date choisie au-dessus :</p>
+        <div class="jours" role="group" aria-label="Jours de la semaine">
+          <?php foreach ([1 => 'Lun', 2 => 'Mar', 3 => 'Mer', 4 => 'Jeu', 5 => 'Ven', 6 => 'Sam', 7 => 'Dim'] as $num => $jour): ?>
+            <label class="jour">
+              <input type="checkbox" name="jours[]" value="<?= $num ?>" <?= in_array($num, $valeurs['jours'], true) ? 'checked' : '' ?> />
+              <span><?= $jour ?></span>
+            </label>
+          <?php endforeach; ?>
+        </div>
+        <div class="form-field form-field-semaines">
+          <label for="semaines">Pendant</label>
+          <select id="semaines" name="semaines">
+            <?php for ($n = 1; $n <= 8; $n++): ?>
+              <option value="<?= $n ?>" <?= $valeurs['semaines'] === $n ? 'selected' : '' ?>><?= $n ?> semaine<?= $n > 1 ? 's' : '' ?></option>
+            <?php endfor; ?>
+          </select>
+        </div>
+        <p class="regulier-resume" id="regulierResume" aria-live="polite"></p>
+        <?php if (isset($erreurs['jours'])): ?>
+          <span class="error-msg"><?= htmlspecialchars($erreurs['jours']) ?></span>
+        <?php endif; ?>
+      </div>
+    </fieldset>
+
+
     <!-- =========== Section 3 : places et prix =========== -->
     <fieldset class="form-section">
       <legend>Places et prix</legend>
@@ -333,6 +411,25 @@ include __DIR__ . '/partials/header.php';
             <span class="error-msg"><?= htmlspecialchars($erreurs['prix']) ?></span>
           <?php endif; ?>
         </div>
+      </div>
+
+      <!-- Mode de réservation -->
+      <p class="champ-titre">Comment les passagers réservent-ils ?</p>
+      <div class="choix-cartes">
+        <label class="choix-carte">
+          <input type="radio" name="reservation_mode" value="auto" <?= $valeurs['reservation_auto'] ? 'checked' : '' ?> />
+          <span class="choix-carte-contenu">
+            <strong>⚡ Réservation immédiate</strong>
+            <span>La place est réservée tout de suite. Plus simple pour les passagers.</span>
+          </span>
+        </label>
+        <label class="choix-carte">
+          <input type="radio" name="reservation_mode" value="demande" <?= !$valeurs['reservation_auto'] ? 'checked' : '' ?> />
+          <span class="choix-carte-contenu">
+            <strong>✋ Sur demande</strong>
+            <span>Vous acceptez ou refusez chaque passager. Vous êtes prévenu par e-mail.</span>
+          </span>
+        </label>
       </div>
     </fieldset>
 
@@ -418,5 +515,7 @@ include __DIR__ . '/partials/header.php';
     </p>
   </form>
 </main>
+
+<script src="/assets/js/publier.js"></script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

@@ -64,6 +64,7 @@ $valeurs = [
   'animaux'          => $trajet['preferences']['animaux'],
   'musique'          => $trajet['preferences']['musique'],
   'discussion'       => $trajet['preferences']['discussion'],
+  'reservation_auto' => $trajet['reservation_auto'] ?? true,
 ];
 $erreurs = [];
 
@@ -89,6 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $valeurs['animaux']         = isset($_POST['animaux']);
     $valeurs['musique']         = isset($_POST['musique']);
     $valeurs['discussion']      = $_POST['discussion'] ?? 'selon humeur';
+    $valeurs['reservation_auto'] = ($_POST['reservation_mode'] ?? 'auto') !== 'demande';
 
     // Validations (mêmes règles que publier.php)
     if ($valeurs['depart'] === '')        $erreurs['depart'] = 'Requis.';
@@ -139,7 +141,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ],
       ];
 
-      if (updateTrajet($id, $user['id'], $trajetMaj)) {
+      // Le mode de réservation se change à part (les demandes déjà reçues restent valables)
+      $stmt = db()->prepare("UPDATE trajets SET reservation_auto = :a WHERE id = :id AND user_id = :u AND reservation_auto != :a");
+      $stmt->execute(['a' => $valeurs['reservation_auto'] ? 1 : 0, 'id' => $id, 'u' => $user['id']]);
+      $modeChange = $stmt->rowCount() > 0;
+
+      if (updateTrajet($id, $user['id'], $trajetMaj) || $modeChange) {
         header('Location: /mes-trajets.php?modifie=1');
         exit;
       } else {
@@ -274,6 +281,24 @@ include __DIR__ . '/partials/header.php';
             <option value="<?= htmlspecialchars($opt) ?>" <?= $valeurs['discussion'] === $opt ? 'selected' : '' ?>><?= htmlspecialchars(ucfirst($opt)) ?></option>
           <?php endforeach; ?>
         </select>
+      </div>
+
+      <p class="champ-titre">Comment les passagers réservent-ils ?</p>
+      <div class="choix-cartes">
+        <label class="choix-carte">
+          <input type="radio" name="reservation_mode" value="auto" <?= $valeurs['reservation_auto'] ? 'checked' : '' ?> />
+          <span class="choix-carte-contenu">
+            <strong>⚡ Réservation immédiate</strong>
+            <span>La place est réservée tout de suite.</span>
+          </span>
+        </label>
+        <label class="choix-carte">
+          <input type="radio" name="reservation_mode" value="demande" <?= !$valeurs['reservation_auto'] ? 'checked' : '' ?> />
+          <span class="choix-carte-contenu">
+            <strong>✋ Sur demande</strong>
+            <span>Vous acceptez ou refusez chaque passager.</span>
+          </span>
+        </label>
       </div>
     </fieldset>
 

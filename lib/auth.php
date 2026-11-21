@@ -235,10 +235,19 @@ function updateUserProfile(int $userId, string $nom, string $email): array
     return ['ok' => false, 'errors' => $errors];
   }
 
+  // Si l'email change, il faut le revérifier
+  $ancien = findUserById($userId);
+  $emailChange = $ancien && strtolower((string) $ancien['email']) !== $email;
+
   $stmt = db()->prepare("UPDATE users SET nom = :nom, email = :email WHERE id = :id");
   $stmt->execute(['nom' => $nom, 'email' => $email, 'id' => $userId]);
 
-  return ['ok' => true, 'errors' => []];
+  if ($emailChange) {
+    db()->prepare("UPDATE users SET email_verifie = 0 WHERE id = :id")->execute(['id' => $userId]);
+    db()->prepare("DELETE FROM email_verifications WHERE user_id = :id")->execute(['id' => $userId]);
+  }
+
+  return ['ok' => true, 'errors' => [], 'email_change' => $emailChange];
 }
 
 

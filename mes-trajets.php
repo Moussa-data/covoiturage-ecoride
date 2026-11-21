@@ -31,6 +31,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'suppr
   }
 }
 
+// Réponse du conducteur à une demande de réservation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array($_POST['action'] ?? '', ['accepter', 'refuser'], true)) {
+  if (!csrfVerify($_POST['csrf_token'] ?? null)) {
+    $message = 'La page a expiré. Rechargez-la puis réessayez.';
+    $messageType = 'error';
+  } else {
+    $reservationId = (int) ($_POST['reservation_id'] ?? 0);
+    if ($_POST['action'] === 'accepter') {
+      $res = accepterReservation($reservationId, $user['id']);
+      $message     = $res['ok'] ? 'Demande acceptée. Le passager est prévenu par e-mail.' : $res['error'];
+      $messageType = $res['ok'] ? 'success' : 'error';
+    } else {
+      $ok = refuserReservation($reservationId, $user['id']);
+      $message     = $ok ? 'Demande refusée. Le passager est prévenu par e-mail.' : 'Demande introuvable ou déjà traitée.';
+      $messageType = $ok ? 'success' : 'error';
+    }
+  }
+}
+
+// Bannière après la publication d'un trajet régulier
+if ((int) ($_GET['regulier'] ?? 0) > 0) {
+  $message = 'Trajet régulier publié : ' . (int) $_GET['regulier'] . ' dates ajoutées.';
+  $messageType = 'success';
+}
+
 // Bannière de retour de la page modifier-trajet.php
 if (($_GET['modifie'] ?? '') === '1') {
   $message = 'Trajet modifié avec succès.';
@@ -38,7 +63,8 @@ if (($_GET['modifie'] ?? '') === '1') {
 }
 
 
-$trajets = getTrajetsByUser($user['id']);
+$trajets          = getTrajetsByUser($user['id']);
+$reservationsPar  = getReservationsPourConducteur($user['id']);
 
 $pageTitle  = 'Mes trajets — EcoRide';
 $activePage = 'mes-trajets';
@@ -72,7 +98,12 @@ include __DIR__ . '/partials/header.php';
 
     <div class="my-trips">
       <?php foreach ($trajets as $t): ?>
-        <?php $passagers = getPassengersForTrajet($t['id']); ?>
+        <?php
+          $resas      = $reservationsPar[$t['id']] ?? [];
+          $demandes   = array_values(array_filter($resas, fn($r) => $r['statut'] === 'en_attente'));
+          $confirmees = array_values(array_filter($resas, fn($r) => $r['statut'] === 'confirmee'));
+          $nbPassagers = array_sum(array_map(fn($r) => (int) $r['places'], $confirmees));
+        ?>
         <article class="my-trip-card my-trip-card-rich">
 
           <div class="my-trip-info">
@@ -89,19 +120,45 @@ include __DIR__ . '/partials/header.php';
               <span class="my-trip-tag"><?= formatPrix((float) $t['prix']) ?> €</span>
               <span class="my-trip-tag my-trip-tag-eco">−<?= str_replace('.', ',', (string) round((float) $t['co2_economise_kg'], 1)) ?> kg CO₂</span>
               <span class="my-trip-tag my-trip-tag-passengers">
-                👥 <?= count($passagers) ?> passager<?= count($passagers) > 1 ? 's' : '' ?>
+                👥 <?= $nbPassagers ?> passager<?= $nbPassagers > 1 ? 's' : '' ?>
               </span>
+              <?php if (!empty($t['serie_id'])): ?>
+                <span class="my-trip-tag badge-regulier">↻ Régulier</span>
+              <?php endif; ?>
+              <?php if (!$t['reservation_auto']): ?>
+                <span class="my-trip-tag badge-demande">Sur demande</span>
+              <?php endif; ?>
             </div>
 
-            <?php if (!empty($passagers)): ?>
+            <?php if (!empty($demandes)): ?>
+              <!-- Demandes à traiter : bien visibles, avec les deux boutons -->
+              <div class="demandes">
+                <p class="demandes-titre"><span class="pastille-attente" aria-hidden="true"></span>
+                  <?= count($demandes) ?> demande<?= count($demandes) > 1 ? 's' : '' ?> à traiter</p>
+                <?php foreach ($demandes as $d): ?>
+                  <div class="demande">
+                    <a href="/profil-public.php?id=<?= (int) $d['passager_id'] ?>" class="demande-nom"><?= htmlspecialchars($d['passager_nom']) ?></a>
+                    <span class="demande-places"><?= (int) $d['places'] ?> place<?= $d['places'] > 1 ? 's' : '' ?></span>
+                    <form method="POST" action="" class="inline-form">
+                      <?= csrfField() ?>
+                      <input type="hidden" name="reservation_id" value="<?= (int) $d['id'] ?>">
+                      <button type="submit" name="action" value="accepter" class="btn btn-primary btn-petit">Accepter</button>
+                      <button type="submit" name="action" value="refuser" class="btn btn-ghost btn-petit">Refuser</button>
+                    </form>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            <?php endif; ?>
+
+            <?php if (!empty($confirmees)): ?>
               <details class="passengers-section">
                 <summary>Voir les passagers</summary>
                 <ul class="passengers-list">
-                  <?php foreach ($passagers as $p): ?>
+                  <?php foreach ($confirmees as $p): ?>
                     <li>
-                      <strong><?= htmlspecialchars($p['nom']) ?></strong>
-                      <span class="passenger-email"><?= htmlspecialchars($p['email']) ?></span>
-                      <span class="passenger-date">— réservé le <?= htmlspecialchars(date('d/m/Y', strtotime($p['cree_le']))) ?></span>
+                      <a href="/profil-public.php?id=<?= (int) $p['passager_id'] ?>"><strong><?= htmlspecialchars($p['passager_nom']) ?></strong></a>
+                      — <?= (int) $p['places'] ?> place<?= $p['places'] > 1 ? 's' : '' ?>
+                      <a href="/conversation.php?trajet=<?= $t['id'] ?>&avec=<?= (int) $p['passager_id'] ?>" class="passenger-message">💬 Écrire</a>
                     </li>
                   <?php endforeach; ?>
                 </ul>
@@ -113,7 +170,7 @@ include __DIR__ . '/partials/header.php';
             <a href="/trajet.php?id=<?= $t['id'] ?>" class="btn btn-ghost">Voir</a>
             <a href="/modifier-trajet.php?id=<?= $t['id'] ?>" class="btn btn-ghost">Modifier</a>
 
-            <form method="POST" action="" class="inline-form" onsubmit="return confirm('Supprimer ce trajet ? Les <?= count($passagers) ?> réservation(s) seront aussi supprimées.');">
+            <form method="POST" action="" class="inline-form" onsubmit="return confirm('Supprimer ce trajet ? Les <?= count($resas) ?> réservation(s) seront aussi supprimées.');">
               <?= csrfField() ?>
               <input type="hidden" name="action" value="supprimer">
               <input type="hidden" name="id" value="<?= $t['id'] ?>">

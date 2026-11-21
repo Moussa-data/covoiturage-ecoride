@@ -19,6 +19,31 @@ $messageProfil   = null;
 $messageMdp      = null;
 $erreursProfil   = [];
 $erreursMdp      = [];
+$messageBio      = null;
+$messageVerif    = null;
+
+// ====== Présentation (bio) ======
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form'] ?? '') === 'bio') {
+  if (!csrfVerify($_POST['csrf_token'] ?? null)) {
+    $messageBio = ['type' => 'error', 'text' => 'Token CSRF invalide.'];
+  } else {
+    $r = majBio($user['id'], $_POST['bio'] ?? '');
+    $messageBio = $r['ok']
+      ? ['type' => 'success', 'text' => 'Présentation enregistrée. Elle apparaît sur votre profil public.']
+      : ['type' => 'error', 'text' => $r['error']];
+    $user = currentUser();
+  }
+}
+
+// ====== Renvoyer le lien de vérification ======
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form'] ?? '') === 'verif') {
+  if (csrfVerify($_POST['csrf_token'] ?? null)) {
+    $lien = envoyerVerificationEmail($user['id']);
+    $messageVerif = $lien
+      ? ['type' => 'success', 'text' => 'Lien envoyé à ' . $user['email'] . '. Pensez à regarder dans les spams.']
+      : ['type' => 'error', 'text' => 'Trop de demandes. Réessayez dans une heure.'];
+  }
+}
 
 // ====== Formulaire profil (nom + email) ======
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form'] ?? '') === 'profil') {
@@ -27,7 +52,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form'] ?? '') === 'profil'
   } else {
     $r = updateUserProfile($user['id'], $_POST['nom'] ?? '', $_POST['email'] ?? '');
     if ($r['ok']) {
-      $messageProfil = ['type' => 'success', 'text' => 'Profil mis à jour avec succès.'];
+      $messageProfil = ['type' => 'success', 'text' => !empty($r['email_change'])
+        ? 'Profil mis à jour. Votre nouvel e-mail doit être vérifié : un lien vient de vous être envoyé.'
+        : 'Profil mis à jour avec succès.'];
+      if (!empty($r['email_change'])) {
+        envoyerVerificationEmail($user['id']);
+      }
       $user = currentUser(); // recharge les infos à jour
     } else {
       $erreursProfil = $r['errors'];
@@ -97,6 +127,48 @@ include __DIR__ . '/partials/header.php';
       <a href="/devenir-conducteur.php" class="btn btn-primary" style="margin-top:12px;">Devenir conducteur</a>
     <?php endif; ?>
   </section>
+
+  <!-- ============== Confiance : e-mail + profil public ============== -->
+  <section class="form-section confiance-card">
+    <h2>Confiance</h2>
+    <?php if ($messageVerif): ?>
+      <div class="form-banner form-banner-<?= $messageVerif['type'] ?>"><?= htmlspecialchars($messageVerif['text']) ?></div>
+    <?php endif; ?>
+    <?php if (!empty($user['email_verifie'])): ?>
+      <p class="confiance-ligne confiance-ok"><span class="confiance-pastille">✓</span> E-mail vérifié</p>
+    <?php else: ?>
+      <div class="confiance-ligne">
+        <span class="confiance-pastille confiance-pastille-vide">!</span>
+        <span>E-mail pas encore vérifié. Cliquez sur le lien reçu à l'inscription pour obtenir le badge.</span>
+      </div>
+      <form method="POST" action="" style="margin-top:10px;">
+        <?= csrfField() ?>
+        <input type="hidden" name="form" value="verif">
+        <button type="submit" class="btn btn-ghost">Renvoyer le lien</button>
+      </form>
+    <?php endif; ?>
+    <p class="confiance-lien"><a href="/profil-public.php?id=<?= (int) $user['id'] ?>">Voir mon profil public</a> : c'est ce que voient les autres membres (jamais votre e-mail).</p>
+  </section>
+
+  <!-- ============== Présentation ============== -->
+  <?php if ($messageBio): ?>
+    <div class="form-banner form-banner-<?= $messageBio['type'] ?>"><?= htmlspecialchars($messageBio['text']) ?></div>
+  <?php endif; ?>
+  <form method="POST" action="" class="form-trajet" novalidate>
+    <?= csrfField() ?>
+    <input type="hidden" name="form" value="bio">
+    <fieldset class="form-section">
+      <legend>Ma présentation</legend>
+      <div class="form-field">
+        <label for="bio">Quelques mots sur vous</label>
+        <textarea id="bio" name="bio" rows="4" maxlength="400" placeholder="Ex. : Je fais Versailles → La Défense tous les matins. Ponctuel, musique douce, pas de détour."><?= htmlspecialchars($_POST['bio'] ?? ($user['bio'] ?? '')) ?></textarea>
+        <span class="field-hint">400 caractères maximum. Visible sur votre profil public.</span>
+      </div>
+    </fieldset>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Enregistrer la présentation</button>
+    </div>
+  </form>
 
   <!-- ============== Formulaire 1 : profil ============== -->
   <?php if ($messageProfil): ?>

@@ -18,16 +18,30 @@ require_once __DIR__ . '/lib/init.php';
 
 // Récupération des filtres de recherche depuis l'URL
 $filtres = [
-  'depart'  => trim($_GET['depart']  ?? ''),
-  'arrivee' => trim($_GET['arrivee'] ?? ''),
-  'date'    => $_GET['date']         ?? '',
+  'depart'    => trim($_GET['depart']  ?? ''),
+  'arrivee'   => trim($_GET['arrivee'] ?? ''),
+  'date'      => $_GET['date']         ?? '',
+  'passagers' => max(1, min(4, (int) ($_GET['passagers'] ?? 1))),
 ];
+$dateRetour = $_GET['retour'] ?? '';
 
 // Si l'utilisateur a soumis le formulaire au moins une fois, on filtre.
 // Sinon, on affiche tous les trajets disponibles.
-$rechercheFaite = ($filtres['depart'] !== '' || $filtres['arrivee'] !== '' || $filtres['date'] !== '');
+$rechercheFaite = ($filtres['depart'] !== '' || $filtres['arrivee'] !== '' || $filtres['date'] !== '' || $filtres['passagers'] > 1);
 // Uniquement les vrais trajets à venir (les trajets de démo sont écartés).
 $trajets = searchTrajets($filtres, true);
+
+// Aller-retour : si une date de retour est donnée, on cherche aussi le trajet
+// inverse (arrivée → départ) ce jour-là.
+$trajetsRetour = null;
+if ($dateRetour !== '' && ($filtres['depart'] !== '' || $filtres['arrivee'] !== '')) {
+  $trajetsRetour = searchTrajets([
+    'depart'    => $filtres['arrivee'],
+    'arrivee'   => $filtres['depart'],
+    'date'      => $dateRetour,
+    'passagers' => $filtres['passagers'],
+  ], true);
+}
 
 // Tant que personne n'a publié, on montre quelques exemples (non réservables).
 $modeExemples = (!$rechercheFaite && empty($trajets));
@@ -62,6 +76,7 @@ include __DIR__ . '/partials/header.php';
     -->
     <form class="search-route" method="GET" action="" autocomplete="off">
 
+      <!-- Ligne 1 : le trajet (départ ● —— ● arrivée) -->
       <div class="search-stop search-stop-depart">
         <span class="stop-dot" aria-hidden="true"></span>
         <label for="depart">Départ</label>
@@ -69,7 +84,13 @@ include __DIR__ . '/partials/header.php';
                value="<?= htmlspecialchars($filtres['depart']) ?>" />
       </div>
 
-      <span class="search-line" aria-hidden="true"></span>
+      <div class="search-line-wrap">
+        <span class="search-line" aria-hidden="true"></span>
+        <!-- Inverse départ et arrivée (pratique pour préparer le retour) -->
+        <button type="button" class="btn-inverser" id="btnInverser" aria-label="Inverser départ et arrivée" title="Inverser départ et arrivée">
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 7h11l-3-3M17 17H6l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
 
       <div class="search-stop search-stop-arrivee">
         <span class="stop-dot" aria-hidden="true"></span>
@@ -78,12 +99,30 @@ include __DIR__ . '/partials/header.php';
                value="<?= htmlspecialchars($filtres['arrivee']) ?>" />
       </div>
 
+      <!-- Ligne 2 : quand et combien -->
+      <div class="search-ligne2">
       <div class="search-stop search-stop-date">
-        <label for="date">Date</label>
-        <input type="date" id="date" name="date" value="<?= htmlspecialchars($filtres['date']) ?>" />
+        <label for="date">Aller</label>
+        <input type="date" id="date" name="date" min="<?= date('Y-m-d') ?>" value="<?= htmlspecialchars($filtres['date']) ?>" />
+      </div>
+
+      <div class="search-stop search-stop-retour">
+        <label for="retour">Retour <span class="label-option">(optionnel)</span></label>
+        <input type="date" id="retour" name="retour" min="<?= date('Y-m-d') ?>" value="<?= htmlspecialchars($dateRetour) ?>" />
+      </div>
+
+      <div class="search-stop search-stop-passagers">
+        <span class="label-faux" id="labelPassagers">Passagers</span>
+        <div class="stepper" role="group" aria-labelledby="labelPassagers">
+          <button type="button" class="stepper-btn" data-delta="-1" aria-label="Un passager de moins">−</button>
+          <output class="stepper-valeur" id="passagersAffiche" aria-live="polite"><?= $filtres['passagers'] ?></output>
+          <button type="button" class="stepper-btn" data-delta="1" aria-label="Un passager de plus">+</button>
+        </div>
+        <input type="hidden" name="passagers" id="passagers" value="<?= $filtres['passagers'] ?>" />
       </div>
 
       <button type="submit" class="btn btn-primary btn-search">Rechercher</button>
+      </div>
     </form>
 
     <?php include __DIR__ . '/partials/villes-idf.php'; ?>
@@ -132,17 +171,42 @@ include __DIR__ . '/partials/header.php';
       </div>
     </div>
   </section>
-<?php else: ?>
-  <!-- Cas B : pas encore assez de données → message qualitatif (preuve sociale "narrative") -->
-  <section class="public-stats">
-    <div class="container public-stats-launch">
-      <h2 class="public-stats-title">Une communauté qui grandit chaque jour 🌱</h2>
-      <p class="public-stats-tagline">
-        Soyez parmi les premiers à covoiturer écolo. Les pionniers font la communauté.
-      </p>
-      <div class="public-stats-cta">
-        <a href="/inscription.php" class="btn btn-primary">Créer mon compte</a>
-        <a href="/devenir-conducteur.php" class="btn btn-ghost">Proposer un trajet</a>
+<?php endif; ?>
+
+<?php if (!$rechercheFaite): ?>
+  <!-- ========== TRAJETS POPULAIRES ==========
+    Chaque carte est un mini-trajet : point de départ, ligne, point d'arrivée.
+    Un clic lance la recherche correspondante.
+  -->
+  <?php $populaires = trajetsPopulaires(6); $avecPrix = $populaires && $populaires[0]['prix_min'] !== null; ?>
+  <section class="populaires">
+    <div class="container">
+      <div class="populaires-entete">
+        <h2><?= $avecPrix ? 'Trajets populaires' : 'Où allez-vous cette semaine ?' ?></h2>
+        <p><?= $avecPrix ? 'Les liaisons avec le plus de départs en ce moment.' : 'Le trajet de tous les jours en Île-de-France, ou une escapade le week-end : quelques idées pour commencer.' ?></p>
+      </div>
+      <div class="populaires-grille">
+        <?php foreach ($populaires as $p): ?>
+          <a class="populaire" href="/?depart=<?= urlencode($p['depart']) ?>&amp;arrivee=<?= urlencode($p['arrivee']) ?>">
+            <span class="populaire-trace" aria-hidden="true">
+              <span class="populaire-point"></span>
+              <span class="populaire-ligne"></span>
+              <span class="populaire-point populaire-point-arrivee"></span>
+            </span>
+            <span class="populaire-villes">
+              <span class="populaire-ville"><?= htmlspecialchars($p['depart']) ?></span>
+              <span class="populaire-ville"><?= htmlspecialchars($p['arrivee']) ?></span>
+            </span>
+            <span class="populaire-info">
+              <?php if ($p['prix_min'] !== null): ?>
+                <span class="populaire-prix">dès <?= formatPrix($p['prix_min']) ?> €</span>
+                <span class="populaire-nb"><?= $p['nb'] ?> départ<?= $p['nb'] > 1 ? 's' : '' ?></span>
+              <?php else: ?>
+                <span class="populaire-nb">Voir les trajets</span>
+              <?php endif; ?>
+            </span>
+          </a>
+        <?php endforeach; ?>
       </div>
     </div>
   </section>
@@ -154,7 +218,7 @@ include __DIR__ . '/partials/header.php';
 
     <h2 class="results-title">
       <?php if ($rechercheFaite): ?>
-        Résultats pour
+        <?= $trajetsRetour !== null ? 'Aller' : 'Résultats' ?> pour
         <?php if ($filtres['depart']): ?>« <?= htmlspecialchars($filtres['depart']) ?> » → <?php endif; ?>
         <?php if ($filtres['arrivee']): ?>« <?= htmlspecialchars($filtres['arrivee']) ?> »<?php endif; ?>
       <?php elseif ($modeExemples): ?>
@@ -208,79 +272,96 @@ include __DIR__ . '/partials/header.php';
               : 'Aucun trajet disponible pour l\'instant.' ?>
           </div>
         <?php else: ?>
+          <?php $passagers = $filtres['passagers']; ?>
           <?php foreach ($trajets as $t): ?>
-            <?php
-              // Carte d'exemple = simple bloc (pas de lien) ; vrai trajet = lien vers le détail
-              $balise = $modeExemples ? 'div' : 'a';
-              $lien   = $modeExemples ? '' : ' href="trajet.php?id=' . (int) $t['id'] . '"';
-            ?>
-            <<?= $balise ?><?= $lien ?> class="trip-card<?= $modeExemples ? ' trip-card-exemple' : '' ?>"
-               data-prix="<?= $t['prix'] ?>"
-               data-type="<?= htmlspecialchars($t['type_vehicule']) ?>">
-
-              <?php
-                // Nom affiché avec une majuscule ("moussa" → "Moussa")
-                $nomConducteur = mb_strtoupper(mb_substr($t['conducteur']['nom'], 0, 1)) . mb_substr($t['conducteur']['nom'], 1);
-                $avatar = $t['conducteur']['avatar'] ?? '';
-                $nouveau = ($t['conducteur']['trajets_effectues'] ?? 0) === 0;
-                $labelsVehicule = ['electrique' => '⚡ Électrique', 'hybride' => '🔋 Hybride', 'essence' => '⛽ Essence'];
-              ?>
-              <div class="trip-driver">
-                <?php if ($avatar): ?>
-                  <!-- alt vide : le nom est déjà écrit juste à côté (évite qu'il soit lu deux fois) -->
-                  <img src="<?= htmlspecialchars($avatar) ?>" alt="" />
-                <?php else: ?>
-                  <span class="avatar-initiale" aria-hidden="true"><?= htmlspecialchars(mb_substr($nomConducteur, 0, 1)) ?></span>
-                <?php endif; ?>
-                <div>
-                  <div class="name"><?= htmlspecialchars($nomConducteur) ?></div>
-                  <?php if ($nouveau): ?>
-                    <div class="rating rating-nouveau">Nouveau conducteur</div>
-                  <?php else: ?>
-                    <div class="rating">★ <?= number_format($t['conducteur']['note'], 1) ?></div>
-                  <?php endif; ?>
-                </div>
-              </div>
-
-              <div class="trip-route">
-                <span class="trip-date"><?= htmlspecialchars(dateCourte($t['date'])) ?></span>
-                <span class="time"><?= htmlspecialchars($t['heure_depart']) ?> → <?= htmlspecialchars($t['heure_arrivee']) ?></span>
-                <span class="place"><?= htmlspecialchars($t['depart_lieu']) ?> <span class="place-sep" aria-label="vers">→</span> <?= htmlspecialchars($t['arrivee_lieu']) ?></span>
-                <span class="duree">
-                  <?= htmlspecialchars($t['duree']) ?> ·
-                  <?php if ($t['places_dispo'] <= 0): ?>
-                    <strong class="badge-complet">Complet</strong>
-                  <?php else: ?>
-                    <?= $t['places_dispo'] ?> place<?= $t['places_dispo'] > 1 ? 's' : '' ?>
-                  <?php endif; ?>
-                </span>
-                <span class="badge-vehicule badge-<?= htmlspecialchars($t['type_vehicule']) ?>">
-                  <?= $labelsVehicule[$t['type_vehicule']] ?? htmlspecialchars($t['type_vehicule']) ?>
-                </span>
-              </div>
-
-              <div class="trip-eco" title="CO₂ économisé">
-                <strong>−<?= str_replace('.', ',', (string) round((float) $t['co2_economise_kg'], 1)) ?> kg</strong>
-                de CO₂
-              </div>
-
-              <div class="trip-action">
-                <span class="price"><?= formatPrix((float) $t['prix']) ?> €</span>
-                <?php if ($modeExemples): ?>
-                  <span class="badge-exemple">Exemple</span>
-                <?php else: ?>
-                  <span class="btn btn-primary btn-card-cta">Voir le trajet</span>
-                <?php endif; ?>
-              </div>
-            </<?= $balise ?>>
+            <?php include __DIR__ . '/partials/carte-trajet.php'; ?>
           <?php endforeach; ?>
         <?php endif; ?>
       </div>
 
     </div>
+
+    <?php if ($trajetsRetour !== null): ?>
+      <!-- Aller-retour : les trajets du retour (arrivée → départ) -->
+      <h2 class="results-title results-title-retour">
+        Retour le <?= htmlspecialchars(dateCourte($dateRetour)) ?>
+        <small><?= count($trajetsRetour) ?> trajet<?= count($trajetsRetour) > 1 ? 's' : '' ?></small>
+      </h2>
+      <div class="trips trips-retour">
+        <?php if (empty($trajetsRetour)): ?>
+          <div class="empty">Aucun trajet retour ce jour-là pour l'instant.</div>
+        <?php else: ?>
+          <?php $passagers = $filtres['passagers']; ?>
+          <?php foreach ($trajetsRetour as $t): ?>
+            <?php include __DIR__ . '/partials/carte-trajet.php'; ?>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </div>
+    <?php endif; ?>
   </div>
 </section>
 
+<?php if (!$rechercheFaite): ?>
+  <!-- ========== CALCULATEUR CONDUCTEUR ==========
+    Estimation simple du partage des frais. Le chiffre se met à jour en direct
+    (assets/js/calculateur.js). Le prix conseillé reste un partage des frais :
+    le conducteur ne doit pas gagner d'argent (définition légale du covoiturage).
+  -->
+  <section class="calculateur" id="calculateur">
+    <div class="container calculateur-inner">
+      <div class="calculateur-texte">
+        <h2>Vous conduisez déjà ce trajet ?</h2>
+        <p>Partagez vos frais avec des passagers qui vont au même endroit. Réglez votre trajet pour voir ce que vous économisez.</p>
+
+        <div class="calc-champ">
+          <label for="calcKm">Distance d'un trajet <output id="calcKmAffiche">20</output> km</label>
+          <input type="range" id="calcKm" min="5" max="600" step="5" value="20" />
+        </div>
+
+        <div class="calc-champ">
+          <span class="label-faux">Passagers</span>
+          <div class="calc-segments" role="radiogroup" aria-label="Nombre de passagers">
+            <?php foreach ([1, 2, 3] as $n): ?>
+              <label><input type="radio" name="calcPassagers" value="<?= $n ?>" <?= $n === 2 ? 'checked' : '' ?> /><span><?= $n ?></span></label>
+            <?php endforeach; ?>
+          </div>
+        </div>
+
+        <div class="calc-champ">
+          <span class="label-faux">Votre voiture</span>
+          <div class="calc-segments" role="radiogroup" aria-label="Type de voiture">
+            <label><input type="radio" name="calcVoiture" value="0.13" checked /><span>Essence</span></label>
+            <label><input type="radio" name="calcVoiture" value="0.09" /><span>Hybride</span></label>
+            <label><input type="radio" name="calcVoiture" value="0.05" /><span>Électrique</span></label>
+          </div>
+        </div>
+
+        <div class="calc-champ">
+          <span class="label-faux">Fréquence</span>
+          <div class="calc-segments" role="radiogroup" aria-label="Fréquence">
+            <label><input type="radio" name="calcFrequence" value="1" /><span>Une fois</span></label>
+            <label><input type="radio" name="calcFrequence" value="40" checked /><span>Aller-retour en semaine</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="calculateur-resultat" aria-live="polite">
+        <span class="calc-resultat-label" id="calcLabel">Vous économisez environ</span>
+        <span class="calc-montant"><span id="calcMontant">0</span> €</span>
+        <span class="calc-periode" id="calcPeriode">par mois</span>
+        <dl class="calc-detail">
+          <div><dt>Prix conseillé par passager</dt><dd id="calcPrix">—</dd></div>
+          <div><dt>Coût du trajet (carburant ou électricité)</dt><dd id="calcCout">—</dd></div>
+        </dl>
+        <a href="/devenir-conducteur.php" class="btn btn-primary">Proposer un trajet</a>
+        <p class="calc-note">Estimation hors péages et stationnement. En covoiturage, le prix doit rester un partage des frais : le conducteur ne gagne pas d'argent, il en dépense moins.</p>
+      </div>
+    </div>
+  </section>
+<?php endif; ?>
+
 <script src="/assets/js/script.js"></script>
+<script src="/assets/js/recherche.js"></script>
+<script src="/assets/js/calculateur.js"></script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

@@ -114,7 +114,39 @@ function addTrajet(array $trajet): int
     'cree_le'      => date('c'),
   ]);
 
-  return (int) db()->lastInsertId();
+  $id = (int) db()->lastInsertId();
+
+  // Options ajoutées plus tard (colonnes créées par migrateFonctionnalitesV3) :
+  // mises à jour à part pour que l'import initial des données reste compatible.
+  if (array_key_exists('reservation_auto', $trajet) || array_key_exists('serie_id', $trajet)) {
+    db()->prepare("UPDATE trajets SET reservation_auto = :auto, serie_id = :serie WHERE id = :id")
+        ->execute([
+          'auto'  => !empty($trajet['reservation_auto'] ?? true) ? 1 : 0,
+          'serie' => $trajet['serie_id'] ?? null,
+          'id'    => $id,
+        ]);
+  }
+
+  return $id;
+}
+
+
+/**
+ * Dates d'un trajet régulier : à partir de $dateDebut, chaque jour coché
+ * (1 = lundi … 7 = dimanche) pendant $semaines semaines.
+ * Exemple : début lundi 24/11, jours [1,2,3,4,5], 2 semaines → 10 dates.
+ */
+function datesTrajetRegulier(string $dateDebut, array $jours, int $semaines): array
+{
+  $dates = [];
+  $debut = new DateTimeImmutable($dateDebut);
+  $fin   = $debut->modify('+' . ($semaines * 7) . ' days');
+  for ($d = $debut; $d < $fin; $d = $d->modify('+1 day')) {
+    if (in_array((int) $d->format('N'), $jours, true)) {
+      $dates[] = $d->format('Y-m-d');
+    }
+  }
+  return $dates;
 }
 
 
@@ -259,13 +291,20 @@ function searchTrajets(array $filtres = [], bool $publicsSeulement = false): arr
               AND date >= DATE('now')";
   }
 
+  // On cherche dans la ville ET dans le lieu précis : taper "La Défense"
+  // trouve aussi un trajet publié avec la ville "Puteaux", lieu "La Défense".
   if (!empty($filtres['depart'])) {
-    $sql .= " AND LOWER(depart) LIKE :depart";
-    $params['depart'] = '%' . strtolower($filtres['depart']) . '%';
+    $sql .= " AND (depart LIKE :depart OR depart_lieu LIKE :depart)";
+    $params['depart'] = '%' . $filtres['depart'] . '%';
   }
   if (!empty($filtres['arrivee'])) {
-    $sql .= " AND LOWER(arrivee) LIKE :arrivee";
-    $params['arrivee'] = '%' . strtolower($filtres['arrivee']) . '%';
+    $sql .= " AND (arrivee LIKE :arrivee OR arrivee_lieu LIKE :arrivee)";
+    $params['arrivee'] = '%' . $filtres['arrivee'] . '%';
+  }
+  // Nombre de passagers : seulement les trajets avec assez de places
+  if (!empty($filtres['passagers']) && (int) $filtres['passagers'] > 1) {
+    $sql .= " AND places_dispo >= :passagers";
+    $params['passagers'] = (int) $filtres['passagers'];
   }
   if (!empty($filtres['date'])) {
     $sql .= " AND date = :date";
@@ -482,4 +521,49 @@ const COMMISSION_MINIMUM = 0.30;
 function calculerCommission(float $prix): float
 {
   return round(max($prix * COMMISSION_TAUX, COMMISSION_MINIMUM), 2);
+}
+
+
+/**
+ * Trajets populaires pour l'accueil : les liaisons qui ont le plus de
+ * trajets à venir, avec le prix le plus bas.
+ * S'il n'y a pas encore assez de vrais trajets, on propose des liaisons
+ * fréquentes en Île-de-France (sans prix, puisqu'aucun trajet n'existe).
+ */
+function trajetsPopulaires(int $limite = 6): array
+{
+  $stmt = db()->prepare("
+    SELECT depart, arrivee, MIN(prix) AS prix_min, COUNT(*) AS nb
+    FROM trajets
+    WHERE user_id IS NOT NULL
+      AND user_id NOT IN (SELECT id FROM users WHERE email LIKE '%@demo.ecoride.local')
+      AND date >= DATE('now')
+      AND places_dispo > 0
+    GROUP BY depart, arrivee
+    ORDER BY nb DESC, prix_min ASC
+    LIMIT :lim
+  ");
+  $stmt->bindValue('lim', $limite, PDO::PARAM_INT);
+  $stmt->execute();
+  $vrais = $stmt->fetchAll();
+
+  if (count($vrais) >= 3) {
+    return array_map(fn($r) => [
+      'depart'   => $r['depart'],
+      'arrivee'  => $r['arrivee'],
+      'prix_min' => (float) $r['prix_min'],
+      'nb'       => (int) $r['nb'],
+    ], $vrais);
+  }
+
+  // Liaisons fréquentes : quotidien en Île-de-France + longs trajets
+  $idees = [
+    ['Vaucresson', 'La Défense'],
+    ['Versailles', 'Paris'],
+    ['Boulogne-Billancourt', 'Roissy-en-France'],
+    ['Paris', 'Lyon'],
+    ['Paris', 'Lille'],
+    ['Paris', 'Rouen'],
+  ];
+  return array_map(fn($p) => ['depart' => $p[0], 'arrivee' => $p[1], 'prix_min' => null, 'nb' => 0], array_slice($idees, 0, $limite));
 }

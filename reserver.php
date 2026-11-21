@@ -38,12 +38,17 @@ if (DEMO_MODE) {
   exit;
 }
 
-$resultat = addReservation($user['id'], $trajetId);
+// Nombre de places demandées (1 à 4). La disponibilité réelle est revérifiée
+// dans la transaction de Reservation::create().
+$places   = max(1, min(4, (int) ($_POST['places'] ?? 1)));
+$resultat = addReservation($user['id'], $trajetId, $places);
 
 // Redirection vers la page de détail avec un flag de statut.
-// Le ?reservation= sera lu par trajet.php pour afficher la bonne bannière.
+// Le ?reservation= sera lu par trajet.php pour afficher la bonne bannière :
+// "ok" = réservé tout de suite, "demande" = en attente du conducteur.
 if ($resultat['ok']) {
-  header('Location: /trajet.php?id=' . $trajetId . '&reservation=ok');
+  $etat = ($resultat['statut'] ?? 'confirmee') === 'en_attente' ? 'demande' : 'ok';
+  header('Location: /trajet.php?id=' . $trajetId . '&reservation=' . $etat);
 } else {
   // On stocke l'erreur en session pour la lire de l'autre côté
   $_SESSION['flash_error'] = $resultat['error'];
