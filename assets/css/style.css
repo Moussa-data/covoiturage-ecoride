@@ -812,11 +812,11 @@ img, svg { display: block; max-width: 100%; }
   font-weight: 600;
   white-space: nowrap;
 }
+.detail-date::first-letter { text-transform: uppercase; }
 .detail-date {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--gray-200);
-  text-transform: capitalize;
   color: var(--gray-500);
   font-size: 0.95rem;
 }
