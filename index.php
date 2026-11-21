@@ -360,8 +360,8 @@ include __DIR__ . '/partials/header.php';
   </section>
 <?php endif; ?>
 
-<script src="/assets/js/script.js"></script>
-<script src="/assets/js/recherche.js"></script>
-<script src="/assets/js/calculateur.js"></script>
+<script src="<?= asset('/assets/js/script.js') ?>"></script>
+<script src="<?= asset('/assets/js/recherche.js') ?>"></script>
+<script src="<?= asset('/assets/js/calculateur.js') ?>"></script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

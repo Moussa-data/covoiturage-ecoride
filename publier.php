@@ -516,6 +516,6 @@ include __DIR__ . '/partials/header.php';
   </form>
 </main>
 
-<script src="/assets/js/publier.js"></script>
+<script src="<?= asset('/assets/js/publier.js') ?>"></script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>

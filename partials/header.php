@@ -1,5 +1,19 @@
 <?php
 /**
+ * asset('/assets/css/style.css') → '/assets/css/style.css?v=1763736491'
+ * Le numéro = date de modification du fichier. Dès qu'on envoie une nouvelle
+ * version, le lien change et les navigateurs retéléchargent le fichier
+ * (sinon ils gardent l'ancien en cache pendant 30 jours).
+ */
+if (!function_exists('asset')) {
+  function asset(string $chemin): string
+  {
+    $fichier = dirname(__DIR__) . $chemin;
+    return $chemin . (is_file($fichier) ? '?v=' . filemtime($fichier) : '');
+  }
+}
+
+/**
  * partials/header.php
  *
  * En-tête partagé. On peut passer ces variables AVANT l'include :
@@ -76,7 +90,7 @@ $user       = currentUser(); // null si pas connecté
   <!-- Police Archivo hébergée sur le site (aucun appel à Google : meilleur pour le RGPD) -->
   <link rel="preload" href="/assets/fonts/archivo-variable.woff2" as="font" type="font/woff2" crossorigin />
 
-  <link rel="stylesheet" href="/assets/css/style.css?v=3" />
+  <link rel="stylesheet" href="<?= asset('/assets/css/style.css') ?>" />
 </head>
 <body>
 

@@ -387,6 +387,6 @@ include __DIR__ . '/partials/header.php';
   </div>
 </main>
 
-<script src="/assets/js/trajet.js"></script>
+<script src="<?= asset('/assets/js/trajet.js') ?>"></script>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>
