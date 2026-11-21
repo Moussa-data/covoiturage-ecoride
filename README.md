@@ -1,9 +1,12 @@
-# 🌱 EcoRide — Covoiturage écologique
+# EcoRide — Covoiturage du quotidien
 
-> Un site fullstack de covoiturage qui met l'impact environnemental au cœur de l'expérience.
-> Codé en PHP / SQLite vanilla, sans framework, à des fins d'apprentissage.
+> Plateforme fullstack de covoiturage pour les trajets courts en Île-de-France
+> (domicile-travail, gare, aéroport). Entièrement codée à la main en PHP / SQLite,
+> sans framework.
 
-🔗 **Site en ligne** : [https://moussa.alwaysdata.net](https://moussa.alwaysdata.net)
+🔗 **Démo en ligne** : [https://moussa.alwaysdata.net](https://moussa.alwaysdata.net) — version de démonstration (réservations désactivées)
+
+![Page d'accueil d'EcoRide](docs/capture-accueil.jpg)
 
 ![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?logo=php&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite&logoColor=white)
@@ -23,6 +26,15 @@
 - 👑 **Dashboard admin** avec stats agrégées (`COUNT`, `SUM`, `AVG`) et modération
 - 📊 **Stats publiques** sur l'accueil avec **seuil intelligent** (preuve sociale chiffrée si plateforme mature, message qualitatif sinon)
 - 📱 **Responsive complet** avec menu burger mobile
+- 🗺️ **Trajets courts en Île-de-France** : prix au centime, suggestions de 67 villes, CO₂ estimé selon la durée et le véhicule
+- 🔑 **Mot de passe oublié** par e-mail (jeton aléatoire haché, valable 1 h, usage unique) et **limite de 5 tentatives** de connexion
+- ✉️ **Envoi d'e-mails par SMTP** avec page admin de diagnostic
+- 💶 **Frais de service** de 15 % (minimum 0,30 €) affichés avant la réservation
+- 🧪 **Mode démonstration** activable : bandeau sur toutes les pages, réservations bloquées côté serveur
+- ⚖️ **Pages légales** : CGU, politique de confidentialité RGPD, mentions légales, consentement à l'inscription
+- 🔎 **SEO** : balise canonical, image Open Graph, données structurées, sitemap
+
+![Liste des trajets](docs/capture-trajets.jpg)
 
 ## 🏗️ Architecture
 
@@ -39,7 +51,10 @@ EcoRide/
 │   ├── avis.php          # Système d'avis avec agrégats
 │   ├── messages.php      # Messagerie avec CTE et JOIN
 │   ├── admin.php         # Stats globales + actions admin
-│   └── csrf.php          # Protection CSRF (tokens + hash_equals)
+│   ├── csrf.php          # Protection CSRF (tokens + hash_equals)
+│   ├── securite.php      # Limite de tentatives + réinitialisation du mot de passe
+│   ├── mailer.php        # Client SMTP minimal (STARTTLS) + secours mail()
+│   └── exemples.php      # Trajets d'exemple affichés quand aucun n'est publié
 ├── partials/
 │   ├── header.php        # Header partagé (nav adaptative selon rôle)
 │   └── footer.php        # Footer enrichi
@@ -66,6 +81,10 @@ EcoRide/
 | BDD téléchargeable | Bloquée via `data/.htaccess` (`Require all denied`) |
 | Logout | POST + CSRF (anti-déconnexion forcée par lien) |
 | HTTPS | Let's Encrypt automatique (AlwaysData) |
+| En-têtes HTTP | HSTS, Content-Security-Policy, X-Frame-Options, nosniff, Referrer-Policy |
+| Force brute | Blocage 15 min après 5 échecs (e-mail ou IP hachée) |
+| Réinitialisation | Jeton `random_bytes`, seul son hash SHA-256 est stocké, expiration 1 h |
+| RGPD | Police auto-hébergée (aucun appel à Google), un seul cookie de session |
 
 ## 🛠️ Stack technique
 
@@ -80,8 +99,8 @@ EcoRide/
 
 ```bash
 # 1. Cloner
-git clone https://github.com/<user>/ecoride.git
-cd ecoride
+git clone https://github.com/Moussa-data/covoiturage-ecoride.git
+cd covoiturage-ecoride
 
 # 2. Lancer le serveur PHP intégré
 php -S localhost:8000
@@ -107,19 +126,16 @@ Voir [DEPLOY.md](./DEPLOY.md) pour le guide pas-à-pas du déploiement sur Alway
 - **Contraintes** : `UNIQUE(user_id, trajet_id)`, `CHECK (note BETWEEN 1 AND 5)`
 - **Transactions** : pour les réservations atomiques
 
-## 🎯 Pédagogie
+## 🎯 Choix techniques
 
-Ce projet est conçu pour **apprendre** plutôt que pour la production. Il évite intentionnellement :
-- Les frameworks (Symfony, Laravel) pour comprendre les fondamentaux
-- L'ORM (Doctrine, Eloquent) pour rester proche du SQL
-- Les outils de build (npm, webpack) pour rester sur du JS vanilla
-
-L'objectif est de comprendre **comment fonctionne vraiment une application web**, brique par brique.
+Le projet évite volontairement les frameworks (Symfony, Laravel), l'ORM et les outils de build,
+pour maîtriser chaque brique : routage, sessions, SQL, sécurité, e-mails. Le code est commenté
+pour être lisible et facile à reprendre.
 
 ## 📜 Licence
 
-Code disponible à des fins pédagogiques. Aucune utilisation commerciale prévue.
+Code source visible à titre de portfolio. Tous droits réservés.
 
 ---
 
-Construit avec 🌱 par **Moussa**, en formation autodidacte.
+Conçu et développé par **[Moussa Wane Camara](https://moussa-wanecamara.netlify.app)**, développeur web fullstack freelance.
