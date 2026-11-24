@@ -209,15 +209,17 @@ function santeStockage(): array
   $base = __DIR__ . '/../data/ecoride.sqlite';
   // Le dossier des sauvegardes est à côté de www/, hors du site public
   $dossierSauvegardes = dirname(__DIR__, 2) . '/sauvegardes';
-  $derniere = null;
+  $sauvegardes = [];
   if (is_dir($dossierSauvegardes)) {
     foreach (glob($dossierSauvegardes . '/*.tar.gz') ?: [] as $archive) {
-      $derniere = max($derniere ?? 0, filemtime($archive));
+      $sauvegardes[] = ['nom' => basename($archive), 'date' => filemtime($archive), 'taille' => filesize($archive)];
     }
   }
+  usort($sauvegardes, fn($a, $b) => $b['date'] <=> $a['date']);
   return [
     'taille_base'        => is_file($base) ? filesize($base) : 0,
-    'derniere_sauvegarde'=> $derniere,
+    'derniere_sauvegarde'=> $sauvegardes[0]['date'] ?? null,
+    'sauvegardes'        => $sauvegardes,
   ];
 }
 

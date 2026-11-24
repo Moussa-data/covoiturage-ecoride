@@ -197,33 +197,33 @@ include __DIR__ . '/partials/header.php';
        VUE D'ENSEMBLE — croissance de la bêta
        ================================================================ -->
   <section class="tdb-chiffres" aria-label="Chiffres clés">
-    <div class="tdb-chiffre">
+    <a class="tdb-chiffre" href="/admin.php?onglet=membres" title="Voir les membres">
       <span class="tdb-chiffre-label">Membres</span>
       <span class="tdb-chiffre-valeur"><?= $stats['nb_users'] ?></span>
       <span class="tdb-chiffre-extra"><?= $nouveaux7j > 0 ? '+' . $nouveaux7j . ' cette semaine' : 'aucun nouveau cette semaine' ?></span>
-    </div>
-    <div class="tdb-chiffre">
+    </a>
+    <a class="tdb-chiffre" href="/admin.php?onglet=membres" title="Voir qui est actif">
       <span class="tdb-chiffre-label">Actifs (7 jours)</span>
       <span class="tdb-chiffre-valeur"><?= $nbActifs ?></span>
       <span class="tdb-chiffre-extra">
         <?= $stats['nb_users'] > 0 ? round($nbActifs / $stats['nb_users'] * 100) . ' % des membres' : '—' ?>
       </span>
-    </div>
-    <div class="tdb-chiffre">
+    </a>
+    <a class="tdb-chiffre" href="/admin.php?onglet=trajets" title="Voir les trajets">
       <span class="tdb-chiffre-label">Trajets publiés</span>
       <span class="tdb-chiffre-valeur"><?= $stats['nb_trajets'] ?></span>
       <span class="tdb-chiffre-extra"><?= $trajets7j ?> cette semaine</span>
-    </div>
-    <div class="tdb-chiffre">
+    </a>
+    <a class="tdb-chiffre" href="/admin.php?onglet=trajets#reservations" title="Voir les réservations">
       <span class="tdb-chiffre-label">Réservations confirmées</span>
       <span class="tdb-chiffre-valeur"><?= $stats['nb_reservations'] ?></span>
       <span class="tdb-chiffre-extra"><?= $resas7j ?> demande<?= $resas7j > 1 ? 's' : '' ?> cette semaine</span>
-    </div>
-    <div class="tdb-chiffre">
+    </a>
+    <a class="tdb-chiffre" href="/admin.php?onglet=trajets" title="Voir les trajets">
       <span class="tdb-chiffre-label">CO₂ évité</span>
       <span class="tdb-chiffre-valeur"><?= number_format($stats['co2_total_economise'], 1, ',', ' ') ?> kg</span>
       <span class="tdb-chiffre-extra">grâce aux passagers</span>
-    </div>
+    </a>
   </section>
 
   <div class="tdb-grille-graphs">
@@ -399,7 +399,7 @@ include __DIR__ . '/partials/header.php';
     <?php endif; ?>
   </section>
 
-  <section class="admin-section">
+  <section class="admin-section" id="reservations">
     <h2>Réservations récentes (<?= count($reservations) ?>)</h2>
     <?php if (empty($reservations)): ?>
       <p class="tdb-vide">Aucune réservation pour l'instant.</p>
@@ -518,22 +518,22 @@ include __DIR__ . '/partials/header.php';
     $sauvegardeRecente = $stockage['derniere_sauvegarde'] !== null && $stockage['derniere_sauvegarde'] > strtotime('-8 days');
   ?>
   <section class="tdb-chiffres" aria-label="État du site">
-    <div class="tdb-chiffre">
+    <a class="tdb-chiffre" href="#signalements" title="Aller aux signalements">
       <span class="tdb-chiffre-label">Signalements à traiter</span>
       <span class="tdb-chiffre-valeur"><?= $nbSignalementsOuverts ?></span>
       <?= $etat($nbSignalementsOuverts === 0, 'rien en attente', 'à lire ci-dessous') ?>
-    </div>
-    <div class="tdb-chiffre">
+    </a>
+    <a class="tdb-chiffre" href="#emails" title="Voir les e-mails en échec">
       <span class="tdb-chiffre-label">E-mails (30 jours)</span>
       <span class="tdb-chiffre-valeur"><?= $emails['envoyes'] ?></span>
       <?= $etat($emails['echecs'] === 0, 'aucun échec', $emails['echecs'] . ' échec' . ($emails['echecs'] > 1 ? 's' : '')) ?>
-    </div>
-    <div class="tdb-chiffre">
+    </a>
+    <a class="tdb-chiffre" href="#erreurs" title="Voir les erreurs PHP">
       <span class="tdb-chiffre-label">Erreurs PHP (7 jours)</span>
       <span class="tdb-chiffre-valeur"><?= $erreurs['sur_7_jours'] ?></span>
       <?= $etat($erreurs['sur_7_jours'] === 0, 'aucune', 'voir le détail') ?>
-    </div>
-    <div class="tdb-chiffre">
+    </a>
+    <a class="tdb-chiffre" href="#stockage" title="Voir les sauvegardes">
       <span class="tdb-chiffre-label">Dernière sauvegarde</span>
       <span class="tdb-chiffre-valeur tdb-chiffre-valeur-texte">
         <?= $stockage['derniere_sauvegarde'] ? ilYa(date('Y-m-d H:i:s', $stockage['derniere_sauvegarde'])) : '—' ?>
@@ -541,14 +541,14 @@ include __DIR__ . '/partials/header.php';
       <?php if ($stockage['derniere_sauvegarde'] === null): ?>
         <span class="tdb-chiffre-extra">faite à chaque mise en ligne (pas visible en local)</span>
       <?php else: ?>
-        <?= $etat($sauvegardeRecente, 'faite à la dernière mise en ligne', 'plus d\'une semaine') ?>
+        <?= $etat($sauvegardeRecente, 'à jour', 'plus d\'une semaine') ?>
       <?php endif; ?>
-    </div>
-    <div class="tdb-chiffre">
+    </a>
+    <a class="tdb-chiffre" href="#stockage" title="Voir le stockage">
       <span class="tdb-chiffre-label">Taille de la base</span>
       <span class="tdb-chiffre-valeur tdb-chiffre-valeur-texte"><?= tailleLisible($stockage['taille_base']) ?></span>
       <span class="tdb-chiffre-extra"><?= $stats['nb_messages'] ?> messages · <?= $stats['nb_avis'] ?> avis</span>
-    </div>
+    </a>
   </section>
 
   <section class="admin-section" id="signalements">
@@ -584,7 +584,7 @@ include __DIR__ . '/partials/header.php';
   </section>
 
   <div class="tdb-grille-graphs">
-    <article class="tdb-carte">
+    <article class="tdb-carte" id="emails">
       <header class="tdb-carte-tete">
         <h2>E-mails en échec</h2>
         <p>Vérification d'adresse, nouvelles réservations…</p>
@@ -601,7 +601,7 @@ include __DIR__ . '/partials/header.php';
       <p><a href="/diagnostic-email.php" class="btn btn-ghost btn-sm">Tester l'envoi d'e-mails</a></p>
     </article>
 
-    <article class="tdb-carte">
+    <article class="tdb-carte" id="erreurs">
       <header class="tdb-carte-tete">
         <h2>Dernières erreurs PHP</h2>
         <p>Les plus récentes en premier</p>
@@ -616,6 +616,23 @@ include __DIR__ . '/partials/header.php';
         </ul>
       <?php endif; ?>
       <p><a href="/debug.php" class="btn btn-ghost btn-sm">Page de debug complète</a></p>
+    </article>
+
+    <article class="tdb-carte" id="stockage">
+      <header class="tdb-carte-tete">
+        <h2>Sauvegardes et stockage</h2>
+        <p>Une copie complète du site est faite avant chaque mise en ligne. Les 5 dernières sont gardées.</p>
+      </header>
+      <?php if (empty($stockage['sauvegardes'])): ?>
+        <p class="tdb-vide">Aucune sauvegarde visible ici. Elles se trouvent sur le serveur, à côté du site (pas en local).</p>
+      <?php else: ?>
+        <ul class="tdb-liste">
+          <?php foreach ($stockage['sauvegardes'] as $sv): ?>
+            <li><small><?= htmlspecialchars(date('d/m/Y H:i', $sv['date'])) ?></small> <?= htmlspecialchars($sv['nom']) ?> <small>(<?= tailleLisible($sv['taille']) ?>)</small></li>
+          <?php endforeach; ?>
+        </ul>
+      <?php endif; ?>
+      <p class="admin-aide">Base de données : <?= tailleLisible($stockage['taille_base']) ?>. Fichier d'erreurs : <?= tailleLisible($erreurs['taille']) ?>.</p>
     </article>
   </div>
 <?php endif; ?>
