@@ -163,6 +163,7 @@ include __DIR__ . '/partials/header.php';
     </div>
   <?php endif; ?>
 
+  <div class="tdb-layout">
   <nav class="tdb-onglets" aria-label="Rubriques du tableau de bord">
     <?php foreach ($onglets as $cle => $libelle): ?>
       <a href="/admin.php?onglet=<?= $cle ?>" class="tdb-onglet<?= $cle === $onglet ? ' is-actif' : '' ?>"<?= $cle === $onglet ? ' aria-current="page"' : '' ?>>
@@ -172,6 +173,8 @@ include __DIR__ . '/partials/header.php';
       </a>
     <?php endforeach; ?>
   </nav>
+
+  <div class="tdb-contenu">
 
 
 <?php if ($onglet === 'apercu'): ?>
@@ -602,6 +605,8 @@ include __DIR__ . '/partials/header.php';
   </div>
 <?php endif; ?>
 
+  </div><!-- /.tdb-contenu -->
+  </div><!-- /.tdb-layout -->
 </main>
 
 <script src="<?= asset('/assets/js/admin.js') ?>"></script>
