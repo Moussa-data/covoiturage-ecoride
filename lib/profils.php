@@ -11,7 +11,11 @@
 const VERIF_EMAIL_VALIDITE_JOURS = 7;
 
 
-/** Crée un lien de vérification et l'envoie. Renvoie le lien (utile en local). */
+/**
+ * Crée un lien de vérification et l'envoie.
+ * Renvoie le lien (utile en local), ou null si rien n'a été envoyé :
+ * la raison est alors donnée par etatVerificationEmail().
+ */
 function envoyerVerificationEmail(int $userId): ?string
 {
   $user = findUserById($userId);
@@ -48,6 +52,22 @@ function envoyerVerificationEmail(int $userId): ?string
     envoyerEmail($user['email'], 'Confirmez votre adresse e-mail', $corps);
   }
   return $lien;
+}
+
+
+/**
+ * Pourquoi un lien n'a pas pu être envoyé : 'deja_verifie', 'trop_de_demandes' ou 'ok'.
+ * Sert à afficher le bon message au lieu d'un « Trop de demandes » trompeur.
+ */
+function etatVerificationEmail(int $userId): string
+{
+  $user = findUserById($userId);
+  if ($user && !empty($user['email_verifie'])) {
+    return 'deja_verifie';
+  }
+  $stmt = db()->prepare("SELECT COUNT(*) FROM email_verifications WHERE user_id = :u AND cree_le > :depuis");
+  $stmt->execute(['u' => $userId, 'depuis' => time() - 3600]);
+  return (int) $stmt->fetchColumn() >= 3 ? 'trop_de_demandes' : 'ok';
 }
 
 

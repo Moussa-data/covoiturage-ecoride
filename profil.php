@@ -54,13 +54,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form'] ?? '') === 'bio') {
 }
 
 // ====== Renvoyer le lien de vérification ======
+// Après l'envoi, on redirige (POST → GET) : recharger la page ne renvoie
+// donc pas une deuxième demande.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form'] ?? '') === 'verif') {
   if (csrfVerify($_POST['csrf_token'] ?? null)) {
-    $lien = envoyerVerificationEmail($user['id']);
-    $messageVerif = $lien
-      ? ['type' => 'success', 'text' => 'Lien envoyé à ' . $user['email'] . '. Pensez à regarder dans les spams.']
-      : ['type' => 'error', 'text' => 'Trop de demandes. Réessayez dans une heure.'];
+    $etat = envoyerVerificationEmail((int) $user['id']) !== null ? 'envoye' : etatVerificationEmail((int) $user['id']);
+    header('Location: /profil.php?verif=' . $etat);
+    exit;
   }
+}
+$messagesVerif = [
+  'envoye'           => ['type' => 'success', 'text' => 'Lien envoyé à ' . $user['email'] . '. Pensez à regarder dans les spams.'],
+  'deja_verifie'     => ['type' => 'success', 'text' => 'Votre adresse e-mail est déjà vérifiée : le badge apparaît sur votre profil public.'],
+  'trop_de_demandes' => ['type' => 'error',   'text' => 'Vous avez demandé 3 liens en moins d\'une heure. Utilisez le dernier reçu, ou réessayez plus tard.'],
+];
+if (isset($_GET['verif'], $messagesVerif[$_GET['verif']])) {
+  $messageVerif = $messagesVerif[$_GET['verif']];
 }
 
 // ====== Formulaire profil (nom + email) ======
