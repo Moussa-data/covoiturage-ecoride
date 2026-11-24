@@ -10,12 +10,14 @@ if (isLoggedIn()) {
   exit;
 }
 
-$valeurs = ['nom' => '', 'email' => ''];
+// Le code peut arriver par le lien d'invitation : /inscription.php?code=ECO-XXXX-XXXX
+$valeurs = ['nom' => '', 'email' => '', 'code' => normaliserCodeInvitation((string) ($_GET['code'] ?? ''))];
 $erreurs = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $valeurs['nom']   = trim($_POST['nom']   ?? '');
   $valeurs['email'] = trim($_POST['email'] ?? '');
+  $valeurs['code']  = normaliserCodeInvitation((string) ($_POST['code'] ?? ''));
   $motDePasse       = $_POST['mot_de_passe'] ?? '';
   $confirmation     = $_POST['confirmation'] ?? '';
 
@@ -24,10 +26,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   // Acceptation des CGU obligatoire, vérifiée côté serveur (la case
   // "required" du formulaire peut être contournée). On vérifie AVANT
   // registerUser(), sinon le compte serait créé quand même.
-  if (!$cguAcceptees) {
+  // Pendant la bêta, l'inscription se fait uniquement avec un code d'invitation
+  $invitation = null;
+  if (BETA_MODE) {
+    $verif = verifierCodeInvitation($valeurs['code']);
+    if ($verif['ok']) {
+      $invitation = $verif['invitation'];
+    }
+  }
+
+  if (BETA_MODE && $invitation === null) {
+    $resultat = ['ok' => false, 'errors' => ['code' => $verif['error']]];
+  } elseif (!$cguAcceptees) {
     $resultat = ['ok' => false, 'errors' => ['cgu' => 'Vous devez accepter les conditions d\'utilisation.']];
   } else {
     $resultat = registerUser($valeurs['nom'], $valeurs['email'], $motDePasse, $confirmation);
+    // Le code est consommé seulement si le compte a bien été créé. Si quelqu'un
+    // a utilisé la dernière place entre-temps, on annule l'inscription.
+    if ($resultat['ok'] && $invitation !== null
+        && !utiliserInvitation((int) $invitation['id'], (int) $resultat['user']['id'])) {
+      supprimerUtilisateurEtDonnees((int) $resultat['user']['id']);
+      $resultat = ['ok' => false, 'errors' => ['code' => 'Ce code vient d\'atteindre son nombre maximum d\'utilisations.']];
+    }
   }
 
   if ($resultat['ok']) {
@@ -65,6 +85,19 @@ include __DIR__ . '/partials/header.php';
     <?php endif; ?>
 
     <form method="POST" action="" class="auth-form" novalidate>
+
+      <?php if (BETA_MODE): ?>
+        <div class="form-field <?= isset($erreurs['code']) ? 'has-error' : '' ?>">
+          <label for="code">Code d'invitation</label>
+          <input type="text" id="code" name="code" required autocomplete="off" autocapitalize="characters"
+                 value="<?= htmlspecialchars($valeurs['code']) ?>" placeholder="ECO-XXXX-XXXX" class="champ-code" />
+          <?php if (isset($erreurs['code'])): ?>
+            <span class="error-msg"><?= htmlspecialchars($erreurs['code']) ?></span>
+          <?php else: ?>
+            <span class="field-hint">EcoRide est en phase de test : l'inscription se fait sur invitation.</span>
+          <?php endif; ?>
+        </div>
+      <?php endif; ?>
 
       <div class="form-field <?= isset($erreurs['nom']) ? 'has-error' : '' ?>">
         <label for="nom">Nom (ou prénom + initiale)</label>

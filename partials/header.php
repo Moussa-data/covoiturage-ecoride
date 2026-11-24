@@ -102,6 +102,15 @@ $user       = currentUser(); // null si pas connecté
         Les réservations sont désactivées et aucun trajet réel n'est organisé sur ce site.
       </div>
     </div>
+  <?php elseif (BETA_MODE): ?>
+    <!-- Bandeau de la phase de test entre amis -->
+    <div class="demo-banner beta-banner" role="note">
+      <div class="container">
+        <strong>Version bêta.</strong>
+        EcoRide est en test entre proches : la participation se règle directement au conducteur.
+        <a href="/signaler.php?page=<?= urlencode($_SERVER['REQUEST_URI'] ?? '/') ?>">Signaler un problème</a>
+      </div>
+    </div>
   <?php endif; ?>
 
   <header class="site-header">

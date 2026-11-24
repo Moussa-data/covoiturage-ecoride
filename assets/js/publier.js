@@ -49,3 +49,35 @@
   champDate.addEventListener('change', calculer);
   calculer();
 })();
+
+/* ---------- Prix maximum conseillé (partage de frais) ----------
+   Même règle que le serveur (prixMaxParPassager en PHP) :
+   distance × coût d'un km ÷ (places + 1), avec un minimum de 2 €. */
+(function () {
+  var plafond = document.getElementById('plafondPrix');
+  var distance = document.getElementById('distance_km');
+  var places = document.getElementById('places_dispo');
+  var prix = document.getElementById('prix');
+  if (!plafond || !distance || !places || !prix) return;
+
+  var coutKm = parseFloat(plafond.dataset.coutKm);
+  var plancher = parseFloat(plafond.dataset.plancher);
+  var texteDefaut = plafond.textContent;
+
+  function euros(n) { return n.toFixed(2).replace('.', ',') + ' €'; }
+
+  function maj() {
+    var d = parseInt(distance.value, 10);
+    var p = parseInt(places.value, 10) || 1;
+    if (!d || d < 1) { plafond.textContent = texteDefaut; plafond.classList.remove('plafond-depasse'); return; }
+    var max = Math.max(d * coutKm / (p + 1), plancher);
+    max = Math.round(max * 100) / 100;
+    var valeur = parseFloat(String(prix.value).replace(',', '.'));
+    var depasse = valeur > max;
+    plafond.classList.toggle('plafond-depasse', depasse);
+    plafond.textContent = (depasse ? 'Trop cher : ' : '') + 'pour ' + d + ' km et ' + p + ' place' + (p > 1 ? 's' : '')
+      + ', le prix maximum est de ' + euros(max) + ' par passager.';
+  }
+  [distance, places, prix].forEach(function (el) { el.addEventListener('input', maj); });
+  maj();
+})();

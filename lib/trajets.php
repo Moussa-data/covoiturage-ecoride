@@ -126,6 +126,10 @@ function addTrajet(array $trajet): int
           'id'    => $id,
         ]);
   }
+  if (!empty($trajet['distance_km'])) {
+    db()->prepare("UPDATE trajets SET distance_km = :d WHERE id = :id")
+        ->execute(['d' => (int) $trajet['distance_km'], 'id' => $id]);
+  }
 
   return $id;
 }
@@ -520,6 +524,9 @@ const COMMISSION_MINIMUM = 0.30;
 
 function calculerCommission(float $prix): float
 {
+  if (BETA_MODE) {
+    return 0.0; // pendant le test : aucune commission, paiement direct au conducteur
+  }
   return round(max($prix * COMMISSION_TAUX, COMMISSION_MINIMUM), 2);
 }
 

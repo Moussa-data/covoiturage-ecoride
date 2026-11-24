@@ -42,6 +42,7 @@ $valeurs = [
   'heure_arrivee'    => '',
   'places_dispo'     => '2',
   'prix'             => '',
+  'distance_km'      => '',
   'type_vehicule'    => 'electrique',
   'modele_vehicule'  => '',
   'description'      => '',
@@ -76,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $valeurs['heure_arrivee']   = $_POST['heure_arrivee']        ?? '';
   $valeurs['places_dispo']    = $_POST['places_dispo']         ?? '';
   $valeurs['prix']            = $_POST['prix']                 ?? '';
+  $valeurs['distance_km']     = $_POST['distance_km']          ?? '';
   $valeurs['type_vehicule']   = $_POST['type_vehicule']        ?? '';
   $valeurs['modele_vehicule'] = trim($_POST['modele_vehicule'] ?? '');
   $valeurs['description']     = trim($_POST['description']     ?? '');
@@ -153,6 +155,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $erreurs['prix'] = 'Le prix semble trop élevé pour un covoiturage (max 100 €).';
   }
 
+  // Distance : sert à vérifier que le prix reste un partage de frais
+  $distance = (int) $valeurs['distance_km'];
+  if ($distance < 1 || $distance > 1500) {
+    $erreurs['distance_km'] = 'Indiquez la distance approximative du trajet (entre 1 et 1 500 km).';
+  } elseif ($prix !== null && !isset($erreurs['prix']) && !isset($erreurs['places_dispo'])) {
+    $erreurPlafond = controlerPrix($prix, $distance, $places);
+    if ($erreurPlafond !== null) {
+      $erreurs['prix'] = $erreurPlafond;
+    }
+  }
+
   // Type de véhicule : doit être dans la liste autorisée
   $typesAutorises = ['electrique', 'hybride', 'essence'];
   if (!in_array($valeurs['type_vehicule'], $typesAutorises, true)) {
@@ -204,6 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       'duree'          => calculerDuree($valeurs['heure_depart'], $valeurs['heure_arrivee']),
       'date'           => $valeurs['date'],
       'prix'           => $prix,
+      'distance_km'    => $distance,
       'places_dispo'   => $places,
       'type_vehicule'  => $valeurs['type_vehicule'],
       'modele_vehicule'=> $valeurs['modele_vehicule'],
@@ -396,6 +410,15 @@ include __DIR__ . '/partials/header.php';
       <legend>Places et prix</legend>
 
       <div class="form-row">
+        <div class="form-field <?= isset($erreurs['distance_km']) ? 'has-error' : '' ?>">
+          <label for="distance_km">Distance du trajet (km) *</label>
+          <input type="number" id="distance_km" name="distance_km" value="<?= htmlspecialchars((string) $valeurs['distance_km']) ?>" min="1" max="1500" step="1" placeholder="15" />
+          <?php if (isset($erreurs['distance_km'])): ?>
+            <span class="error-msg"><?= htmlspecialchars($erreurs['distance_km']) ?></span>
+          <?php else: ?>
+            <span class="field-hint">Approximative, comme sur votre GPS.</span>
+          <?php endif; ?>
+        </div>
         <div class="form-field <?= isset($erreurs['places_dispo']) ? 'has-error' : '' ?>">
           <label for="places_dispo">Places disponibles *</label>
           <input type="number" id="places_dispo" name="places_dispo" value="<?= htmlspecialchars((string) $valeurs['places_dispo']) ?>" min="1" max="7" />
@@ -412,6 +435,9 @@ include __DIR__ . '/partials/header.php';
           <?php endif; ?>
         </div>
       </div>
+      <p class="plafond-prix" id="plafondPrix" data-cout-km="<?= COUT_KM_REFERENCE ?>" data-plancher="<?= PRIX_PLANCHER_MAX ?>" aria-live="polite">
+        Le prix maximum dépend de la distance et du nombre de places : en covoiturage, chacun paie sa part des frais, le conducteur ne gagne pas d'argent.
+      </p>
 
       <!-- Mode de réservation -->
       <p class="champ-titre">Comment les passagers réservent-ils ?</p>

@@ -3579,3 +3579,23 @@ a { text-underline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) {
   .pp-trajet-ligne::after { transition: none; }
 }
+
+/* =============================================================
+   Bêta (test entre amis)
+   ============================================================= */
+.plafond-prix { margin: 6px 0 18px; padding: 10px 14px; border-radius: 10px; background: var(--gray-100, #F1F4F9); color: var(--gray-700); font-size: .92rem; }
+.plafond-prix.plafond-depasse { background: #FDECEC; color: #9F1D1D; font-weight: 600; }
+.champ-code { font-family: ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.admin-aide { color: var(--gray-500); margin: -4px 0 14px; max-width: 70ch; }
+.admin-form-invitation { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; margin-bottom: 18px; padding: 16px; border-radius: 12px; background: var(--white); border: 1px solid var(--gray-200); }
+.admin-form-invitation .form-field { margin: 0; min-width: 200px; }
+.code-invitation { font-family: ui-monospace, Menlo, monospace; font-weight: 700; letter-spacing: .04em; color: var(--nuit); }
+.row-inactif { opacity: .5; }
+.cellule-message { max-width: 420px; white-space: normal; }
+.beta-banner a { color: inherit; font-weight: 700; text-decoration: underline; margin-left: 6px; }
+.recap-paiement { margin: 10px 0 4px; font-size: .88rem; color: var(--gray-500); line-height: 1.45; }
+.zone-danger { max-width: 760px; margin: 0 auto 56px; padding: 22px 24px; border: 1px solid #F2C4C4; border-radius: 14px; background: #FFF8F8; }
+.zone-danger h2 { margin: 0 0 6px; font-size: 1.15rem; color: #9F1D1D; }
+.zone-danger p { margin: 0 0 14px; color: var(--gray-700); }
+.zone-danger-form { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; }
+.zone-danger-form .form-field { margin: 0; min-width: 220px; }

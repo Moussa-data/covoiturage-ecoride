@@ -25,13 +25,19 @@ define('IS_PROD', $isProd);
 
 
 // =============================================================
-// Mode démonstration
+// Mode du site
 // =============================================================
-// true  → bandeau « Version de démonstration » sur toutes les pages
-//         et réservations désactivées (aucun vrai trajet organisé).
-// false → à passer UNIQUEMENT le jour du vrai lancement, quand
-//         l'entreprise, les CGU/CGV et le paiement seront en place.
-define('DEMO_MODE', true);
+// DEMO_MODE  true  → vitrine : réservations désactivées, trajets d'exemple.
+// BETA_MODE  true  → test entre amis : réservations actives, inscription sur
+//                    code d'invitation, AUCUNE commission, le passager paie
+//                    le conducteur en direct (rien ne transite par le site).
+// Les deux à false → lancement public (paiement en ligne et commission,
+//                    à mettre en place avant de passer ce cap).
+define('DEMO_MODE', false);
+define('BETA_MODE', true);
+
+// Adresse qui reçoit les signalements des testeurs
+define('EMAIL_ADMIN', 'm.wanecamara@gmail.com');
 
 
 // =============================================================
@@ -103,3 +109,4 @@ require_once __DIR__ . '/csrf.php';
 require_once __DIR__ . '/securite.php';
 require_once __DIR__ . '/mailer.php';
 require_once __DIR__ . '/profils.php';
+require_once __DIR__ . '/beta.php';

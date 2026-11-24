@@ -160,7 +160,5 @@ function adminDeleteUser(int $userId, int $currentAdminId): array
   if ($userId === $currentAdminId) {
     return ['ok' => false, 'error' => 'Tu ne peux pas supprimer ton propre compte depuis l\'admin.'];
   }
-  $stmt = db()->prepare("DELETE FROM users WHERE id = :id");
-  $stmt->execute(['id' => $userId]);
-  return ['ok' => $stmt->rowCount() > 0, 'error' => null];
+  return ['ok' => supprimerUtilisateurEtDonnees($userId), 'error' => null];
 }

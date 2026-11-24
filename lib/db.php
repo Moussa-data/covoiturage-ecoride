@@ -80,6 +80,8 @@ function db(): PDO
   migrateLinkOrphanTrajets($pdo);
   migrateNettoyageTrajets($pdo);
   migrateFonctionnalitesV3($pdo);
+  require_once __DIR__ . '/beta.php';
+  migrateBeta($pdo);
 
   return $pdo;
 }
@@ -475,6 +477,7 @@ function shapeTrajetRow(array $row): array
     'user_id'      => isset($row['user_id']) ? (int) $row['user_id'] : null,
     'reservation_auto' => (bool) ($row['reservation_auto'] ?? 1),
     'serie_id'     => $row['serie_id'] ?? null,
+    'distance_km'  => isset($row['distance_km']) ? (int) $row['distance_km'] : null,
     'conducteur'   => [
       'nom'                => $row['conducteur_nom'],
       'note'               => (float) $row['conducteur_note'],

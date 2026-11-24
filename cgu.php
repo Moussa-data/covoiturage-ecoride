@@ -16,13 +16,19 @@ include __DIR__ . '/partials/header.php';
 <main class="container legal-page">
 
   <h1>Conditions générales d'utilisation</h1>
-  <p class="legal-intro">Mise à jour : 19/11/2026.</p>
+  <p class="legal-intro">Mise à jour : 24/11/2026.</p>
 
   <?php if (DEMO_MODE): ?>
     <div class="legal-notice">
       EcoRide est actuellement une <strong>version de démonstration</strong> : les réservations sont
       désactivées et aucun trajet réel n'est organisé. Ces conditions seront complétées avant
       l'ouverture du service.
+    </div>
+  <?php elseif (BETA_MODE): ?>
+    <div class="legal-notice">
+      EcoRide est en <strong>phase de test (bêta)</strong>, ouverte sur invitation. Le service est
+      gratuit et peut encore contenir des erreurs. Merci de les signaler depuis le lien
+      « Signaler un problème » en bas de chaque page.
     </div>
   <?php endif; ?>
 
@@ -41,7 +47,7 @@ include __DIR__ . '/partials/header.php';
       <li>Vous devez avoir au moins 18 ans pour créer un compte.</li>
       <li>Les informations de votre compte doivent être exactes.</li>
       <li>Votre mot de passe est personnel : ne le partagez pas.</li>
-      <li>Vous pouvez supprimer votre compte à tout moment en écrivant à <a href="mailto:m.wanecamara@gmail.com">m.wanecamara@gmail.com</a>.</li>
+      <li>Vous pouvez supprimer votre compte à tout moment depuis <a href="/profil.php">Mon profil</a>, ou en écrivant à <a href="mailto:m.wanecamara@gmail.com">m.wanecamara@gmail.com</a>.</li>
     </ul>
   </section>
 
@@ -50,10 +56,24 @@ include __DIR__ . '/partials/header.php';
     <ul>
       <li>Avoir un permis de conduire valide et un véhicule assuré et en règle.</li>
       <li>Publier un trajet que vous faites réellement pour vous-même.</li>
-      <li>Fixer un prix qui correspond à un <strong>partage des frais</strong> (carburant ou électricité, péages, stationnement), sans réaliser de bénéfice. C'est ce que prévoit la définition légale du covoiturage (article L3132-1 du Code des transports).</li>
+      <li>Fixer un prix qui correspond à un <strong>partage des frais</strong> (carburant ou électricité, péages, stationnement), sans réaliser de bénéfice. C'est ce que prévoit la définition légale du covoiturage (article L3132-1 du Code des transports). Le site applique un prix maximum par passager selon la distance et le nombre de places.</li>
+      <li>Vérifier auprès de votre assureur que vos passagers sont couverts : en covoiturage avec simple partage des frais, c'est en général le cas avec une assurance auto classique.</li>
       <li>Respecter le code de la route et la sécurité de vos passagers.</li>
     </ul>
   </section>
+
+  <?php if (BETA_MODE): ?>
+  <section class="legal-section">
+    <h2>Phase de test : invitation et paiement</h2>
+    <ul>
+      <li><strong>Invitation</strong> : l'inscription se fait avec un code personnel. Ne le publiez pas sur les réseaux sociaux ; un code peut être désactivé à tout moment.</li>
+      <li><strong>Paiement</strong> : pendant la bêta, aucune somme ne transite par EcoRide et aucun frais n'est prélevé. Le passager règle sa participation directement au conducteur (espèces, virement, application de paiement), selon le montant affiché.</li>
+      <li><strong>Annulation</strong> : prévenez l'autre personne le plus tôt possible, par la messagerie du site, et annulez votre réservation ou votre trajet pour libérer la place.</li>
+      <li><strong>Litiges</strong> : EcoRide n'est pas partie au trajet ni au paiement. En cas de désaccord, les membres règlent la situation entre eux ; vous pouvez nous signaler tout comportement problématique.</li>
+      <li><strong>Évolution</strong> : la bêta peut être modifiée, interrompue ou remise à zéro. Les membres seront prévenus par e-mail avant toute suppression de données.</li>
+    </ul>
+  </section>
+  <?php endif; ?>
 
   <section class="legal-section">
     <h2>4. Règles pour tous</h2>

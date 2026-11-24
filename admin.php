@@ -63,6 +63,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         break;
 
+      case 'creer_invitation':
+        $r = creerInvitation($_POST['invite_nom'] ?? '', (int) ($_POST['max_utilisations'] ?? 3));
+        if ($r['ok']) {
+          $message = 'Code créé : ' . $r['code'] . '. Lien à envoyer : ' . lienSite('/inscription.php?code=' . $r['code']);
+        } else {
+          $message = $r['error'];
+          $messageType = 'error';
+        }
+        break;
+
+      case 'basculer_invitation':
+        basculerInvitation($targetId);
+        $message = 'Code activé / désactivé.';
+        break;
+
+      case 'basculer_signalement':
+        basculerSignalement($targetId);
+        $message = 'Signalement mis à jour.';
+        break;
+
       default:
         $message = 'Action inconnue.';
         $messageType = 'error';
@@ -78,6 +98,9 @@ $stats        = getAdminStats();
 $users        = listUsersAdmin();
 $trajets      = listTrajetsAdmin();
 $reservations = listReservationsAdmin();
+$invitations  = listerInvitations();
+$signalements = listerSignalements();
+$nbSignalementsOuverts = count(array_filter($signalements, fn($s) => !$s['traite']));
 
 
 $pageTitle  = 'Admin — EcoRide';
@@ -128,6 +151,104 @@ include __DIR__ . '/partials/header.php';
       <span class="stat-label">Messages</span>
       <span class="stat-value"><?= $stats['nb_messages'] ?></span>
     </div>
+  </section>
+
+
+  <!-- ============== Bêta : codes d'invitation ============== -->
+  <section class="admin-section" id="invitations">
+    <h2>🎟️ Codes d'invitation (<?= count($invitations) ?>)</h2>
+    <p class="admin-aide">Un code par ami. Envoyez-lui le lien : son code sera déjà rempli à l'inscription. Désactivez un code s'il circule trop.</p>
+
+    <form method="POST" action="" class="admin-form-invitation">
+      <?= csrfField() ?>
+      <input type="hidden" name="action" value="creer_invitation">
+      <div class="form-field">
+        <label for="invite_nom">Pour qui ?</label>
+        <input type="text" id="invite_nom" name="invite_nom" maxlength="60" required placeholder="Ex. : Karim (collègue)">
+      </div>
+      <div class="form-field">
+        <label for="max_utilisations">Inscriptions possibles</label>
+        <select id="max_utilisations" name="max_utilisations">
+          <option value="1">1 (la personne seule)</option>
+          <option value="3" selected>3 (elle + 2 proches)</option>
+          <option value="5">5</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Créer le code</button>
+    </form>
+
+    <?php if (!empty($invitations)): ?>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr><th>Code</th><th>Pour</th><th>Utilisé</th><th>Inscrits avec ce code</th><th>Lien d'invitation</th><th>État</th></tr>
+          </thead>
+          <tbody>
+            <?php foreach ($invitations as $inv): $lien = lienSite('/inscription.php?code=' . $inv['code']); ?>
+              <tr class="<?= $inv['actif'] ? '' : 'row-inactif' ?>">
+                <td><code class="code-invitation"><?= htmlspecialchars($inv['code']) ?></code></td>
+                <td><?= htmlspecialchars($inv['invite_nom']) ?></td>
+                <td><?= (int) $inv['utilisations'] ?> / <?= (int) $inv['max_utilisations'] ?></td>
+                <td>
+                  <?php if (empty($inv['inscrits'])): ?>
+                    <small>personne pour l'instant</small>
+                  <?php else: ?>
+                    <small><?= htmlspecialchars(implode(', ', array_column($inv['inscrits'], 'nom'))) ?></small>
+                  <?php endif; ?>
+                </td>
+                <td>
+                  <button type="button" class="btn btn-ghost btn-sm btn-copier" data-copier="<?= htmlspecialchars($lien) ?>">Copier le lien</button>
+                </td>
+                <td>
+                  <form method="POST" action="" class="inline-form">
+                    <?= csrfField() ?>
+                    <input type="hidden" name="id" value="<?= (int) $inv['id'] ?>">
+                    <button type="submit" name="action" value="basculer_invitation" class="btn btn-ghost btn-sm">
+                      <?= $inv['actif'] ? 'Actif · désactiver' : 'Désactivé · réactiver' ?>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    <?php endif; ?>
+  </section>
+
+
+  <!-- ============== Bêta : signalements des testeurs ============== -->
+  <section class="admin-section" id="signalements">
+    <h2>🐞 Signalements (<?= $nbSignalementsOuverts ?> à traiter)</h2>
+    <?php if (empty($signalements)): ?>
+      <p class="admin-aide">Aucun signalement pour l'instant. Les testeurs peuvent en envoyer depuis le bouton « Signaler un problème » en bas de chaque page.</p>
+    <?php else: ?>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Date</th><th>De</th><th>Page</th><th>Message</th><th>État</th></tr></thead>
+          <tbody>
+            <?php foreach ($signalements as $sig): ?>
+              <tr class="<?= $sig['traite'] ? 'row-inactif' : '' ?>">
+                <td><small><?= htmlspecialchars(date('d/m H:i', strtotime($sig['cree_le']))) ?></small></td>
+                <td><small><?= htmlspecialchars($sig['user_nom'] ?? 'visiteur') ?></small></td>
+                <td><small><?= htmlspecialchars($sig['page']) ?></small></td>
+                <td class="cellule-message"><?= nl2br(htmlspecialchars($sig['message'])) ?></td>
+                <td>
+                  <form method="POST" action="" class="inline-form">
+                    <?= csrfField() ?>
+                    <input type="hidden" name="id" value="<?= (int) $sig['id'] ?>">
+                    <button type="submit" name="action" value="basculer_signalement" class="btn btn-ghost btn-sm">
+                      <?= $sig['traite'] ? '✓ Traité' : 'Marquer traité' ?>
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    <?php endif; ?>
   </section>
 
 
@@ -288,4 +409,5 @@ include __DIR__ . '/partials/header.php';
   </p>
 </main>
 
+<script src="<?= asset('/assets/js/admin.js') ?>"></script>
 <?php include __DIR__ . '/partials/footer.php'; ?>

@@ -36,7 +36,7 @@
     if (champ) champ.value = places;
     detail.textContent    = places > 1 ? '(' + places + ' × ' + euros(prix) + ')' : '';
     sousTotal.textContent = euros(st);
-    frais.textContent     = euros(f);
+    if (frais) frais.textContent = euros(f);
     total.textContent     = euros(st + f);
     if (btnTotal) btnTotal.textContent = '· ' + euros(st + f);
 

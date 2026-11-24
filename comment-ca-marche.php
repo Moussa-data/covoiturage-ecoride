@@ -11,9 +11,11 @@ include __DIR__ . '/partials/header.php';
 // Questions fréquentes : [question, réponse HTML]
 $faq = [
   ['Combien coûte un trajet ?',
-   'Le conducteur fixe le prix par passager. Il doit correspondre à un <strong>partage des frais</strong> du trajet (carburant ou électricité, péages, stationnement) : en covoiturage, le conducteur ne doit pas gagner d\'argent. EcoRide ajoute des <strong>frais de service de 15 %</strong> (0,30 € minimum), affichés avant la réservation. Exemple : trajet à 2,50 € → 2,88 € au total.'],
+   'Le conducteur fixe le prix par passager. Il doit correspondre à un <strong>partage des frais</strong> du trajet (carburant ou électricité, péages, stationnement) : en covoiturage, le conducteur ne doit pas gagner d\'argent. ' . (BETA_MODE ? 'Pendant la phase de test, EcoRide ne prend <strong>aucun frais</strong> : le passager règle sa participation directement au conducteur.' : 'EcoRide ajoute des <strong>frais de service de 15 %</strong> (0,30 € minimum), affichés avant la réservation. Exemple : trajet à 2,50 € → 2,88 € au total.')],
   ['Est-ce que je peux réserver dès maintenant ?',
-   'Pas encore : EcoRide est en <strong>version de démonstration</strong>. Vous pouvez créer un compte, publier un trajet et découvrir le site, mais les réservations sont désactivées et aucun trajet réel n\'est organisé.'],
+   BETA_MODE
+     ? 'Oui, si vous avez reçu un <strong>code d\'invitation</strong> : EcoRide est en phase de test entre proches. Les réservations fonctionnent, et la participation se règle directement au conducteur.'
+     : 'Pas encore : EcoRide est en <strong>version de démonstration</strong>. Vous pouvez créer un compte, publier un trajet et découvrir le site, mais les réservations sont désactivées et aucun trajet réel n\'est organisé.'],
   ['Comment annuler une réservation ?',
    'Depuis « Mes réservations », à tout moment. La place est aussitôt remise en ligne pour d\'autres passagers.'],
   ['Comment devenir conducteur ?',

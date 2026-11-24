@@ -2,7 +2,7 @@
 /**
  * confidentialite.php — Politique de confidentialité (RGPD)
  *
- * Version adaptée au site de démonstration. À faire relire par un
+ * Version adaptée à la phase de test (bêta). À faire relire par un
  * professionnel avant tout lancement commercial.
  */
 require_once __DIR__ . '/lib/init.php';
@@ -15,7 +15,7 @@ include __DIR__ . '/partials/header.php';
 <main class="container legal-page">
 
   <h1>Politique de confidentialité</h1>
-  <p class="legal-intro">Mise à jour : 19/11/2026.</p>
+  <p class="legal-intro">Mise à jour : 24/11/2026.</p>
 
   <section class="legal-section">
     <h2>Qui est responsable de vos données ?</h2>
@@ -30,9 +30,12 @@ include __DIR__ . '/partials/header.php';
     <h2>Quelles données sont collectées, et pourquoi ?</h2>
     <ul>
       <li><strong>Votre compte</strong> : nom, adresse e-mail et mot de passe (stocké sous forme chiffrée, jamais en clair). Ils servent à créer votre compte et à vous connecter.</li>
-      <li><strong>Vos trajets</strong> : villes, lieux, date, horaires, prix, véhicule et préférences. Ils sont affichés publiquement pour que les passagers puissent les trouver.</li>
+      <li><strong>Votre profil public</strong> (facultatif) : une courte présentation, et un badge si vous avez vérifié votre adresse e-mail. Ils aident les autres membres à vous faire confiance.</li>
+      <li><strong>Vos trajets</strong> : villes, lieux, date, horaires, distance, prix, véhicule et préférences. Ils sont affichés publiquement pour que les passagers puissent les trouver.</li>
       <li><strong>Vos échanges</strong> : réservations, messages et avis. Ils servent à organiser un trajet entre conducteur et passager.</li>
       <li><strong>La sécurité</strong> : les tentatives de connexion échouées (adresse IP sous forme chiffrée et heure), pour bloquer les attaques par force brute.</li>
+      <li><strong>La phase de test</strong> : le code d'invitation utilisé (pour savoir qui a invité qui et pouvoir désactiver un code) et les messages que vous envoyez avec « Signaler un problème », accompagnés de la page concernée.</li>
+      <li><strong>Les e-mails du service</strong> : vérification de votre adresse, demandes de réservation et réponses, mot de passe oublié. Ils sont envoyés depuis le serveur de l'hébergeur ; aucune lettre d'information ni publicité.</li>
     </ul>
     <p>
       Base légale : l'exécution des conditions d'utilisation que vous acceptez en créant un compte,
@@ -56,6 +59,8 @@ include __DIR__ . '/partials/header.php';
       <li>Compte, trajets, messages et avis : tant que votre compte existe. Ils sont supprimés quand vous demandez la suppression de votre compte.</li>
       <li>Tentatives de connexion échouées : 24 heures.</li>
       <li>Liens de réinitialisation du mot de passe : 1 heure, puis ils ne fonctionnent plus.</li>
+      <li>Liens de vérification de l'adresse e-mail : 7 jours.</li>
+      <li>Signalements de la phase de test : jusqu'à la fin de la bêta.</li>
     </ul>
   </section>
 
@@ -64,7 +69,8 @@ include __DIR__ . '/partials/header.php';
     <p>
       Vous pouvez à tout moment accéder à vos données, les corriger, les supprimer, vous opposer
       à leur traitement ou en demander une copie (portabilité). Vous pouvez corriger votre nom et
-      votre e-mail dans <a href="/profil.php">Mon profil</a>. Pour les autres demandes, écrivez à
+      votre e-mail dans <a href="/profil.php">Mon profil</a>, et y supprimer votre compte avec toutes
+      ses données. Pour les autres demandes, écrivez à
       <a href="mailto:m.wanecamara@gmail.com">m.wanecamara@gmail.com</a> : une réponse vous est
       apportée sous un mois au maximum.
     </p>

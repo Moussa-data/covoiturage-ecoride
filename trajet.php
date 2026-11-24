@@ -191,9 +191,10 @@ include __DIR__ . '/partials/header.php';
               <?php if ($stats['moyenne'] !== null): ?>
                 ★ <?= number_format($stats['moyenne'], 1) ?>
                 · <?= $stats['nombre'] ?> avis
+              <?php elseif ($cuid > 0): ?>
+                <span class="rating-nouveau">Nouveau conducteur</span>, pas encore d'avis
               <?php else: ?>
                 ★ <?= number_format($conducteur['note'], 1) ?>
-                <?php if ($cuid > 0): ?><span class="driver-meta-hint">(pas encore d'avis)</span><?php endif; ?>
               <?php endif; ?>
               · <?= htmlspecialchars((string) $conducteur['trajets_effectues']) ?> trajets effectués
             </div>
@@ -287,7 +288,7 @@ include __DIR__ . '/partials/header.php';
         <?php if ($trajet['places_dispo'] > 0): ?>
           <!-- Nombre de places : les montants se recalculent en direct (assets/js/trajet.js) -->
           <div class="recap-places" data-prix="<?= (float) $trajet['prix'] ?>"
-               data-taux="<?= COMMISSION_TAUX ?>" data-minimum="<?= COMMISSION_MINIMUM ?>">
+               data-taux="<?= BETA_MODE ? 0 : COMMISSION_TAUX ?>" data-minimum="<?= BETA_MODE ? 0 : COMMISSION_MINIMUM ?>">
             <span class="label-faux" id="labelPlaces">Places</span>
             <div class="stepper" role="group" aria-labelledby="labelPlaces">
               <button type="button" class="stepper-btn" data-delta="-1" aria-label="Une place de moins">−</button>
@@ -302,15 +303,20 @@ include __DIR__ . '/partials/header.php';
           <span id="recapSousTotal"><?= formatPrix((float) $sousTotal) ?> €</span>
         </div>
 
-        <div class="recap-row">
-          <span>Frais de service (<?= (int) (COMMISSION_TAUX * 100) ?> %)</span>
-          <span id="recapFrais"><?= formatPrix((float) $commission) ?> €</span>
-        </div>
+        <?php if (!BETA_MODE): ?>
+          <div class="recap-row">
+            <span>Frais de service (<?= (int) (COMMISSION_TAUX * 100) ?> %)</span>
+            <span id="recapFrais"><?= formatPrix((float) $commission) ?> €</span>
+          </div>
+        <?php endif; ?>
 
         <div class="recap-row recap-total">
-          <span>Total</span>
+          <span><?= BETA_MODE ? 'À régler au conducteur' : 'Total' ?></span>
           <span id="recapTotal"><?= formatPrix((float) $prixTotal) ?> €</span>
         </div>
+        <?php if (BETA_MODE): ?>
+          <p class="recap-paiement">Pendant la bêta, rien n'est payé sur le site : vous réglez directement le conducteur (espèces, Wero, Lydia, virement), sans frais.</p>
+        <?php endif; ?>
 
         <?php
         // ====== Logique du bouton de réservation ======

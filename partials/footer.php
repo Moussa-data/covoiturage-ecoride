@@ -29,6 +29,9 @@
           <li><a href="/cgu.php">Conditions d'utilisation</a></li>
           <li><a href="/confidentialite.php">Confidentialité</a></li>
           <li><a href="/contact.php">Contact</a></li>
+          <?php if (BETA_MODE): ?>
+            <li><a href="/signaler.php?page=<?= urlencode($_SERVER['REQUEST_URI'] ?? '/') ?>">Signaler un problème</a></li>
+          <?php endif; ?>
         </ul>
       </div>
 

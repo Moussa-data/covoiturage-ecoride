@@ -57,6 +57,7 @@ $valeurs = [
   'heure_arrivee'    => $trajet['heure_arrivee'],
   'places_dispo'     => (string) $trajet['places_dispo'],
   'prix'             => (string) $trajet['prix'],
+  'distance_km'      => (string) ($trajet['distance_km'] ?? ''),
   'type_vehicule'    => $trajet['type_vehicule'],
   'modele_vehicule'  => $trajet['modele_vehicule'],
   'description'      => $trajet['description'],
@@ -83,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $valeurs['heure_arrivee']   = $_POST['heure_arrivee']        ?? '';
     $valeurs['places_dispo']    = $_POST['places_dispo']         ?? '';
     $valeurs['prix']            = $_POST['prix']                 ?? '';
+    $valeurs['distance_km']     = $_POST['distance_km']          ?? '';
     $valeurs['type_vehicule']   = $_POST['type_vehicule']        ?? '';
     $valeurs['modele_vehicule'] = trim($_POST['modele_vehicule'] ?? '');
     $valeurs['description']     = trim($_POST['description']     ?? '');
@@ -108,6 +110,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($places < 1 || $places > 7) $erreurs['places_dispo'] = 'Entre 1 et 7.';
     $prix = lirePrix((string) $valeurs['prix']);
     if ($prix === null || $prix < 0.5 || $prix > 100) $erreurs['prix'] = 'Entre 0,50 et 100 €.';
+    $distance = (int) $valeurs['distance_km'];
+    if ($distance < 1 || $distance > 1500) {
+      $erreurs['distance_km'] = 'Entre 1 et 1 500 km.';
+    } elseif (!isset($erreurs['prix']) && !isset($erreurs['places_dispo'])
+              && ($erreurPlafond = controlerPrix($prix, $distance, $places)) !== null) {
+      $erreurs['prix'] = $erreurPlafond;
+    }
     if (!in_array($valeurs['type_vehicule'], ['electrique','hybride','essence'], true))
       $erreurs['type_vehicule'] = 'Invalide.';
     if ($valeurs['modele_vehicule'] === '') $erreurs['modele_vehicule'] = 'Requis.';
@@ -145,6 +154,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $stmt = db()->prepare("UPDATE trajets SET reservation_auto = :a WHERE id = :id AND user_id = :u AND reservation_auto != :a");
       $stmt->execute(['a' => $valeurs['reservation_auto'] ? 1 : 0, 'id' => $id, 'u' => $user['id']]);
       $modeChange = $stmt->rowCount() > 0;
+
+      $stmt = db()->prepare("UPDATE trajets SET distance_km = :d WHERE id = :id AND user_id = :u AND (distance_km IS NULL OR distance_km != :d)");
+      $stmt->execute(['d' => $distance, 'id' => $id, 'u' => $user['id']]);
+      $modeChange = $modeChange || $stmt->rowCount() > 0;
 
       if (updateTrajet($id, $user['id'], $trajetMaj) || $modeChange) {
         header('Location: /mes-trajets.php?modifie=1');
@@ -238,7 +251,12 @@ include __DIR__ . '/partials/header.php';
         <div class="form-field <?= isset($erreurs['prix']) ? 'has-error' : '' ?>">
           <label for="prix">Prix par personne (€) *</label>
           <input type="number" id="prix" name="prix" value="<?= htmlspecialchars($valeurs['prix']) ?>" min="0.5" max="100" step="0.5" />
-          <?php if (isset($erreurs['prix'])): ?><span class="error-msg"><?= $erreurs['prix'] ?></span><?php endif; ?>
+          <?php if (isset($erreurs['prix'])): ?><span class="error-msg"><?= htmlspecialchars($erreurs['prix']) ?></span><?php endif; ?>
+        </div>
+        <div class="form-field <?= isset($erreurs['distance_km']) ? 'has-error' : '' ?>">
+          <label for="distance_km">Distance (km) *</label>
+          <input type="number" id="distance_km" name="distance_km" value="<?= htmlspecialchars($valeurs['distance_km']) ?>" min="1" max="1500" step="1" />
+          <?php if (isset($erreurs['distance_km'])): ?><span class="error-msg"><?= htmlspecialchars($erreurs['distance_km']) ?></span><?php endif; ?>
         </div>
       </div>
     </fieldset>

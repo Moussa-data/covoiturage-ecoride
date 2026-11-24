@@ -212,6 +212,10 @@ include __DIR__ . '/partials/header.php';
   </section>
 <?php endif; ?>
 
+<?php if (($_GET['compte'] ?? '') === 'supprime'): ?>
+  <div class="container"><div class="form-banner form-banner-success" style="margin-top:20px">Votre compte et toutes vos données ont été supprimés.</div></div>
+<?php endif; ?>
+
 <!-- ========== RÉSULTATS ========== -->
 <section class="results">
   <div class="container results-inner">

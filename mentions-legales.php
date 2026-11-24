@@ -71,11 +71,19 @@ include __DIR__ . '/partials/header.php';
 
   <section class="legal-section">
     <h2>Avertissement</h2>
-    <p>
-      <strong>EcoRide est un projet de démonstration.</strong>
-      Aucun trajet réel n'est organisé via cette plateforme. Les données affichées
-      sont à but illustratif uniquement.
-    </p>
+    <?php if (BETA_MODE): ?>
+      <p>
+        <strong>EcoRide est en phase de test (bêta), sur invitation.</strong>
+        Le service est gratuit : EcoRide met en relation des particuliers qui partagent
+        les frais d'un trajet, ne perçoit aucune somme et n'est pas partie au trajet.
+      </p>
+    <?php else: ?>
+      <p>
+        <strong>EcoRide est un projet de démonstration.</strong>
+        Aucun trajet réel n'est organisé via cette plateforme. Les données affichées
+        sont à but illustratif uniquement.
+      </p>
+    <?php endif; ?>
   </section>
 
 </main>

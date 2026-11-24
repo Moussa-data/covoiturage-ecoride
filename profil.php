@@ -20,6 +20,24 @@ $messageMdp      = null;
 $erreursProfil   = [];
 $erreursMdp      = [];
 $messageBio      = null;
+$messageSuppression = null;
+
+// ====== Suppression du compte (RGPD) ======
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form'] ?? '') === 'supprimer') {
+  if (!csrfVerify($_POST['csrf_token'] ?? null)) {
+    $messageSuppression = 'Token CSRF invalide.';
+  } elseif (($_POST['confirmation_texte'] ?? '') !== 'SUPPRIMER') {
+    $messageSuppression = 'Tapez SUPPRIMER en majuscules pour confirmer.';
+  } else {
+    $r = supprimerMonCompte((int) $user['id'], (string) ($_POST['mot_de_passe_suppression'] ?? ''));
+    if ($r['ok']) {
+      logoutUser();
+      header('Location: /?compte=supprime');
+      exit;
+    }
+    $messageSuppression = $r['error'];
+  }
+}
 $messageVerif    = null;
 
 // ====== Présentation (bio) ======
@@ -251,5 +269,26 @@ include __DIR__ . '/partials/header.php';
     </div>
   </form>
 </main>
+
+<section class="container zone-danger" aria-labelledby="titreSuppression">
+  <h2 id="titreSuppression">Supprimer mon compte</h2>
+  <p>Votre compte, vos trajets, vos réservations, vos avis et vos messages seront effacés définitivement. Cette action est irréversible.</p>
+  <?php if ($messageSuppression): ?>
+    <div class="form-banner form-banner-error"><?= htmlspecialchars($messageSuppression) ?></div>
+  <?php endif; ?>
+  <form method="POST" action="" class="zone-danger-form" novalidate>
+    <?= csrfField() ?>
+    <input type="hidden" name="form" value="supprimer">
+    <div class="form-field">
+      <label for="mot_de_passe_suppression">Votre mot de passe</label>
+      <input type="password" id="mot_de_passe_suppression" name="mot_de_passe_suppression" autocomplete="current-password" required>
+    </div>
+    <div class="form-field">
+      <label for="confirmation_texte">Tapez SUPPRIMER pour confirmer</label>
+      <input type="text" id="confirmation_texte" name="confirmation_texte" autocomplete="off" required>
+    </div>
+    <button type="submit" class="btn btn-danger">Supprimer définitivement mon compte</button>
+  </form>
+</section>
 
 <?php include __DIR__ . '/partials/footer.php'; ?>
