@@ -28,6 +28,15 @@ function migrateBeta(PDO $pdo): void
   ajouterColonneSiAbsente($pdo, 'users', 'invitation_id', 'INTEGER');
   ajouterColonneSiAbsente($pdo, 'trajets', 'distance_km', 'INTEGER');
 
+  // Bêta : on retire les conducteurs et trajets fictifs de la démonstration
+  // (comptes en @demo.ecoride.local, créés à partir du jeu de données d'origine).
+  // Leurs réservations, avis et messages partent avec (clés en cascade).
+  if (defined('BETA_MODE') && BETA_MODE) {
+    $demo = "SELECT id FROM users WHERE email LIKE '%@demo.ecoride.local'";
+    $pdo->exec("DELETE FROM trajets WHERE user_id IS NULL OR user_id IN ($demo)");
+    $pdo->exec("DELETE FROM users WHERE email LIKE '%@demo.ecoride.local'");
+  }
+
   $pdo->exec("
     CREATE TABLE IF NOT EXISTS signalements (
       id        INTEGER PRIMARY KEY AUTOINCREMENT,

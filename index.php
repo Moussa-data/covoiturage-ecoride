@@ -43,8 +43,9 @@ if ($dateRetour !== '' && ($filtres['depart'] !== '' || $filtres['arrivee'] !== 
   ], true);
 }
 
-// Tant que personne n'a publié, on montre quelques exemples (non réservables).
-$modeExemples = (!$rechercheFaite && empty($trajets));
+// Mode démo uniquement : tant que personne n'a publié, on montre quelques exemples
+// (non réservables). En bêta, on n'affiche que les vrais trajets des testeurs.
+$modeExemples = (DEMO_MODE && !$rechercheFaite && empty($trajets));
 if ($modeExemples) {
   require_once __DIR__ . '/lib/exemples.php';
   $trajets = trajetsExemples();
@@ -271,9 +272,13 @@ include __DIR__ . '/partials/header.php';
       <div class="trips" id="trips">
         <?php if (empty($trajets)): ?>
           <div class="empty">
-            <?= $rechercheFaite
-              ? 'Aucun trajet ne correspond à votre recherche. Essayez d\'élargir les critères.'
-              : 'Aucun trajet disponible pour l\'instant.' ?>
+            <?php if ($rechercheFaite): ?>
+              Aucun trajet ne correspond à votre recherche. Essayez d'élargir les critères.
+            <?php else: ?>
+              <strong>Aucun trajet publié pour l'instant.</strong><br />
+              Vous faites un trajet cette semaine ? Publiez-le, il sera le premier de la liste.
+              <br /><a href="/publier.php" class="btn btn-primary" style="margin-top:14px">Publier un trajet</a>
+            <?php endif; ?>
           </div>
         <?php else: ?>
           <?php $passagers = $filtres['passagers']; ?>
