@@ -165,12 +165,27 @@ include __DIR__ . '/partials/header.php';
 
   <div class="tdb-layout">
   <nav class="tdb-onglets" aria-label="Rubriques du tableau de bord">
-    <?php foreach ($onglets as $cle => $libelle): ?>
-      <a href="/admin.php?onglet=<?= $cle ?>" class="tdb-onglet<?= $cle === $onglet ? ' is-actif' : '' ?>"<?= $cle === $onglet ? ' aria-current="page"' : '' ?>>
-        <?= htmlspecialchars($libelle) ?>
-        <?php if ($cle === 'membres'): ?><span class="tdb-pastille"><?= count($membres) ?></span><?php endif; ?>
-        <?php if ($cle === 'sante' && $nbSignalementsOuverts > 0): ?><span class="tdb-pastille tdb-pastille-alerte" title="Signalements à traiter"><?= $nbSignalementsOuverts ?></span><?php endif; ?>
-      </a>
+    <?php
+      // Icônes dessinées en SVG (traits simples, couleur héritée du texte)
+      $icones = [
+        'apercu'      => '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+        'membres'     => '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18.5 14.8c1.6.8 2.6 2.6 3 5.2"/>',
+        'trajets'     => '<circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M8.5 18H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5"/>',
+        'invitations' => '<path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 2"/>',
+        'sante'       => '<path d="M3 12h4l2.5-6 5 12 2.5-6H21"/>',
+      ];
+      $groupes = ['Suivi' => ['apercu', 'membres', 'trajets'], 'Bêta' => ['invitations', 'sante']];
+    ?>
+    <?php foreach ($groupes as $titreGroupe => $cles): ?>
+      <p class="tdb-onglets-groupe"><?= $titreGroupe ?></p>
+      <?php foreach ($cles as $cle): $libelle = $onglets[$cle]; ?>
+        <a href="/admin.php?onglet=<?= $cle ?>" class="tdb-onglet<?= $cle === $onglet ? ' is-actif' : '' ?>"<?= $cle === $onglet ? ' aria-current="page"' : '' ?>>
+          <svg class="tdb-icone" viewBox="0 0 24 24" aria-hidden="true"><?= $icones[$cle] ?></svg>
+          <span class="tdb-onglet-texte"><?= htmlspecialchars($libelle) ?></span>
+          <?php if ($cle === 'membres'): ?><span class="tdb-pastille"><?= count($membres) ?></span><?php endif; ?>
+          <?php if ($cle === 'sante' && $nbSignalementsOuverts > 0): ?><span class="tdb-pastille tdb-pastille-alerte" title="Signalements à traiter"><?= $nbSignalementsOuverts ?></span><?php endif; ?>
+        </a>
+      <?php endforeach; ?>
     <?php endforeach; ?>
   </nav>
 
