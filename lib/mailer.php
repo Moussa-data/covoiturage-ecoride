@@ -36,6 +36,7 @@ function envoyerEmail(string $destinataire, string $sujet, string $corps): array
   // ---- 1. Essai par SMTP ----
   $ok = envoyerParSmtp($destinataire, $sujet, $corps, $journal);
   if ($ok) {
+    journaliserEmail($sujet, true, 'SMTP');
     return ['ok' => true, 'methode' => 'SMTP', 'journal' => $journal];
   }
 
@@ -53,7 +54,26 @@ function envoyerEmail(string $destinataire, string $sujet, string $corps): array
     error_log('[EcoRide] Échec envoi e-mail vers ' . $destinataire . ' : ' . implode(' | ', $journal));
   }
 
+  journaliserEmail($sujet, $ok, 'mail()');
   return ['ok' => $ok, 'methode' => 'mail()', 'journal' => $journal];
+}
+
+/**
+ * Note chaque envoi pour la page « Santé du site » du tableau de bord.
+ * On garde le sujet et le résultat, jamais l'adresse du destinataire.
+ * Un problème de journal ne doit jamais empêcher l'envoi : d'où le try/catch.
+ */
+function journaliserEmail(string $sujet, bool $ok, string $methode): void
+{
+  if (!function_exists('db')) {
+    return;
+  }
+  try {
+    db()->prepare("INSERT INTO emails_log (sujet, ok, methode, cree_le) VALUES (:s, :o, :m, :t)")
+        ->execute(['s' => mb_substr($sujet, 0, 120), 'o' => $ok ? 1 : 0, 'm' => $methode, 't' => date('Y-m-d H:i:s')]);
+  } catch (Throwable $e) {
+    error_log('[EcoRide] Journal e-mail impossible : ' . $e->getMessage());
+  }
 }
 
 function encoderSujet(string $sujet): string

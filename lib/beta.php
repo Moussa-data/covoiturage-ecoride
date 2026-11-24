@@ -27,6 +27,19 @@ function migrateBeta(PDO $pdo): void
   ");
   ajouterColonneSiAbsente($pdo, 'users', 'invitation_id', 'INTEGER');
   ajouterColonneSiAbsente($pdo, 'trajets', 'distance_km', 'INTEGER');
+  // Tableau de bord : date de la dernière visite d'un membre connecté
+  ajouterColonneSiAbsente($pdo, 'users', 'derniere_visite', 'TEXT');
+
+  // Tableau de bord : journal des e-mails envoyés (sans l'adresse du destinataire)
+  $pdo->exec("
+    CREATE TABLE IF NOT EXISTS emails_log (
+      id       INTEGER PRIMARY KEY AUTOINCREMENT,
+      sujet    TEXT NOT NULL,
+      ok       INTEGER NOT NULL,
+      methode  TEXT,
+      cree_le  TEXT NOT NULL
+    )
+  ");
 
   // Bêta : on retire les conducteurs et trajets fictifs de la démonstration
   // (comptes en @demo.ecoride.local, créés à partir du jeu de données d'origine).

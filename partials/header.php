@@ -25,6 +25,7 @@ if (!function_exists('asset')) {
  */
 
 require_once __DIR__ . '/../lib/init.php';
+noterVisite();
 
 $pageTitle  = $pageTitle  ?? 'EcoRide — Covoiturage écologique';
 $activePage = $activePage ?? 'accueil';

@@ -106,7 +106,32 @@ function registerUser(string $nom, string $email, string $motDePasse, string $co
 
 function loginUser(string $email, string $motDePasse): bool
 {
-  return \EcoRide\Auth::login($email, $motDePasse);
+  $ok = \EcoRide\Auth::login($email, $motDePasse);
+  if ($ok) {
+    unset($_SESSION['visite_notee']);
+    noterVisite();
+  }
+  return $ok;
+}
+
+/**
+ * Note la date de passage du membre connecté (pour le tableau de bord).
+ * Au plus une écriture toutes les 10 minutes par session, pour ne pas
+ * écrire dans la base à chaque page.
+ */
+function noterVisite(): void
+{
+  $id = $_SESSION['user_id'] ?? null;
+  if (!$id || (($_SESSION['visite_notee'] ?? 0) > time() - 600)) {
+    return;
+  }
+  try {
+    db()->prepare("UPDATE users SET derniere_visite = :t WHERE id = :id")
+        ->execute(['t' => date('Y-m-d H:i:s'), 'id' => (int) $id]);
+    $_SESSION['visite_notee'] = time();
+  } catch (Throwable $e) {
+    error_log('[EcoRide] Visite non notée : ' . $e->getMessage());
+  }
 }
 
 function logoutUser(): void
